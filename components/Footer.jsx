@@ -10,9 +10,9 @@ function Footer() {
             <p className="text-xs">&copy; 2026 Sphinix Mobile. All rights reserved.</p>
           </div>
           <div className="flex gap-6 text-xs font-semibold">
-            <a href="#" className="hover:text-slate-900 dark:text-white transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-slate-900 dark:text-white transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-slate-900 dark:text-white transition-colors">Contact Support</a>
+            <a href="#" className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">Privacy Policy</a>
+            <a href="#" className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">Terms of Service</a>
+            <a href="#" className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors">Contact Support</a>
           </div>
         </div>
       </footer>

@@ -5,29 +5,40 @@
 ---
 
 ## 1. Visual Design & Theme
-<!-- Describe the visual aesthetics: dark/light modes, color palette, typography, etc. -->
 *   **Color Palette:**
-    *   Primary:
-    *   Secondary:
-    *   Background:
-    *   Surface:
+    *   **Primary (Brand):** Vibrant Purples. `brand-400` (#a855f7) used heavily in dark mode for a glowing effect, and a deeper `brand-600` (#7c3aed) used in light mode for strict high-contrast legibility.
+    *   **Background (Dark):** Deep premium navy/black. Base background is `#090d16`, with `slate-900` (#0f172a) and `slate-950` used for layered surfaces and cards.
+    *   **Background (Light):** Clean, spacious whites. Base background is `slate-50` (#f8fafc) with pure `white` (#ffffff) used for elevated surfaces.
 *   **Typography:**
-    *   Headings:
-    *   Body:
-*   **Design Paradigm:** (e.g., Glassmorphism, Flat, Material, Minimalist, Neomorphism)
+    *   **Family:** `Plus Jakarta Sans`, falling back to standard sans-serif system fonts.
+    *   **Usage:** Features tight tracking (`tracking-tight`) for headings to give a modern tech feel, and wider tracking (`tracking-wider`) for small uppercase eyebrow labels.
+*   **Design Paradigm:** 
+    *   **Modern Premium & Subtle Glassmorphism:** Uses vibrant, blurred gradient meshes behind device mockups. Employs soft shadows (`shadow-sm`, `shadow-md`), rounded corners (`rounded-2xl`, `rounded-3xl`), and 1px subtle borders (`border-slate-200` in light mode, `border-slate-800` in dark mode) to define layers without heavy lines.
 
 ## 2. Layout Structure
-<!-- Define the global layouts, responsive design strategy, and viewport targets. -->
 *   **Global Layout:**
+    *   Tailwind CSS v4 handles the styling.
+    *   Responsive design strategy is mobile-first, capping out at a `max-w-7xl` centered container for ultra-wide desktop monitors.
 *   **Navigation Structure:**
+    *   Desktop: Horizontal top navigation with an always-visible search input and quick links.
+    *   Tablet/Mobile: Collapses into a Hamburger Menu. The navigation menu and the search interface are placed securely inside sliding overlays (z-indexed above the page content) so they do not push the DOM downward.
+    *   **Theme Management:** Next-Themes `ThemeProvider` handles the `class` toggle, appending `.dark` to the HTML tag instantly without flashing.
 
 ## 3. UI Component System
-<!-- Document the core reusable UI components. -->
+*   **Base Library:** `shadcn/ui` components have been heavily integrated to handle accessibility and logic, while strictly preserving the custom Tailwind brand aesthetics.
 *   **Buttons & Inputs:**
+    *   Native buttons have been replaced by Shadcn `<Button>` variants (`default`, `outline`, `ghost`).
+    *   Forms use Shadcn `<Input>`.
+    *   Badges and specification tags use Shadcn `<Badge>` or custom inline-flex pill spans for dense data representation.
 *   **Modals & Dialogs:**
+    *   Sliding drawers (Compare Drawer, Mobile Nav) use Shadcn's `<Sheet>` component, providing out-of-the-box keyboard navigation, screen-reader support, and backdrop blurring.
 *   **Cards & Lists:**
+    *   `ProductCard` and `BlogCard` are built using Shadcn's `<Card>` and `<CardContent>`.
+    *   They utilize flex and grid layouts internally to cleanly separate imagery, titles, and technical specifications.
 
 ## 4. User Experience & Flows
-<!-- Map out key user journeys and micro-interactions. -->
-*   **User Journey A:**
 *   **Micro-animations & Transitions:**
+    *   **Hover states:** Deeply integrated color transitions (`transition-colors duration-300`) ensure hover effects feel fluid rather than jarring.
+    *   **Scaling:** Interactive elements like cards and buttons feature a slight zoom on hover (`hover:scale-[1.01]`) and a physical press down effect on click (`active:scale-95`).
+*   **Accessibility & Contrast:**
+    *   Strict Light/Dark parity. Special care was taken to invert specific text colors (e.g. `text-brand-600` in light mode, `text-brand-400` in dark mode) to ensure AAA readability scores across all UI components, badges, and footer links.

@@ -5,26 +5,25 @@
 ---
 
 ## 1. Core Framework & Runtimes
-*   **Next.js:** (e.g., Version 16.x)
-*   **React:** (e.g., Version 19.x)
+*   **Framework:** Next.js (Version 16.x) with App Router
+*   **UI Library:** React (Version 19.x)
 *   **Runtime:** Node.js
 
 ## 2. Styling & UI Libraries
-*   **CSS Framework:** Vanilla CSS (or specify framework)
-*   **Icon Library:**
-*   **Animation Library:**
+*   **CSS Framework:** Tailwind CSS v4
+*   **Component Library:** `shadcn/ui` (Radix UI primitives customized with Tailwind)
+*   **Theme Management:** `next-themes` (Provides strict Light/Dark mode toggling using `class` strategy)
+*   **Icon Library:** `lucide-react` (Scalable SVG icons)
+*   **Animation Library:** `tw-animate-css` and Tailwind built-in transitions
 
 ## 3. State Management & Data Fetching
-*   **Data Fetching:**
-*   **Client State Management:**
-*   **Server State Cache:**
+*   **Architecture:** Heavily relies on Next.js Server Components combined with standard React hooks (`useState`, `useEffect`) for client-side interactivity (e.g., search, sliders, modals).
+*   **Data Fetching:** Currently utilizing synchronous/mock JSON data imports for prototyping (e.g., `mockProducts`, `mockBlogs`).
 
 ## 4. Backend & Databases
-*   **Database:**
-*   **ORM / Query Builder:**
-*   **Authentication:**
+*   *Currently mocking data. Backend architectures (Database, ORM, Auth) are pending implementation.*
 
 ## 5. Development & Build Tools
 *   **Package Manager:** npm
-*   **Linting & Formatting:** ESLint, Prettier
-*   **Build Pipeline:** Next.js Turbopack
+*   **Linting & Formatting:** ESLint
+*   **Build Pipeline:** Next.js Turbopack (Optimized production builds & fast dev server)
