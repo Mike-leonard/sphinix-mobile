@@ -65,14 +65,11 @@ export default function Navbar({ compareCount, onOpenCompare, searchQuery, setSe
             variant="outline"
             size="icon"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden"
+            className="lg:hidden relative"
             aria-label="Toggle menu"
           >
-            {isMobileMenuOpen ? (
-              <X className="w-5 h-5" />
-            ) : (
-              <Menu className="w-5 h-5" />
-            )}
+            <Menu className={`w-5 h-5 absolute transition-all duration-500 ${isMobileMenuOpen ? 'scale-0 -rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100'}`} />
+            <X className={`w-5 h-5 absolute transition-all duration-500 ${isMobileMenuOpen ? 'scale-100 rotate-0 opacity-100' : 'scale-0 rotate-90 opacity-0'}`} />
           </Button>
           <Button className="hidden sm:inline-flex bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 rounded-xl shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all text-white border-0">
             Sign In
@@ -81,9 +78,14 @@ export default function Navbar({ compareCount, onOpenCompare, searchQuery, setSe
       </div>
 
       {/* Mobile Nav */}
-      {isMobileMenuOpen && (
-        <div className="absolute top-16 inset-x-0 z-50 lg:hidden border-b border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md px-4 py-4 space-y-4 shadow-2xl">
-          
+      <div 
+        className={`absolute top-16 inset-x-0 z-50 lg:hidden bg-white/95 dark:bg-slate-950/95 backdrop-blur-md shadow-2xl overflow-hidden transition-all duration-500 ease-in-out ${
+          isMobileMenuOpen 
+            ? 'max-h-[600px] opacity-100 border-b border-t border-slate-200 dark:border-slate-800 pointer-events-auto' 
+            : 'max-h-0 opacity-0 border-transparent pointer-events-none'
+        }`}
+      >
+        <div className="px-4 py-4 space-y-4">
           {navLinks.map((link) => (
             <Link 
               key={link.name} 
@@ -116,7 +118,7 @@ export default function Navbar({ compareCount, onOpenCompare, searchQuery, setSe
             Sign In
           </Button>
         </div>
-      )}
+      </div>
     </header>
   );
 }

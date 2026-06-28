@@ -38,7 +38,7 @@ export default function ProductCard({ product, isComparing, onToggleCompare }) {
           <div className="grid grid-cols-2 gap-3 text-xs text-slate-600 dark:text-slate-400 border-t border-b border-slate-200 dark:border-slate-800/60 py-4">
             <div>
               <span className="text-slate-500 dark:text-slate-400 font-bold block uppercase text-[10px] tracking-wider mb-1">Processor</span> 
-              <span className="inline-flex px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-md font-bold text-xs border border-slate-200 dark:border-slate-700/50 shadow-sm">{product.specs.chipset.split(' ')[0]}</span>
+              <span className="inline-flex px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-md font-bold text-xs border border-slate-200 dark:border-slate-700/50 shadow-sm">{product.specs.chipset.split(' ')[0]} <br/></span>
             </div>
             <div>
               <span className="text-slate-500 dark:text-slate-400 font-bold block uppercase text-[10px] tracking-wider mb-1">Display</span> 
@@ -58,14 +58,14 @@ export default function ProductCard({ product, isComparing, onToggleCompare }) {
           {product.price}
         </span>
         
-        <label className="flex items-center gap-2 cursor-pointer py-1.5 px-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-850 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-800">
+        <label className="group flex items-center gap-2 cursor-pointer py-1.5 px-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
           <input 
             type="checkbox"
             checked={isComparing}
             onChange={onToggleCompare}
             className="rounded border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-brand-600 dark:text-brand-500 focus:ring-brand-500 focus:ring-offset-white dark:focus:ring-offset-slate-900 w-4 h-4 cursor-pointer"
           />
-          <span className={`text-xs font-semibold select-none transition-colors ${isComparing ? "text-brand-600 dark:text-brand-400 font-bold" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"}`}>
+          <span className={`text-xs font-semibold select-none transition-colors ${isComparing ? "text-brand-600 dark:text-brand-400 font-bold" : "text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"}`}>
             {isComparing ? "Selected" : "Compare"}
           </span>
         </label>
