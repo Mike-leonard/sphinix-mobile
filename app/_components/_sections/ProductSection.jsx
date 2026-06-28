@@ -1,5 +1,7 @@
 import React from 'react';
 import ProductCard from '@/app/_components/_cards/ProductCard';
+import { Button } from '@/components/ui/button';
+import { ChevronDown } from 'lucide-react';
 
 export default function ProductSection({
   filteredProducts,
@@ -18,12 +20,14 @@ export default function ProductSection({
           <p className="text-xs text-slate-600 dark:text-slate-400">Showing {filteredProducts.length} devices based on filters</p>
         </div>
         {selectedBrand !== "All" && (
-          <button
+          <Button
+            variant="link"
+            size="sm"
             onClick={() => { setSelectedBrand("All"); setSearchQuery(""); }}
-            className="text-xs text-brand-400 hover:underline flex items-center gap-1"
+            className="text-xs text-brand-400 h-auto p-0"
           >
             Clear Filter ({selectedBrand})
-          </button>
+          </Button>
         )}
       </div>
       {filteredProducts.length === 0 ? (
@@ -51,12 +55,13 @@ export default function ProductSection({
       )}
       {/* View More button */}
       <div className="text-center pt-2">
-        <button className="inline-flex items-center justify-center px-6 py-3 font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-850 hover:bg-slate-100 dark:bg-slate-850 hover:text-slate-900 dark:text-white rounded-xl hover:scale-[1.01] active:scale-[0.99] transition-all gap-2 text-sm">
+        <Button 
+          variant="outline"
+          className="rounded-xl hover:scale-[1.01] active:scale-[0.99] transition-all gap-2"
+        >
           View More Products
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
+          <ChevronDown className="w-4 h-4" />
+        </Button>
       </div>
     </section>
   );

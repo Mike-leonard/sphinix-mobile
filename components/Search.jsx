@@ -1,47 +1,53 @@
 import React from 'react'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { SearchIcon, X } from 'lucide-react'
 
 export function Search({searchQuery,setSearchQuery,selectedCategory,setSelectedCategory}) {
   return (
-    <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
+    <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-4 shadow-sm">
         <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Search Database</h3>
         
         <div className="relative">
-          <input 
+          <Input 
             type="text" 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search model, brand, processor..." 
-            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl py-3 pl-10 pr-4 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors"
+            className="w-full bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl h-12 pl-10 pr-16 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-500 focus-visible:ring-1 focus-visible:ring-brand-500 transition-colors"
           />
-          <svg className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+          <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
           {searchQuery && (
-            <button 
+            <Button 
+              variant="secondary"
+              size="sm"
               onClick={() => setSearchQuery("")} 
-              className="absolute right-3 top-3 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:text-white text-xs bg-slate-100 dark:bg-slate-850 px-1.5 py-0.5 rounded"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-8 px-2.5 text-xs rounded-lg"
             >
               Clear
-            </button>
+            </Button>
           )}
         </div>
 
         {/* Category selector */}
         <div className="space-y-1.5">
           <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Product Filter Type</span>
-          <div className="flex flex-wrap gap-2">
-            <button 
+          <div className="flex flex-wrap gap-2 mt-2">
+            <Badge 
+              variant={selectedCategory === "All" ? "default" : "outline"}
               onClick={() => setSelectedCategory("All")}
-              className={`text-xs px-3 py-1.5 rounded-lg border font-semibold transition-colors ${selectedCategory === "All" ? "bg-brand-600 border-brand-500 text-white dark:text-white" : "bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-850 hover:bg-slate-100 dark:bg-slate-850 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:text-white"}`}
+              className={`cursor-pointer px-3 py-1 text-xs font-semibold transition-colors ${selectedCategory === "All" ? "bg-brand-600 hover:bg-brand-700 text-white" : "text-slate-600 dark:text-slate-400"}`}
             >
               All Types
-            </button>
-            <button 
+            </Badge>
+            <Badge 
+              variant={selectedCategory === "Mobiles" ? "default" : "outline"}
               onClick={() => setSelectedCategory("Mobiles")}
-              className={`text-xs px-3 py-1.5 rounded-lg border font-semibold transition-colors ${selectedCategory === "Mobiles" ? "bg-brand-600 border-brand-500 text-white dark:text-white" : "bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-850 hover:bg-slate-100 dark:bg-slate-850 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:text-white"}`}
+              className={`cursor-pointer px-3 py-1 text-xs font-semibold transition-colors ${selectedCategory === "Mobiles" ? "bg-brand-600 hover:bg-brand-700 text-white" : "text-slate-600 dark:text-slate-400"}`}
             >
               Mobiles
-            </button>
+            </Badge>
           </div>
         </div>
       </div>

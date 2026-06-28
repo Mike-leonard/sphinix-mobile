@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 const HERO_SLIDES = [
   {
@@ -46,12 +48,12 @@ export default function HeroCarousel() {
             {HERO_SLIDES[activeSlide].description}
           </p>
           <div className="flex gap-4">
-            <button className="px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-brand-500/20 hover:scale-[1.02]">
+            <Button className="px-6 h-12 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-brand-500/20 hover:scale-[1.02] border-0">
               {HERO_SLIDES[activeSlide].cta}
-            </button>
-            <button className="px-6 py-3 bg-slate-200/80 dark:bg-slate-800/80 hover:bg-slate-300/80 dark:hover:bg-slate-700/80 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700/60 font-bold text-sm rounded-xl transition-all">
+            </Button>
+            <Button variant="outline" className="px-6 h-12 bg-slate-200/80 dark:bg-slate-800/80 hover:bg-slate-300/80 dark:hover:bg-slate-700/80 text-slate-900 dark:text-white border-slate-300 dark:border-slate-700/60 font-bold rounded-xl transition-all">
               Watch Video
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -82,28 +84,33 @@ export default function HeroCarousel() {
 
       {/* Slider Arrows & Indicator Controls */}
       <div className="absolute bottom-6 right-6 z-20 flex items-center gap-3">
-        <button 
+        <Button 
+          variant="outline"
+          size="icon"
           onClick={() => setActiveSlide(prev => (prev === 0 ? HERO_SLIDES.length - 1 : prev - 1))}
-          className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-900 dark:text-white flex items-center justify-center border border-slate-300 dark:border-slate-700/50 hover:scale-105 active:scale-95 transition-all"
+          className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-900 dark:text-white border-slate-300 dark:border-slate-700/50 hover:scale-105 active:scale-95 transition-all"
         >
-          &larr;
-        </button>
+          <ArrowLeft className="w-4 h-4" />
+        </Button>
         <div className="flex gap-1.5">
           {HERO_SLIDES.map((_, idx) => (
             <button 
               key={idx}
               onClick={() => setActiveSlide(idx)}
-              className={`w-2 h-2 rounded-full transition-all ${idx === activeSlide ? "w-6 bg-brand-500" : "bg-slate-700"}`}
+              className={`w-2 h-2 rounded-full transition-all ${idx === activeSlide ? "w-6 bg-brand-500" : "bg-slate-300 dark:bg-slate-700"}`}
             />
           ))}
         </div>
-        <button 
+        <Button 
+          variant="outline"
+          size="icon"
           onClick={() => setActiveSlide(prev => (prev === HERO_SLIDES.length - 1 ? 0 : prev + 1))}
-          className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-900 dark:text-white flex items-center justify-center border border-slate-300 dark:border-slate-700/50 hover:scale-105 active:scale-95 transition-all"
+          className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-900 dark:text-white border-slate-300 dark:border-slate-700/50 hover:scale-105 active:scale-95 transition-all"
         >
-          &rarr;
-        </button>
+          <ArrowRight className="w-4 h-4" />
+        </Button>
       </div>
     </section>
   );
 }
+

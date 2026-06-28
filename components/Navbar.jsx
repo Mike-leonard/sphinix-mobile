@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Search } from './Search';
 import { ThemeToggle } from '../lib/ThemeToggle';
+import { Button } from '@/components/ui/button';
+import { Menu, X } from 'lucide-react';
 
 export default function Navbar({ compareCount, onOpenCompare, searchQuery, setSearchQuery, selectedCategory, setSelectedCategory }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -59,22 +61,22 @@ export default function Navbar({ compareCount, onOpenCompare, searchQuery, setSe
         <div className="flex items-center gap-4">
           <ThemeToggle />
 
-          <button 
+          <Button 
+            variant="outline"
+            size="icon"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400"
+            className="lg:hidden"
             aria-label="Toggle menu"
           >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              {isMobileMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-              )}
-            </svg>
-          </button>
-          <button className="hidden sm:inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 rounded-xl shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all">
+            {isMobileMenuOpen ? (
+              <X className="w-5 h-5" />
+            ) : (
+              <Menu className="w-5 h-5" />
+            )}
+          </Button>
+          <Button className="hidden sm:inline-flex bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 rounded-xl shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all text-white border-0">
             Sign In
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -110,9 +112,9 @@ export default function Navbar({ compareCount, onOpenCompare, searchQuery, setSe
               setSelectedCategory={setSelectedCategory}
             />
           </div>
-          <button className="w-full mt-4 flex sm:hidden items-center justify-center px-4 py-3 text-sm font-semibold text-white bg-gradient-to-r from-brand-600 to-purple-600 rounded-xl active:scale-[0.98] transition-all">
+          <Button className="w-full mt-4 flex sm:hidden bg-gradient-to-r from-brand-600 to-purple-600 rounded-xl active:scale-[0.98] transition-all text-white border-0 hover:from-brand-500 hover:to-purple-500">
             Sign In
-          </button>
+          </Button>
         </div>
       )}
     </header>
