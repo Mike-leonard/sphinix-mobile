@@ -20,12 +20,14 @@ export default function RightSidebar({
   return (
     <div className="lg:col-span-4 space-y-8">
       {/* SEARCH AND FILTERS */}
-      <Search
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
-      />
+      <div className="hidden lg:block">
+        <Search
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+        />
+      </div>
 
       {/* NEW ARRIVALS */}
       <NewArrivals

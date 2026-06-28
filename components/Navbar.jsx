@@ -3,38 +3,40 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Search } from './Search';
+import { ThemeToggle } from '../lib/ThemeToggle';
 
-export default function Navbar({ compareCount, onOpenCompare }) {
+export default function Navbar({ compareCount, onOpenCompare, searchQuery, setSearchQuery, selectedCategory, setSelectedCategory }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
   const navLinks = [
     { name: 'Home', href: '/' },
-    { name: 'All Products', href: '/products' },
+    { name: 'Devices', href: '/devices' },
     { name: 'Comparisons', href: '/comparisons' },
     { name: 'Blog', href: '/blog' },
   ];
 
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-md bg-slate-950/80 border-b border-slate-900">
+    <header className="sticky top-0 z-40 backdrop-blur-md bg-white/80 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
           {/* Logo */}
           <Link href="/" className="relative group cursor-pointer block">
             <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-brand-500 to-pink-500 opacity-75 blur-sm transition duration-300 group-hover:opacity-100"></div>
-            <div className="relative px-4 py-2 bg-slate-950 rounded-lg text-white font-extrabold tracking-wider border border-slate-800 text-lg">
+            <div className="relative px-4 py-2 bg-slate-50 dark:bg-slate-950 rounded-lg text-slate-900 dark:text-white font-extrabold tracking-wider border border-slate-200 dark:border-slate-800 text-lg">
               SPHINIX <span className="text-brand-400 font-normal">MOBILE</span>
             </div>
           </Link>
         </div>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8 font-medium text-sm text-slate-400">
+        <nav className="hidden lg:flex items-center gap-8 font-medium text-sm text-slate-600 dark:text-slate-400">
           {navLinks.map((link) => (
             <Link 
               key={link.name} 
               href={link.href} 
-              className={`transition-colors hover:text-brand-400 ${pathname === link.href ? 'text-white font-semibold' : ''}`}
+              className={`transition-colors hover:text-brand-400 ${pathname === link.href ? 'text-slate-900 dark:text-white font-semibold' : ''}`}
             >
               {link.name}
             </Link>
@@ -55,10 +57,11 @@ export default function Navbar({ compareCount, onOpenCompare }) {
         </nav>
 
         <div className="flex items-center gap-4">
+          <ThemeToggle />
 
           <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400"
+            className="lg:hidden p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400"
             aria-label="Toggle menu"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -77,14 +80,14 @@ export default function Navbar({ compareCount, onOpenCompare }) {
 
       {/* Mobile Nav */}
       {isMobileMenuOpen && (
-        <div className="absolute top-16 inset-x-0 z-50 md:hidden border-b border-t border-slate-800 bg-slate-950/95 backdrop-blur-md px-4 py-4 space-y-4 shadow-2xl">
-          {/* Mobile Search */}
+        <div className="absolute top-16 inset-x-0 z-50 lg:hidden border-b border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md px-4 py-4 space-y-4 shadow-2xl">
+          
           {navLinks.map((link) => (
             <Link 
               key={link.name} 
               href={link.href} 
               onClick={() => setIsMobileMenuOpen(false)}
-              className={`block text-base font-medium transition-colors hover:text-brand-400 ${pathname === link.href ? 'text-white' : 'text-slate-400'}`}
+              className={`block text-base font-medium transition-colors hover:text-brand-400 ${pathname === link.href ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'}`}
             >
               {link.name}
             </Link>
@@ -94,11 +97,19 @@ export default function Navbar({ compareCount, onOpenCompare }) {
               setIsMobileMenuOpen(false);
               if (compareCount > 0) onOpenCompare();
             }} 
-            className={`block text-base font-medium w-full text-left transition-colors ${compareCount > 0 ? "text-brand-400" : "text-slate-400 hover:text-brand-400"}`}
+            className={`block text-base font-medium w-full text-left transition-colors ${compareCount > 0 ? "text-brand-400" : "text-slate-600 dark:text-slate-400 hover:text-brand-400"}`}
           >
             Compare {compareCount > 0 && `(${compareCount})`}
           </button>
-          
+          {/* Mobile Search */}
+          <div className="mb-4">
+            <Search 
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+            />
+          </div>
           <button className="w-full mt-4 flex sm:hidden items-center justify-center px-4 py-3 text-sm font-semibold text-white bg-gradient-to-r from-brand-600 to-purple-600 rounded-xl active:scale-[0.98] transition-all">
             Sign In
           </button>

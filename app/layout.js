@@ -16,11 +16,19 @@ export const metadata = {
   },
 };
 
+import { ThemeProvider } from "@/provider/ThemeProvider";
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body suppressHydrationWarning className="min-h-screen bg-dark-bg text-slate-100 antialiased selection:bg-brand-500 selection:text-white">
-        {children}
+      <body suppressHydrationWarning className="min-h-screen bg-slate-50 dark:bg-slate-950 dark:bg-dark-bg text-slate-900 dark:text-slate-800 dark:text-slate-100 antialiased selection:bg-brand-500 selection:text-slate-900 dark:text-white transition-colors duration-300">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
