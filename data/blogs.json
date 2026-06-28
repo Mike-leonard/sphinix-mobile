@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "title": "The Mobile Chip War: Apple A18 Pro vs Snapdragon 8 Gen 4",
+    "excerpt": "We analyze the upcoming 3nm architectures, detailing single-core performance leaps and battery management upgrades.",
+    "date": "June 28, 2026",
+    "readTime": "5 min read",
+    "author": "Leonard Tech",
+    "category": "Processors",
+    "color": "from-violet-600 to-indigo-800"
+  },
+  {
+    "id": 2,
+    "title": "Is 200 Megapixels Overkill? The Science of Mobile Sensors",
+    "excerpt": "Why pixel binning, sensor size, and neural imaging processors dictate image quality much more than resolution counts.",
+    "date": "June 25, 2026",
+    "readTime": "8 min read",
+    "author": "Sarah Lens",
+    "category": "Cameras",
+    "color": "from-pink-600 to-rose-800"
+  },
+  {
+    "id": 3,
+    "title": "Will LG Ever Return to the Smartphone Market?",
+    "excerpt": "A nostalgic review of LG's pioneering smartphone designs and an analytical forecast of mobile market dynamics.",
+    "date": "June 21, 2026",
+    "readTime": "6 min read",
+    "author": "Alex Vintage",
+    "category": "Speculations",
+    "color": "from-blue-600 to-teal-800"
+  }
+]
