@@ -1,18 +1,13 @@
 'use client';
 import React, { useState, useMemo } from 'react';
-import Navbar from '@/components/Navbar';
 import HeroCarousel from '@/app/_components/HeroCarousel';
-import ProductCard from '@/app/_components/_cards/ProductCard';
-import BlogCard from '@/app/_components/_cards/BlogCard';
-import Sidebar from '@/components/RightSidebar';
 import CompareDrawer from '@/components/CompareDrawer';
 import MOCK_PRODUCTS from '@/data/products.json';
 import MOCK_BLOGS from '@/data/blogs.json';
-import Footer from '@/components/Footer';
 import RightSidebar from '@/components/RightSidebar';
-import BlogSection from './_components/_sections/BlogSection';
-import ProductSection from './_components/_sections/ProductSection';
 import AdBanner from '@/components/AdBanner';
+import ProductSection from '../_components/_sections/ProductSection';
+import BlogSection from '../_components/_sections/BlogSection';
 const BRANDS = ["All", "Apple", "Samsung", "OnePlus", "Google", "LG", "Nokia", "HTC", "Sony", "Motorola", "Huawei", "Oppo"];
 const CATEGORIES = [
   { name: "Mobiles", count: 95 },
@@ -57,18 +52,9 @@ export default function Home() {
     setIsCompareOpen(false);
   };
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col">
+    <div className="text-slate-800 dark:text-slate-100">
 
-      <Navbar
-        compareCount={compareList.length}
-        onOpenCompare={() => setIsCompareOpen(true)}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
-      />
-
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
           {/* LEFT COLUMN: Hero slider, Products Grid, Blogs */}
@@ -113,15 +99,13 @@ export default function Home() {
           />
           
         </div>
-      </main>
+      </div>
 
       {/* BOTTOM FULL-WIDTH AD */}
       <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 mb-8">
         <AdBanner type="horizontal" />
       </div>
 
-      {/* FOOTER */}
-      <Footer />
       {/* FLOATING COMPARE DRAPER */}
       <CompareDrawer
         compareList={compareList}

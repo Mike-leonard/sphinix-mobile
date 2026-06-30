@@ -8,7 +8,7 @@ import { ThemeToggle } from '../lib/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
 
-export default function Navbar({ compareCount, onOpenCompare, searchQuery, setSearchQuery, selectedCategory, setSelectedCategory }) {
+export default function Navbar({ compareCount = 0, onOpenCompare, searchQuery = "", setSearchQuery, selectedCategory = "", setSelectedCategory }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
@@ -106,14 +106,16 @@ export default function Navbar({ compareCount, onOpenCompare, searchQuery, setSe
             Compare {compareCount > 0 && `(${compareCount})`}
           </button>
           {/* Mobile Search */}
-          <div className="mb-4">
-            <Search 
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              selectedCategory={selectedCategory}
-              setSelectedCategory={setSelectedCategory}
-            />
-          </div>
+          {setSearchQuery && (
+            <div className="mb-4">
+              <Search 
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+              />
+            </div>
+          )}
           <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="w-full mt-4 flex sm:hidden items-center justify-center h-10 px-4 py-2 bg-gradient-to-r from-brand-600 to-purple-600 rounded-xl active:scale-[0.98] transition-all text-white font-medium border-0 hover:from-brand-500 hover:to-purple-500">
             Sign In
           </Link>
