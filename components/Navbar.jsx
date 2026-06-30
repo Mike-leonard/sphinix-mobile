@@ -71,9 +71,9 @@ export default function Navbar({ compareCount, onOpenCompare, searchQuery, setSe
             <Menu className={`w-5 h-5 absolute transition-all duration-500 ${isMobileMenuOpen ? 'scale-0 -rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100'}`} />
             <X className={`w-5 h-5 absolute transition-all duration-500 ${isMobileMenuOpen ? 'scale-100 rotate-0 opacity-100' : 'scale-0 rotate-90 opacity-0'}`} />
           </Button>
-          <Button className="hidden sm:inline-flex bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 rounded-xl shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all text-white border-0">
+          <Link href="/login" className="hidden sm:inline-flex items-center justify-center h-10 px-4 py-2 bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 rounded-xl shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all text-white font-medium text-sm border-0">
             Sign In
-          </Button>
+          </Link>
         </div>
       </div>
 
@@ -114,9 +114,9 @@ export default function Navbar({ compareCount, onOpenCompare, searchQuery, setSe
               setSelectedCategory={setSelectedCategory}
             />
           </div>
-          <Button className="w-full mt-4 flex sm:hidden bg-gradient-to-r from-brand-600 to-purple-600 rounded-xl active:scale-[0.98] transition-all text-white border-0 hover:from-brand-500 hover:to-purple-500">
+          <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} className="w-full mt-4 flex sm:hidden items-center justify-center h-10 px-4 py-2 bg-gradient-to-r from-brand-600 to-purple-600 rounded-xl active:scale-[0.98] transition-all text-white font-medium border-0 hover:from-brand-500 hover:to-purple-500">
             Sign In
-          </Button>
+          </Link>
         </div>
       </div>
     </header>

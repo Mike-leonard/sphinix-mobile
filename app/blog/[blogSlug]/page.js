@@ -10,7 +10,7 @@ export async function generateStaticParams() {
     }));
 }
 
-export default async function SingleBlogPage({ params }) {
+export default async function BlogDetailsPage({ params }) {
     const { blogSlug } = params;
 
     // Fetch the specific blog post
