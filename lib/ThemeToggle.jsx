@@ -23,13 +23,10 @@ export function ThemeToggle() {
       size="icon"
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
       aria-label="Toggle Theme"
-      className="text-slate-500 dark:text-slate-400"
+      className="text-slate-500 dark:text-slate-400 relative overflow-hidden"
     >
-      {theme === 'dark' ? (
-        <Sun className="h-[1.2rem] w-[1.2rem] transition-all" />
-      ) : (
-        <Moon className="h-[1.2rem] w-[1.2rem] transition-all" />
-      )}
+      <Sun className={`h-[1.2rem] w-[1.2rem] absolute transition-all duration-500 ease-in-out ${theme === 'dark' ? 'scale-0 -rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100'}`} />
+      <Moon className={`h-[1.2rem] w-[1.2rem] absolute transition-all duration-500 ease-in-out ${theme === 'dark' ? 'scale-100 rotate-0 opacity-100' : 'scale-0 rotate-90 opacity-0'}`} />
     </Button>
   );
 }

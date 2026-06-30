@@ -1,8 +1,12 @@
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-
-
-export const metadata = {
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-plus-jakarta",
+  display: 'swap',
+});export const metadata = {
   title: {
     default: "Sphinix Mobile | In-Depth Smartphone Reviews & Tech Blog",
     template: "%s | Sphinix Mobile",
@@ -21,11 +25,10 @@ import { ThemeProvider } from "@/provider/ThemeProvider";
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body suppressHydrationWarning className="min-h-screen bg-slate-50 dark:bg-slate-950 dark:bg-dark-bg text-slate-900 dark:text-slate-800 dark:text-slate-100 antialiased selection:bg-brand-500 selection:text-slate-900 dark:text-white transition-colors duration-300">
+      <body suppressHydrationWarning className={`${plusJakartaSans.variable} min-h-screen bg-slate-50 dark:bg-slate-950 dark:bg-dark-bg text-slate-900 dark:text-slate-800 dark:text-slate-100 antialiased selection:bg-brand-500 selection:text-slate-900 dark:text-white transition-colors duration-300`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
-          disableTransitionOnChange
         >
           {children}
         </ThemeProvider>
