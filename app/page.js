@@ -12,6 +12,7 @@ import Footer from '@/components/Footer';
 import RightSidebar from '@/components/RightSidebar';
 import BlogSection from './_components/_sections/BlogSection';
 import ProductSection from './_components/_sections/ProductSection';
+import AdBanner from '@/components/AdBanner';
 const BRANDS = ["All", "Apple", "Samsung", "OnePlus", "Google", "LG", "Nokia", "HTC", "Sony", "Motorola", "Huawei", "Oppo"];
 const CATEGORIES = [
   { name: "Mobiles", count: 95 },
@@ -73,6 +74,9 @@ export default function Home() {
           {/* LEFT COLUMN: Hero slider, Products Grid, Blogs */}
           <div className="lg:col-span-8 space-y-12">
 
+            {/* TOP LEADERBOARD AD */}
+            <AdBanner type="horizontal" className="hidden sm:flex" />
+
             <HeroCarousel />
 
             {/* LATEST PRODUCTS SECTION */}
@@ -85,6 +89,9 @@ export default function Home() {
               compareList={compareList}
               handleToggleCompare={handleToggleCompare}
             />
+
+            {/* IN-FEED AD BANNER */}
+            <AdBanner type="horizontal" />
 
             {/* LATEST NEWS / BLOG SECTION */}
             <BlogSection />
@@ -107,6 +114,12 @@ export default function Home() {
           
         </div>
       </main>
+
+      {/* BOTTOM FULL-WIDTH AD */}
+      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+        <AdBanner type="horizontal" />
+      </div>
+
       {/* FOOTER */}
       <Footer />
       {/* FLOATING COMPARE DRAPER */}

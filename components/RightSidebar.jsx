@@ -4,6 +4,7 @@ import NewArrivals from './NewArrivals';
 import TopRated from './TopRated';
 import Categories from './Categories';
 import BrandList from './BrandList';
+import AdBanner from './AdBanner';
 
 export default function RightSidebar({
   searchQuery,
@@ -56,6 +57,11 @@ export default function RightSidebar({
         selectedBrand={selectedBrand}
         setSelectedBrand={setSelectedBrand}
       />
+
+      {/* SIDEBAR AD BANNER (Sticky) */}
+      <div className="sticky top-24">
+        <AdBanner type="vertical" />
+      </div>
     </div>
   );
 }
