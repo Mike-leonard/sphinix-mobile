@@ -4,9 +4,9 @@ import Link from 'next/link';
 export default function RegisterPage() {
   return (
     <div className="flex-1 max-w-md w-full mx-auto px-4 py-16">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8 shadow-sm">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Create an Account</h1>
-        <p className="text-slate-600 dark:text-slate-400 mb-6">Join Sphinix Mobile today</p>
+        <p className="text-slate-600 dark:text-slate-400 mb-6">Join <Link href={process.env.BASE_URL} className="text-brand-500 hover:underline">Sphinix Mobile</Link> today</p>
         
         <form className="space-y-4">
           <div>
@@ -27,7 +27,7 @@ export default function RegisterPage() {
         </form>
 
         <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
-          Already have an account? <Link href="/login" className="text-brand-500 hover:underline">Sign in</Link>
+          Already have an account? <Link href="/login" replace className="text-brand-500 hover:underline">Sign in</Link>
         </p>
       </div>
     </div>
