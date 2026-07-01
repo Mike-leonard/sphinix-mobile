@@ -18,6 +18,7 @@
 
 ## 3. State Management & Data Fetching
 *   **Architecture:** Heavily relies on Next.js Server Components combined with standard React hooks (`useState`, `useEffect`) for client-side interactivity (e.g., search, sliders, modals).
+*   **Global Contexts:** Utilizes standard React Context API for global state management (e.g., `CompareContext` for cross-component device comparison).
 *   **Data Fetching:** Currently utilizing synchronous/mock JSON data imports for prototyping (e.g., `mockProducts`, `mockBlogs`).
 
 ## 4. Backend & Databases
@@ -27,3 +28,7 @@
 *   **Package Manager:** npm
 *   **Linting & Formatting:** ESLint
 *   **Build Pipeline:** Next.js Turbopack (Optimized production builds & fast dev server)
+
+## 6. Testing & Quality Assurance
+*   **Unit Testing:** `vitest` configured with `jsdom` (mocking Next.js routing) for testing React components in isolation.
+*   **End-to-End (E2E) Testing:** `playwright` (`@playwright/test`) configured to run automated browser-based flows across Chromium, Firefox, and WebKit to guarantee integration integrity.

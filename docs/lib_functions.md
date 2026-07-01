@@ -22,3 +22,13 @@
     *   `cn(...inputs)`: Merges Tailwind/CSS class names cleanly.
     *   `formatDate(date)`: Formats timestamps to standard locale format.
     *   `truncateString(str, length)`: Truncates strings for previews.
+
+---
+
+## 3. Global Contexts
+
+### Module: `context/CompareContext.jsx`
+*   **Purpose:** Provides a centralized, global state provider for managing device comparisons across the entire application.
+*   **Exports:**
+    *   `CompareProvider`: The Context Provider component that wraps the application.
+    *   `useCompare()`: Custom hook to consume the comparison state (`compareList`, `isCompareOpen`) and toggle actions (`handleToggleCompare`, `clearCompare`).

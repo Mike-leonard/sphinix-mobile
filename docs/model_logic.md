@@ -4,6 +4,8 @@
 
 ---
 
+> **Current Implementation Status**: Actual database integrations are pending. We are using structured JSON files (`data/products.json`, `data/blogs.json`) to mock relational data and schema logic.
+
 ## 1. Schema Definitions & Entities
 
 ### Entity: `User`

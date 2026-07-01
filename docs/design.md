@@ -23,6 +23,8 @@
     *   Desktop: Horizontal top navigation with an always-visible search input and quick links.
     *   Tablet/Mobile: Collapses into a Hamburger Menu. The navigation menu and the search interface are placed securely inside sliding overlays (z-indexed above the page content) so they do not push the DOM downward.
     *   **Theme Management:** Next-Themes `ThemeProvider` handles the `class` toggle, appending `.dark` to the HTML tag instantly without flashing.
+    *   **Sidebar Adaptability:** The `RightSidebar` implements contextual rendering based on the active route (e.g., hiding `NewArrivals` on `/devices`, hiding `BrandList` on `/blogs`) to reduce clutter while cross-pollinating relevant content (like displaying top-rated devices on blog pages).
+    *   **Ad Integration:** In-feed ads (`InFeedAd`) are seamlessly injected into product and blog grids at specific intervals (e.g., after 4 or 6 items), utilizing `col-span-full` to avoid breaking multi-column layouts.
 
 ## 3. UI Component System
 *   **Base Library:** `shadcn/ui` components have been heavily integrated to handle accessibility and logic, while strictly preserving the custom Tailwind brand aesthetics.
@@ -32,9 +34,12 @@
     *   Badges and specification tags use Shadcn `<Badge>` or custom inline-flex pill spans for dense data representation.
 *   **Modals & Dialogs:**
     *   Sliding drawers (Compare Drawer, Mobile Nav) use Shadcn's `<Sheet>` component, providing out-of-the-box keyboard navigation, screen-reader support, and backdrop blurring.
+    *   The **Compare Drawer** is decoupled from the Navbar and triggered via a floating widget (`bottom-6 right-6`), providing global access to device comparisons without cluttering the main navigation.
 *   **Cards & Lists:**
     *   `ProductCard` and `BlogCard` are built using Shadcn's `<Card>` and `<CardContent>`.
     *   They utilize flex and grid layouts internally to cleanly separate imagery, titles, and technical specifications.
+*   **Search Interface:**
+    *   The universal search component supports scope filtering (via `Badge` pills) to toggle between "All", "Devices", and "Blogs", instantly restricting autocomplete dropdown results.
 
 ## 4. User Experience & Flows
 *   **Micro-animations & Transitions:**

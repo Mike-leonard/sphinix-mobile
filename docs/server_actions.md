@@ -4,6 +4,8 @@
 
 ---
 
+> **Current Implementation Status**: The current UI prototype relies heavily on client-side state (`useState`, React Context) to manage complex interactive flows like the Search and Compare drawers. Server Actions will be introduced when persisting data (e.g., saving user configurations or posting reviews).
+
 ## 1. Design & Security Patterns
 *   **Use Server Directive:** Must be declared with `"use server"` at the top of the file or function level.
 *   **Security & Authorization:** All server actions must verify user authorization before executing any query or mutation.

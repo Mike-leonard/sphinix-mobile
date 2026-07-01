@@ -4,6 +4,8 @@
 
 ---
 
+> **Current Implementation Status**: We are currently utilizing static JSON data (`data/products.json` & `data/blogs.json`) and bypassing full API route handlers for UI prototyping. The patterns below describe the *target architecture* for the production backend.
+
 ## 1. Directory Structure
 *   API Route Handlers are located in: `app/api/...`
 
