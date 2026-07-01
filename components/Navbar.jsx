@@ -16,12 +16,12 @@ export default function Navbar({ compareCount = 0, onOpenCompare, searchQuery = 
     { name: 'Home', href: '/' },
     { name: 'Devices', href: '/devices' },
     { name: 'Comparisons', href: '/comparisons' },
-    { name: 'Blog', href: '/blog' },
+    { name: 'Blogs', href: '/blogs' },
   ];
 
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-white/80 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
           {/* Logo */}
           <Link href="/" className="relative group cursor-pointer block">

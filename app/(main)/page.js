@@ -10,7 +10,7 @@ import ProductSection from './_components/_sections/ProductSection';
 import BlogSection from './_components/_sections/BlogSection';
 const BRANDS = ["All", "Apple", "Samsung", "OnePlus", "Google", "LG", "Nokia", "HTC", "Sony", "Motorola", "Huawei", "Oppo"];
 const CATEGORIES = [
-  { name: "Mobiles", count: 95 },
+  { name: "Devices", count: 95 },
   { name: "Laptops", count: 4 },
   { name: "Digital Cameras", count: 2 },
   { name: "Cameras", count: 0 },
@@ -20,7 +20,7 @@ const CATEGORIES = [
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("All");
-  const [selectedCategory, setSelectedCategory] = useState("Mobiles");
+  const [selectedCategory, setSelectedCategory] = useState("Devices");
   const [compareList, setCompareList] = useState([]);
   const [isCompareOpen, setIsCompareOpen] = useState(false);
   // Filtered Products logic
@@ -54,7 +54,7 @@ export default function Home() {
   return (
     <div className="text-slate-800 dark:text-slate-100">
 
-      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
           {/* LEFT COLUMN: Hero slider, Products Grid, Blogs */}
@@ -102,7 +102,7 @@ export default function Home() {
       </div>
 
       {/* BOTTOM FULL-WIDTH AD */}
-      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+      <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 mb-8">
         <AdBanner type="horizontal" />
       </div>
 

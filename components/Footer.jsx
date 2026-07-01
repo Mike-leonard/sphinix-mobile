@@ -3,7 +3,7 @@
 function Footer() {
   return (
       <footer className="bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-900 py-10 mt-20 text-slate-500 text-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
             <span className="font-extrabold text-slate-900 dark:text-white tracking-widest text-sm">SPHINIX <span className="text-brand-500">MOBILE</span></span>
             <span>|</span>

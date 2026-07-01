@@ -42,11 +42,18 @@ export function Search({searchQuery,setSearchQuery,selectedCategory,setSelectedC
               All Types
             </Badge>
             <Badge 
-              variant={selectedCategory === "Mobiles" ? "default" : "outline"}
-              onClick={() => setSelectedCategory("Mobiles")}
-              className={`cursor-pointer px-3 py-1 text-xs font-semibold transition-colors ${selectedCategory === "Mobiles" ? "bg-brand-600 hover:bg-brand-700 text-white" : "text-slate-600 dark:text-slate-400"}`}
+              variant={selectedCategory === "Devices" ? "default" : "outline"}
+              onClick={() => setSelectedCategory("Devices")}
+              className={`cursor-pointer px-3 py-1 text-xs font-semibold transition-colors ${selectedCategory === "Devices" ? "bg-brand-600 hover:bg-brand-700 text-white" : "text-slate-600 dark:text-slate-400"}`}
             >
-              Mobiles
+              Devices
+            </Badge>
+            <Badge 
+              variant={selectedCategory === "Blogs" ? "default" : "outline"}
+              onClick={() => setSelectedCategory("Blogs")}
+              className={`cursor-pointer px-3 py-1 text-xs font-semibold transition-colors ${selectedCategory === "Blogs" ? "bg-brand-600 hover:bg-brand-700 text-white" : "text-slate-600 dark:text-slate-400"}`}
+            >
+              Blogs
             </Badge>
           </div>
         </div>

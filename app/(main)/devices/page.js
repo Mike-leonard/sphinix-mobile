@@ -8,10 +8,11 @@ import Pagination from '@/components/Pagination';
 import RightSidebar from '@/components/RightSidebar';
 import CompareDrawer from '@/components/CompareDrawer';
 import MOCK_PRODUCTS from '@/data/products.json';
+import SortingControl from './_components/SortingControl';
 
 const BRANDS = ["All", "Apple", "Samsung", "OnePlus", "Google", "LG", "Nokia", "HTC", "Sony", "Motorola", "Huawei", "Oppo"];
 const CATEGORIES = [
-  { name: "Mobiles", count: 95 },
+  { name: "Devices", count: 95 },
   { name: "Laptops", count: 4 },
   { name: "Digital Cameras", count: 2 },
   { name: "Cameras", count: 0 },
@@ -25,7 +26,7 @@ export default function DevicesPage() {
   // Global Sidebar States
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("All");
-  const [selectedCategory, setSelectedCategory] = useState("Mobiles");
+  const [selectedCategory, setSelectedCategory] = useState("Devices");
 
   // Page Specific States
   const [viewMode, setViewMode] = useState("grid"); // 'grid' | 'list'
@@ -99,65 +100,23 @@ export default function DevicesPage() {
   return (
     <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-      <div className="mb-4">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">All Products</h1>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
         {/* Main Content Area */}
         <div className="lg:col-span-8">
 
           {/* Controls Bar */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white dark:bg-[#1a2035] p-3 rounded-lg border border-slate-200 dark:border-slate-800 mb-6 gap-4">
-
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">Display:</span>
-              <div className="flex bg-slate-100 dark:bg-slate-800 rounded-md p-1">
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`p-1.5 rounded-sm transition-colors ${viewMode === 'grid' ? 'bg-brand-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-                >
-                  <LayoutGrid className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`p-1.5 rounded-sm transition-colors ${viewMode === 'list' ? 'bg-brand-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-                >
-                  <List className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              <select
-                value={sortOption}
-                onChange={(e) => setSortOption(e.target.value)}
-                className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm rounded-md px-3 py-2 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 w-full sm:w-auto"
-              >
-                <option>Date (default)</option>
-                <option>Price (Low to High)</option>
-                <option>Price (High to Low)</option>
-                <option>Rating</option>
-              </select>
-
-              <select
-                value={selectedBrand}
-                onChange={(e) => { setSelectedBrand(e.target.value); setCurrentPage(1); }}
-                className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm rounded-md px-3 py-2 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 w-full sm:w-auto"
-              >
-                {BRANDS.map(b => <option key={b} value={b}>{b === 'All' ? 'Brands' : b}</option>)}
-              </select>
-            </div>
-
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="text-sm font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1"
-            >
-              Filters
-              <span className={`transition-transform duration-200 ${showFilters ? 'rotate-180' : ''}`}>▾</span>
-            </button>
-          </div>
+          <SortingControl
+            viewMode={viewMode}
+            setViewMode={setViewMode}
+            sortOption={sortOption}
+            setSortOption={setSortOption}
+            selectedBrand={selectedBrand}
+            setSelectedBrand={setSelectedBrand}
+            BRANDS={BRANDS}
+            setShowFilters={setShowFilters}
+            showFilters={showFilters}
+          />
 
           {/* Advanced Filters */}
           <AdvancedFilters
