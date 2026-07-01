@@ -1,9 +1,15 @@
 import React from 'react';
+import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
+import { generateBlogSlug } from '@/lib/utils';
 
 export default function BlogCard({ blog }) {
+  const slug = generateBlogSlug(blog.title);
+  const href = `/blogs/${slug}`;
+
   return (
-    <Card className="group rounded-2xl border-slate-200 dark:border-slate-800 hover:border-brand-500/20 hover:shadow-lg transition-all duration-300 bg-white dark:bg-slate-900 overflow-hidden border-0">
+    <Link href={href} className="block group">
+      <Card className="rounded-2xl border-slate-200 dark:border-slate-800 group-hover:border-brand-500/20 group-hover:shadow-lg transition-all duration-300 bg-white dark:bg-slate-900 overflow-hidden border-0">
       <CardContent className="p-6 flex flex-col md:flex-row gap-6 items-start w-full">
         {/* Blog image banner */}
         <div className="w-full md:w-48 h-32 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-950 flex-shrink-0 relative">
@@ -29,11 +35,12 @@ export default function BlogCard({ blog }) {
           <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed line-clamp-2">
             {blog.excerpt}
           </p>
-          <a href="#" className="inline-flex items-center text-xs font-bold text-brand-400 group-hover:text-brand-300 hover:underline gap-1 pt-1">
+          <span className="inline-flex items-center text-xs font-bold text-brand-400 group-hover:text-brand-300 group-hover:underline gap-1 pt-1">
             Read Full Article &rarr;
-          </a>
+          </span>
         </div>
       </CardContent>
     </Card>
+    </Link>
   );
 }
