@@ -8,6 +8,7 @@ import MOCK_BLOGS from '@/data/blogs.json';
 import MOCK_PRODUCTS from '@/data/products.json';
 import { generateBlogSlug } from '@/lib/utils';
 import InFeedAd from '@/components/ads/InFeedAd';
+import BlogCard from '@/app/(main)/_components/_cards/BlogCard';
 
 export default function BlogPostPage({ params }) {
   // Unwrap params using React.use for Next 15+ compatibility
@@ -31,6 +32,16 @@ export default function BlogPostPage({ params }) {
   const blog = useMemo(() => {
     return MOCK_BLOGS.find(b => generateBlogSlug(b.title) === blogSlug);
   }, [blogSlug]);
+
+  const relatedBlogs = useMemo(() => {
+    if (!blog) return [];
+    let related = MOCK_BLOGS.filter(b => b.category === blog.category && b.id !== blog.id);
+    if (related.length < 3) {
+      const others = MOCK_BLOGS.filter(b => b.category !== blog.category && b.id !== blog.id);
+      related = [...related, ...others];
+    }
+    return related.slice(0, 3);
+  }, [blog]);
 
   if (!blog) {
     return notFound();
@@ -129,6 +140,21 @@ export default function BlogPostPage({ params }) {
               </Link>
             </div>
           </div>
+
+          {/* Related Articles */}
+          {relatedBlogs.length > 0 && (
+            <div className="mt-4 mb-8">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                <span className="w-2 h-6 bg-brand-500 rounded-full inline-block"></span>
+                Related Articles
+              </h3>
+              <div className="flex flex-col gap-4">
+                {relatedBlogs.map(rb => (
+                  <BlogCard key={rb.id} blog={rb} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right Sidebar */}
