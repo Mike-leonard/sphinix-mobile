@@ -99,7 +99,13 @@ export default function CompareDrawer({
       {!isOpen && (
         <div className="fixed bottom-6 right-6 z-40">
           <Button
-            onClick={onClose} // in the original code, `onClose` toggles the drawer in the parent state
+            onClick={() => {
+              if (compareList.length < 2) {
+                alert("Please select at least 2 devices to compare.");
+              } else {
+                onClose();
+              }
+            }}
             className="flex items-center gap-2 h-12 px-5 rounded-full bg-brand-600 hover:bg-brand-500 text-white shadow-2xl shadow-brand-500/30 hover:scale-105 active:scale-95 transition-all border border-brand-500/20 font-bold text-sm tracking-wide"
           >
             <BarChart2 className="w-4 h-4" />

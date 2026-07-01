@@ -1,13 +1,13 @@
 'use client';
 import React, { useState, useMemo } from 'react';
-import HeroCarousel from '@/app/_components/HeroCarousel';
+import HeroCarousel from '@/app/(main)/_components/HeroCarousel';
 import CompareDrawer from '@/components/CompareDrawer';
 import MOCK_PRODUCTS from '@/data/products.json';
 import MOCK_BLOGS from '@/data/blogs.json';
 import RightSidebar from '@/components/RightSidebar';
 import AdBanner from '@/components/AdBanner';
-import ProductSection from '../_components/_sections/ProductSection';
-import BlogSection from '../_components/_sections/BlogSection';
+import ProductSection from './_components/_sections/ProductSection';
+import BlogSection from './_components/_sections/BlogSection';
 const BRANDS = ["All", "Apple", "Samsung", "OnePlus", "Google", "LG", "Nokia", "HTC", "Sony", "Motorola", "Huawei", "Oppo"];
 const CATEGORIES = [
   { name: "Mobiles", count: 95 },
@@ -97,7 +97,7 @@ export default function Home() {
             categories={CATEGORIES}
             brands={BRANDS}
           />
-          
+
         </div>
       </div>
 

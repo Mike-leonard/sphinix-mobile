@@ -1,5 +1,5 @@
 import React from 'react';
-import ProductCard from '@/app/_components/_cards/ProductCard';
+import ProductCard from '@/app/(main)/_components/_cards/ProductCard';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 
@@ -55,7 +55,7 @@ export default function ProductSection({
       )}
       {/* View More button */}
       <div className="text-center pt-2">
-        <Button 
+        <Button
           variant="outline"
           className="rounded-xl hover:scale-[1.01] active:scale-[0.99] transition-all gap-2"
         >
