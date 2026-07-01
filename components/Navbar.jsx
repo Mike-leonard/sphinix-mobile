@@ -8,9 +8,13 @@ import { ThemeToggle } from '../lib/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
 
-export default function Navbar({ compareCount = 0, onOpenCompare, searchQuery = "", setSearchQuery, selectedCategory = "", setSelectedCategory }) {
+export default function Navbar({ compareCount = 0, onOpenCompare, searchQuery: externalSearchQuery, setSearchQuery: externalSetSearchQuery, selectedCategory = "", setSelectedCategory }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [localSearchQuery, setLocalSearchQuery] = useState("");
   const pathname = usePathname();
+
+  const searchQuery = externalSearchQuery !== undefined ? externalSearchQuery : localSearchQuery;
+  const setSearchQuery = externalSetSearchQuery !== undefined ? externalSetSearchQuery : setLocalSearchQuery;
 
   const navLinks = [
     { name: 'Home', href: '/' },
