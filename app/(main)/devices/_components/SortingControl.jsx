@@ -46,7 +46,7 @@ export default function SortingControl({ viewMode, setViewMode, sortOption, setS
 
             <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="text-sm font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1"
+                className="lg:hidden text-sm font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1"
             >
                 Filters
                 <span className={`transition-transform duration-200 ${showFilters ? 'rotate-180' : ''}`}>▾</span>

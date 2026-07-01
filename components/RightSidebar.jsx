@@ -17,17 +17,23 @@ export default function RightSidebar({
   topRated,
   categories,
   brands,
+  advancedFiltersComponent,
 }) {
   return (
     <div className="lg:col-span-4 space-y-8">
       {/* SEARCH AND FILTERS */}
-      <div className="hidden lg:block">
+      <div className="hidden lg:flex lg:flex-col lg:gap-8">
         <Search
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
         />
+        {advancedFiltersComponent && (
+          <div className="w-full">
+            {advancedFiltersComponent}
+          </div>
+        )}
       </div>
 
       {/* NEW ARRIVALS */}

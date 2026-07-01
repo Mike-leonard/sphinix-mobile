@@ -35,11 +35,11 @@ const FILTER_CATEGORIES = [
   }
 ];
 
-export default function AdvancedFilters({ isOpen, selectedFilters = {}, onToggleFilter }) {
+export default function AdvancedFilters({ isOpen = true, selectedFilters = {}, onToggleFilter, className }) {
   if (!isOpen) return null;
 
   return (
-    <div className="w-full bg-slate-100 dark:bg-[#1a2035] border border-slate-200 dark:border-slate-800 rounded-lg p-6 mb-8 animate-in slide-in-from-top-4 fade-in duration-300">
+    <div className={`w-full bg-slate-100 dark:bg-[#1a2035] border border-slate-200 dark:border-slate-800 rounded-lg p-6 ${className || ''}`}>
       <div className="grid grid-cols-1 gap-6">
         {FILTER_CATEGORIES.map((category) => (
           <div key={category.title}>
