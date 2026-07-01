@@ -7,6 +7,7 @@ import AdvancedFilters from '@/components/AdvancedFilters';
 import Pagination from '@/components/Pagination';
 import RightSidebar from '@/components/RightSidebar';
 import CompareDrawer from '@/components/CompareDrawer';
+import InFeedAd from '@/components/InFeedAd';
 import MOCK_PRODUCTS from '@/data/products.json';
 import SortingControl from './_components/SortingControl';
 import {
@@ -149,22 +150,27 @@ export default function DevicesPage() {
               ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
               : "flex flex-col gap-6"
             }>
-              {currentProducts.map(product => (
-                viewMode === 'grid' ? (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    isComparing={compareList.some(item => item.id === product.id)}
-                    onToggleCompare={() => handleToggleCompare(product)}
-                  />
-                ) : (
-                  <DeviceListCard
-                    key={product.id}
-                    product={product}
-                    isComparing={compareList.some(item => item.id === product.id)}
-                    onToggleCompare={() => handleToggleCompare(product)}
-                  />
-                )
+              {currentProducts.map((product, index) => (
+                <React.Fragment key={product.id}>
+                  {index === 6 && (
+                    <div className="col-span-full w-full py-2">
+                      <InFeedAd />
+                    </div>
+                  )}
+                  {viewMode === 'grid' ? (
+                    <ProductCard
+                      product={product}
+                      isComparing={compareList.some(item => item.id === product.id)}
+                      onToggleCompare={() => handleToggleCompare(product)}
+                    />
+                  ) : (
+                    <DeviceListCard
+                      product={product}
+                      isComparing={compareList.some(item => item.id === product.id)}
+                      onToggleCompare={() => handleToggleCompare(product)}
+                    />
+                  )}
+                </React.Fragment>
               ))}
             </div>
           ) : (

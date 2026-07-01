@@ -1,5 +1,6 @@
 import React from 'react';
 import ProductCard from '@/app/(main)/_components/_cards/ProductCard';
+import InFeedAd from '@/components/InFeedAd';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 
@@ -40,15 +41,21 @@ export default function ProductSection({
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {filteredProducts.map(product => {
+          {filteredProducts.map((product, index) => {
             const isComparing = compareList.some(item => item.id === product.id);
             return (
-              <ProductCard
-                key={product.id}
-                product={product}
-                isComparing={isComparing}
-                onToggleCompare={() => handleToggleCompare(product)}
-              />
+              <React.Fragment key={product.id}>
+                {index === 4 && (
+                  <div className="col-span-full w-full py-2">
+                    <InFeedAd />
+                  </div>
+                )}
+                <ProductCard
+                  product={product}
+                  isComparing={isComparing}
+                  onToggleCompare={() => handleToggleCompare(product)}
+                />
+              </React.Fragment>
             );
           })}
         </div>

@@ -1,8 +1,13 @@
 import React from 'react';
+import Link from 'next/link';
 import BlogCard from '../_cards/BlogCard';
+import InFeedAd from '@/components/InFeedAd';
 import MOCK_BLOGS from '@/data/blogs.json';
+import { ArrowRight } from 'lucide-react';
 
 export default function BlogSection() {
+  const displayedBlogs = MOCK_BLOGS.slice(0, 8);
+
   return (
     <section className="space-y-6">
       <div>
@@ -10,9 +15,26 @@ export default function BlogSection() {
         <p className="text-xs text-slate-600 dark:text-slate-400">Stay updated with deep technical benchmarks and mobile news</p>
       </div>
       <div className="space-y-4">
-        {MOCK_BLOGS.map(blog => (
-          <BlogCard key={blog.id} blog={blog} />
+        {displayedBlogs.map((blog, index) => (
+          <React.Fragment key={blog.id}>
+            {index === 4 && (
+              <div className="w-full py-2">
+                <InFeedAd />
+              </div>
+            )}
+            <BlogCard blog={blog} />
+          </React.Fragment>
         ))}
+      </div>
+      
+      <div className="flex justify-center pt-4">
+        <Link 
+          href="/blogs"
+          className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 font-bold hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-colors border border-brand-200 dark:border-brand-500/30"
+        >
+          Read More Blogs
+          <ArrowRight className="w-4 h-4" />
+        </Link>
       </div>
     </section>
   );
