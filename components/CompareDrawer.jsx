@@ -8,19 +8,19 @@ import {
 } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { BarChart2, X } from 'lucide-react'
+import { useCompare } from '@/context/CompareContext';
 
-export default function CompareDrawer({
-  compareList,
-  isOpen,
-  onClose,
-  onToggleCompare,
-  onClear
-}) {
+export default function CompareDrawer() {
+  const { compareList, isOpen, setIsCompareOpen, handleToggleCompare, clearCompare } = useCompare();
+
+  // We read from isCompareOpen from context! Note context uses 'isCompareOpen'
+  const isDrawerOpen = useCompare().isCompareOpen; 
+
   if (compareList.length === 0) return null;
 
   return (
     <>
-      <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <Sheet open={isDrawerOpen} onOpenChange={(open) => setIsCompareOpen(open)}>
         <SheetContent side="right" className="w-[95vw] sm:max-w-[800px] lg:max-w-[1000px] overflow-y-auto border-l-slate-200 dark:border-l-slate-800 bg-white dark:bg-slate-900 p-0 flex flex-col">
           <SheetHeader className="px-6 pt-6 mb-4">
             <SheetTitle className="font-extrabold text-slate-900 dark:text-white text-xl">Compare Devices</SheetTitle>
@@ -68,7 +68,7 @@ export default function CompareDrawer({
                 <Button
                   variant="destructive"
                   size="sm"
-                  onClick={() => onToggleCompare(item)}
+                  onClick={() => handleToggleCompare(item)}
                   className="w-full h-8 text-[10px] uppercase tracking-widest mt-4 font-bold"
                 >
                   Remove
@@ -80,7 +80,7 @@ export default function CompareDrawer({
           <div className="flex gap-3 p-6 mt-auto border-t border-slate-200 dark:border-slate-800">
             <Button
               variant="outline"
-              onClick={onClear}
+              onClick={clearCompare}
               className="flex-1 text-xs"
             >
               Clear All
@@ -95,24 +95,34 @@ export default function CompareDrawer({
         </SheetContent>
       </Sheet>
 
-      {/* Floating Trigger button at bottom right (only visible when closed, or kept persistent based on original logic) */}
-      {!isOpen && (
-        <div className="fixed bottom-6 right-6 z-40">
+      {/* Floating Trigger button at bottom right */}
+      {!isDrawerOpen && (
+        <div className="fixed bottom-6 right-6 z-40 flex items-center shadow-2xl shadow-brand-500/30 rounded-full group">
           <Button
             onClick={() => {
               if (compareList.length < 2) {
                 alert("Please select at least 2 devices to compare.");
               } else {
-                onClose();
+                setIsCompareOpen(true);
               }
             }}
-            className="flex items-center gap-2 h-12 px-5 rounded-full bg-brand-600 hover:bg-brand-500 text-white shadow-2xl shadow-brand-500/30 hover:scale-105 active:scale-95 transition-all border border-brand-500/20 font-bold text-sm tracking-wide"
+            className="flex items-center gap-2 h-12 pl-5 pr-4 rounded-l-full rounded-r-none bg-brand-600 hover:bg-brand-500 text-white group-hover:scale-105 active:scale-95 transition-all border-y border-l border-brand-500/20 border-r border-r-white/20 font-bold text-sm tracking-wide"
           >
             <BarChart2 className="w-4 h-4" />
             <span>Compare List</span>
             <span className="bg-white/20 text-white font-extrabold text-xs w-5 h-5 rounded-full flex items-center justify-center">
               {compareList.length}
             </span>
+          </Button>
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              clearCompare();
+            }}
+            className="h-12 px-3 rounded-r-full rounded-l-none bg-brand-600 hover:bg-red-500 text-white group-hover:scale-105 active:scale-95 transition-all border-y border-r border-brand-500/20"
+            title="Clear Compare List"
+          >
+            <X className="w-4 h-4" />
           </Button>
         </div>
       )}

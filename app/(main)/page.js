@@ -8,6 +8,7 @@ import RightSidebar from '@/components/sidebar/RightSidebar';
 import AdBanner from '@/components/ads/AdBanner';
 import ProductSection from './_components/_sections/ProductSection';
 import BlogSection from './_components/_sections/BlogSection';
+import { useCompare } from '@/context/CompareContext';
 const BRANDS = ["All", "Apple", "Samsung", "OnePlus", "Google", "LG", "Nokia", "HTC", "Sony", "Motorola", "Huawei", "Oppo"];
 const CATEGORIES = [
   { name: "Devices", count: 95 },
@@ -21,8 +22,9 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("All");
   const [selectedCategory, setSelectedCategory] = useState("Devices");
-  const [compareList, setCompareList] = useState([]);
-  const [isCompareOpen, setIsCompareOpen] = useState(false);
+
+  const { compareList, isCompareOpen, setIsCompareOpen, handleToggleCompare, clearCompare } = useCompare();
+
   // Filtered Products logic
   const filteredProducts = useMemo(() => {
     return MOCK_PRODUCTS.filter(product => {
@@ -34,23 +36,9 @@ export default function Home() {
       return matchesSearch && matchesBrand && matchesCategory;
     });
   }, [searchQuery, selectedBrand, selectedCategory]);
+
   const newArrivals = useMemo(() => MOCK_PRODUCTS.filter(p => p.isNew), []);
   const topRated = useMemo(() => MOCK_PRODUCTS.filter(p => p.isTopRated), []);
-  const handleToggleCompare = (product) => {
-    if (compareList.some(item => item.id === product.id)) {
-      setCompareList(compareList.filter(item => item.id !== product.id));
-    } else {
-      if (compareList.length >= 3) {
-        alert("You can compare up to 3 devices at a time.");
-        return;
-      }
-      setCompareList([...compareList, product]);
-    }
-  };
-  const clearCompare = () => {
-    setCompareList([]);
-    setIsCompareOpen(false);
-  };
   return (
     <div className="text-slate-800 dark:text-slate-100">
 
@@ -106,14 +94,8 @@ export default function Home() {
         <AdBanner type="horizontal" />
       </div>
 
-      {/* FLOATING COMPARE DRAPER */}
-      <CompareDrawer
-        compareList={compareList}
-        isOpen={isCompareOpen}
-        onClose={() => setIsCompareOpen(!isCompareOpen)}
-        onToggleCompare={handleToggleCompare}
-        onClear={clearCompare}
-      />
+      {/* Compare Drawer Overlay */}
+      <CompareDrawer />
     </div>
   );
 }

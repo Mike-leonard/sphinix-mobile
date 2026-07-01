@@ -7,8 +7,12 @@ import { Search } from './Search';
 import { ThemeToggle } from '../lib/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
+import { useCompare } from '@/context/CompareContext';
 
-export default function Navbar({ compareCount = 0, onOpenCompare, searchQuery: externalSearchQuery, setSearchQuery: externalSetSearchQuery, selectedCategory = "", setSelectedCategory }) {
+export default function Navbar({ searchQuery: externalSearchQuery, setSearchQuery: externalSetSearchQuery, selectedCategory = "", setSelectedCategory }) {
+  const { compareList, setIsCompareOpen } = useCompare();
+  const compareCount = compareList.length;
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [localSearchQuery, setLocalSearchQuery] = useState("");
   const pathname = usePathname();
@@ -48,10 +52,7 @@ export default function Navbar({ compareCount = 0, onOpenCompare, searchQuery: e
             </Link>
           ))}
           <button 
-            onClick={() => {
-              if (compareCount > 0) onOpenCompare();
-            }} 
-            className={`relative transition-colors ${compareCount > 0 ? "text-brand-400 font-semibold" : "hover:text-brand-400"}`}
+            className={`relative transition-colors ${compareCount > 0 ? "text-brand-400 font-semibold cursor-default" : "text-slate-600 dark:text-slate-400 cursor-default"}`}
           >
             Compare
             {compareCount > 0 && (
@@ -101,11 +102,7 @@ export default function Navbar({ compareCount = 0, onOpenCompare, searchQuery: e
             </Link>
           ))}
           <button 
-            onClick={() => {
-              setIsMobileMenuOpen(false);
-              if (compareCount > 0) onOpenCompare();
-            }} 
-            className={`block text-base font-medium w-full text-left transition-colors ${compareCount > 0 ? "text-brand-400" : "text-slate-600 dark:text-slate-400 hover:text-brand-400"}`}
+            className={`block text-base font-medium w-full text-left transition-colors cursor-default ${compareCount > 0 ? "text-brand-400" : "text-slate-600 dark:text-slate-400"}`}
           >
             Compare {compareCount > 0 && `(${compareCount})`}
           </button>

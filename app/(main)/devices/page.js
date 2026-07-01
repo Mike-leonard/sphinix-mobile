@@ -10,6 +10,7 @@ import CompareDrawer from '@/components/CompareDrawer';
 import InFeedAd from '@/components/ads/InFeedAd';
 import MOCK_PRODUCTS from '@/data/products.json';
 import SortingControl from './_components/SortingControl';
+import { useCompare } from '@/context/CompareContext';
 import {
   Sheet,
   SheetContent,
@@ -44,8 +45,7 @@ export default function DevicesPage() {
   const [sortOption, setSortOption] = useState("Date (default)");
 
   // Compare State
-  const [compareList, setCompareList] = useState([]);
-  const [isCompareOpen, setIsCompareOpen] = useState(false);
+  const { compareList, isCompareOpen, setIsCompareOpen, handleToggleCompare, clearCompare } = useCompare();
 
   // Derived Sidebar Data
   const newArrivals = useMemo(() => MOCK_PRODUCTS.filter(p => p.isNew), []);
@@ -91,18 +91,6 @@ export default function DevicesPage() {
       }
     });
     setCurrentPage(1); // Reset to page 1 on filter
-  };
-
-  const handleToggleCompare = (product) => {
-    if (compareList.some(item => item.id === product.id)) {
-      setCompareList(compareList.filter(item => item.id !== product.id));
-    } else {
-      if (compareList.length >= 3) {
-        alert("You can compare up to 3 devices at a time.");
-        return;
-      }
-      setCompareList([...compareList, product]);
-    }
   };
 
   return (
@@ -213,14 +201,8 @@ export default function DevicesPage() {
 
       </div>
 
-      {/* Compare Drawer Overlay */}
-      <CompareDrawer
-        compareList={compareList}
-        isOpen={isCompareOpen}
-        onClose={() => setIsCompareOpen(!isCompareOpen)}
-        onToggleCompare={handleToggleCompare}
-        onClear={() => { setCompareList([]); setIsCompareOpen(false); }}
-      />
+      {/* FLOATING COMPARE DRAWER */}
+      <CompareDrawer />
     </div>
   );
 }
