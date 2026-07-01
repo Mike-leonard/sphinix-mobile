@@ -2,8 +2,8 @@
 import React, { useState, useMemo } from 'react';
 import BlogCard from '@/app/(main)/_components/_cards/BlogCard';
 import Pagination from '@/components/Pagination';
-import RightSidebar from '@/components/RightSidebar';
-import InFeedAd from '@/components/InFeedAd';
+import RightSidebar from '@/components/sidebar/RightSidebar';
+import InFeedAd from '@/components/ads/InFeedAd';
 import MOCK_BLOGS from '@/data/blogs.json';
 import MOCK_PRODUCTS from '@/data/products.json';
 
@@ -28,15 +28,15 @@ export default function BlogsPage() {
 
   const filteredBlogs = useMemo(() => {
     return MOCK_BLOGS.filter(blog => {
-      const matchesSearch = blog.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            blog.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        blog.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = selectedCategory === "All" || blog.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
   }, [searchQuery, selectedCategory]);
 
   const totalPages = Math.ceil(filteredBlogs.length / ITEMS_PER_PAGE);
-  
+
   // Ensure we don't have an empty page if we filter
   if (currentPage > totalPages && totalPages > 0) {
     setCurrentPage(totalPages);
@@ -47,19 +47,19 @@ export default function BlogsPage() {
 
   return (
     <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-     
+
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Main Content Area */}
         <div className="lg:col-span-8 flex flex-col min-h-0">
-           {/* Page Header */}
+          {/* Page Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white dark:bg-[#1a2035] p-3 rounded-lg border border-slate-200 dark:border-slate-800 mb-6 gap-4 min-h-[64px]">
             <div>
               <h1 className="text-base font-bold text-slate-900 dark:text-white leading-tight">Blogs & News</h1>
               <p className="text-xs text-slate-500 mt-0.5">Stay updated with the latest mobile trends.</p>
             </div>
             <div className="text-sm font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-700">
-               {filteredBlogs.length} Articles
+              {filteredBlogs.length} Articles
             </div>
           </div>
           {/* Blogs Grid */}
@@ -78,7 +78,7 @@ export default function BlogsPage() {
             ) : (
               <div className="col-span-full flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
                 <p className="text-slate-500 font-medium">No blogs found matching your criteria.</p>
-                <button 
+                <button
                   onClick={() => { setSearchQuery(""); setSelectedCategory("All"); }}
                   className="mt-4 text-brand-500 hover:underline font-bold"
                 >
@@ -107,7 +107,7 @@ export default function BlogsPage() {
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
           selectedBrand={null}
-          setSelectedBrand={() => {}}
+          setSelectedBrand={() => { }}
           newArrivals={newArrivals}
           topRated={topRated}
           categories={categories}

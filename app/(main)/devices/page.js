@@ -5,9 +5,9 @@ import ProductCard from '@/app/(main)/_components/_cards/ProductCard';
 import DeviceListCard from '@/app/(main)/devices/_components/DeviceListCard';
 import AdvancedFilters from '@/components/AdvancedFilters';
 import Pagination from '@/components/Pagination';
-import RightSidebar from '@/components/RightSidebar';
+import RightSidebar from '@/components/sidebar/RightSidebar';
 import CompareDrawer from '@/components/CompareDrawer';
-import InFeedAd from '@/components/InFeedAd';
+import InFeedAd from '@/components/ads/InFeedAd';
 import MOCK_PRODUCTS from '@/data/products.json';
 import SortingControl from './_components/SortingControl';
 import {

@@ -1,6 +1,6 @@
 import React from 'react';
 import ProductCard from '@/app/(main)/_components/_cards/ProductCard';
-import InFeedAd from '@/components/InFeedAd';
+import InFeedAd from '@/components/ads/InFeedAd';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 

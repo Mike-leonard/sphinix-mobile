@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import BlogCard from '../_cards/BlogCard';
-import InFeedAd from '@/components/InFeedAd';
+import InFeedAd from '@/components/ads/InFeedAd';
 import MOCK_BLOGS from '@/data/blogs.json';
 import { ArrowRight } from 'lucide-react';
 
@@ -26,9 +26,9 @@ export default function BlogSection() {
           </React.Fragment>
         ))}
       </div>
-      
+
       <div className="flex justify-center pt-4">
-        <Link 
+        <Link
           href="/blogs"
           className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 font-bold hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-colors border border-brand-200 dark:border-brand-500/30"
         >
