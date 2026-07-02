@@ -10,8 +10,8 @@ import CompareDrawer from '@/components/CompareDrawer';
 import DeviceBreadcrumb from './_components/DeviceBreadcrumb';
 import DeviceGallery from './_components/DeviceGallery';
 import DeviceQuickInfo from './_components/DeviceQuickInfo';
-import DeviceDescription from './_components/DeviceDescription';
-import DeviceSpecsTable from './_components/DeviceSpecsTable';
+import DeviceTabs from './_components/DeviceTabs';
+import RelatedDevices from './_components/RelatedDevices';
 
 export default function DeviceDetailsPage({ params }) {
   const resolvedParams = React.use(params);
@@ -48,11 +48,11 @@ export default function DeviceDetailsPage({ params }) {
             </div>
           </div>
 
-          {/* Description Section */}
-          <DeviceDescription device={device} />
+          {/* Tabbed Content: Specs, Overview, Reviews */}
+          <DeviceTabs device={device} />
 
-          {/* Detailed Specifications */}
-          <DeviceSpecsTable specs={device.specs} />
+          {/* Related Devices */}
+          <RelatedDevices currentDevice={device} />
 
         </div>
 
