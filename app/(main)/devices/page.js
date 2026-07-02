@@ -7,17 +7,11 @@ import AdvancedFilters from '@/components/AdvancedFilters';
 import Pagination from '@/components/Pagination';
 import RightSidebar from '@/components/sidebar/RightSidebar';
 import CompareDrawer from '@/components/CompareDrawer';
-import InFeedAd from '@/components/ads/InFeedAd';
 import MOCK_PRODUCTS from '@/data/products.json';
 import SortingControl from './_components/SortingControl';
 import { useCompare } from '@/context/CompareContext';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription
-} from "@/components/ui/sheet";
+import MobileFiltersSheet from './_components/MobileFiltersSheet';
+import DeviceGrid from './_components/DeviceGrid';
 
 const BRANDS = ["All", "Apple", "Samsung", "OnePlus", "Google", "LG", "Nokia", "HTC", "Sony", "Motorola", "Huawei", "Oppo"];
 const CATEGORIES = [
@@ -115,58 +109,20 @@ export default function DevicesPage() {
           />
 
           {/* Mobile Advanced Filters Sheet */}
-          <Sheet open={showFilters} onOpenChange={setShowFilters}>
-            <SheetContent onOpenAutoFocus={(e) => e.preventDefault()} side="bottom" className="max-h-[85vh] flex flex-col rounded-t-2xl p-6 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shadow-xl">
-              <SheetHeader className="text-left mb-2 pr-8 shrink-0">
-                <SheetTitle className="font-extrabold text-xl text-slate-900 dark:text-white">Advanced Filters</SheetTitle>
-                <SheetDescription>Select options to refine your results.</SheetDescription>
-              </SheetHeader>
-              <div className="flex-1 min-h-0 overflow-y-auto pb-4 pr-2">
-                <AdvancedFilters
-                  isOpen={true}
-                  selectedFilters={advancedFilters}
-                  onToggleFilter={handleToggleAdvancedFilter}
-                  className="!bg-transparent !border-0 !p-0 !mb-0"
-                />
-              </div>
-            </SheetContent>
-          </Sheet>
+          <MobileFiltersSheet 
+            showFilters={showFilters} 
+            setShowFilters={setShowFilters} 
+            advancedFilters={advancedFilters} 
+            handleToggleAdvancedFilter={handleToggleAdvancedFilter} 
+          />
 
           {/* Products Grid/List */}
-          {currentProducts.length > 0 ? (
-            <div className={viewMode === 'grid'
-              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-              : "flex flex-col gap-6"
-            }>
-              {currentProducts.map((product, index) => (
-                <React.Fragment key={product.id}>
-                  {index === 6 && (
-                    <div className="col-span-full w-full py-2">
-                      <InFeedAd />
-                    </div>
-                  )}
-                  {viewMode === 'grid' ? (
-                    <ProductCard
-                      product={product}
-                      isComparing={compareList.some(item => item.id === product.id)}
-                      onToggleCompare={() => handleToggleCompare(product)}
-                    />
-                  ) : (
-                    <DeviceListCard
-                      product={product}
-                      isComparing={compareList.some(item => item.id === product.id)}
-                      onToggleCompare={() => handleToggleCompare(product)}
-                    />
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
-          ) : (
-            <div className="py-20 text-center text-slate-500 dark:text-slate-400">
-              <p className="text-xl font-bold mb-2">No devices found</p>
-              <p>Try adjusting your filters or search query.</p>
-            </div>
-          )}
+          <DeviceGrid 
+            currentProducts={currentProducts} 
+            viewMode={viewMode} 
+            compareList={compareList} 
+            handleToggleCompare={handleToggleCompare} 
+          />
 
           {/* Pagination */}
           <Pagination

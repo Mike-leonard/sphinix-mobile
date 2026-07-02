@@ -1,14 +1,14 @@
 import React from 'react';
 import Link from 'next/link';
 
-export default function LatestBlogsSidebar({ blogs }) {
+export default function TrendingBlogsSidebar({ blogs }) {
   // Take top 3 or 4 blogs to display
   const latestBlogs = blogs.slice(0, 4);
 
   return (
     <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
       <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight flex items-center justify-between">
-        <span>Latest Articles</span>
+        <span>Trending Articles</span>
       </h3>
       <div className="flex flex-col gap-4">
         {latestBlogs.map(blog => (

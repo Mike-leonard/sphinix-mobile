@@ -6,8 +6,8 @@ import TopRated from './TopRated';
 import Categories from './Categories';
 import BrandList from './BrandList';
 import AdBanner from '../ads/AdBanner';
-import LatestBlogsSidebar from './LatestBlogsSidebar';
 import MOCK_BLOGS from '@/data/blogs.json';
+import TrendingBlogsSidebar from './TrendingBlogsSidebar';
 
 export default function RightSidebar({
   searchQuery,
@@ -58,7 +58,7 @@ export default function RightSidebar({
       {/* LATEST BLOGS */}
       {/* Show on Devices and Home, or specifically if we want to cross-pollinate on Devices */}
       {(isDevicesRoute || isHomeRoute || isBlogsRoute) && (
-        <LatestBlogsSidebar blogs={MOCK_BLOGS} />
+        <TrendingBlogsSidebar blogs={MOCK_BLOGS} />
       )}
 
       {/* TOP RATED (Devices) */}
