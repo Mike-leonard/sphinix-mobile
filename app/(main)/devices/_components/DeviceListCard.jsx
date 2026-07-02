@@ -1,8 +1,10 @@
 import React from 'react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
+import { generateDeviceSlug } from '@/lib/utils';
 
 export default function DeviceListCard({ product, isComparing, onToggleCompare }) {
+  const slug = generateDeviceSlug(product.name);
   return (
     <Card className="group rounded-2xl border-slate-200 dark:border-slate-800 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/5 transition-all duration-300 flex flex-col sm:flex-row bg-white dark:bg-slate-900 overflow-hidden relative">
       
@@ -43,7 +45,7 @@ export default function DeviceListCard({ product, isComparing, onToggleCompare }
         </div>
 
         <div className="mt-6 flex items-center justify-between">
-          <Link href={`/devices/${product.id}`} className="text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 text-sm font-semibold flex items-center gap-1 group/link">
+          <Link href={`/devices/${slug}`} className="text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 text-sm font-semibold flex items-center gap-1 group/link">
             View Details <span className="group-hover/link:translate-x-1 transition-transform">→</span>
           </Link>
           

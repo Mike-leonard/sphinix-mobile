@@ -1,10 +1,14 @@
 import React from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { generateDeviceSlug } from '@/lib/utils';
 
 export default function ProductCard({ product, isComparing, onToggleCompare }) {
+  const slug = generateDeviceSlug(product.name);
   return (
     <Card className="group rounded-2xl border-slate-200 dark:border-slate-800/80 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/5 transition-all duration-300 flex flex-col justify-between bg-white dark:bg-slate-900 overflow-hidden">
-      <CardContent className="p-5 pb-2 space-y-4">
+      <Link href={`/devices/${slug}`} className="block flex-1">
+        <CardContent className="p-5 pb-2 space-y-4">
         {/* Upper visual showcase & Tag */}
         <div className="relative rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-950 p-4 h-48 flex items-center justify-center group-hover:scale-[1.01] transition-transform duration-300">
           <div className={`absolute w-32 h-32 rounded-full bg-gradient-to-tr ${product.imageColor} opacity-20 blur-2xl`}></div>
@@ -51,6 +55,7 @@ export default function ProductCard({ product, isComparing, onToggleCompare }) {
           </div>
         </div>
       </CardContent>
+      </Link>
 
       {/* Lower action bar */}
       <CardFooter className="p-5 pt-2 flex items-center justify-between">

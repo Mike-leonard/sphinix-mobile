@@ -1,11 +1,11 @@
 'use client';
 import React, { useState, useMemo } from 'react';
-import BlogCard from '@/app/(main)/_components/_cards/BlogCard';
 import Pagination from '@/components/Pagination';
 import RightSidebar from '@/components/sidebar/RightSidebar';
-import InFeedAd from '@/components/ads/InFeedAd';
 import MOCK_BLOGS from '@/data/blogs.json';
 import MOCK_PRODUCTS from '@/data/products.json';
+import BlogPageHeader from './_components/BlogPageHeader';
+import BlogList from './_components/BlogList';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -53,40 +53,14 @@ export default function BlogsPage() {
         {/* Main Content Area */}
         <div className="lg:col-span-8 flex flex-col min-h-0">
           {/* Page Header */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white dark:bg-[#1a2035] p-3 rounded-lg border border-slate-200 dark:border-slate-800 mb-6 gap-4 min-h-[64px]">
-            <div>
-              <h1 className="text-base font-bold text-slate-900 dark:text-white leading-tight">Blogs & News</h1>
-              <p className="text-xs text-slate-500 mt-0.5">Stay updated with the latest mobile trends.</p>
-            </div>
-            <div className="text-sm font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-700">
-              {filteredBlogs.length} Articles
-            </div>
-          </div>
+          <BlogPageHeader totalCount={filteredBlogs.length} />
+
           {/* Blogs Grid */}
-          <div className="grid grid-cols-1 gap-6">
-            {currentBlogs.length > 0 ? (
-              currentBlogs.map((blog, index) => (
-                <React.Fragment key={blog.id}>
-                  {index === 4 && (
-                    <div className="w-full py-2">
-                      <InFeedAd />
-                    </div>
-                  )}
-                  <BlogCard blog={blog} />
-                </React.Fragment>
-              ))
-            ) : (
-              <div className="col-span-full flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
-                <p className="text-slate-500 font-medium">No blogs found matching your criteria.</p>
-                <button
-                  onClick={() => { setSearchQuery(""); setSelectedCategory("All"); }}
-                  className="mt-4 text-brand-500 hover:underline font-bold"
-                >
-                  Clear Filters
-                </button>
-              </div>
-            )}
-          </div>
+          <BlogList 
+            currentBlogs={currentBlogs} 
+            setSearchQuery={setSearchQuery} 
+            setSelectedCategory={setSelectedCategory} 
+          />
 
           {/* Pagination */}
           {totalPages > 1 && (
