@@ -12,6 +12,7 @@ import DeviceGallery from './_components/DeviceGallery';
 import DeviceQuickInfo from './_components/DeviceQuickInfo';
 import DeviceTabs from './_components/DeviceTabs';
 import RelatedDevices from './_components/RelatedDevices';
+import AdBanner from '@/components/ads/AdBanner';
 
 export default function DeviceDetailsPage({ params }) {
   const resolvedParams = React.use(params);
@@ -51,6 +52,7 @@ export default function DeviceDetailsPage({ params }) {
           {/* Tabbed Content: Specs, Overview, Reviews */}
           <DeviceTabs device={device} />
 
+          <AdBanner className='mt-10'/>
           {/* Related Devices */}
           <RelatedDevices currentDevice={device} />
 

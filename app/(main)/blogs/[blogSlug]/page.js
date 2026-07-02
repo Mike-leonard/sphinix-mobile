@@ -12,6 +12,7 @@ import BlogHero from './_components/BlogHero';
 import BlogMeta from './_components/BlogMeta';
 import BlogContent from './_components/BlogContent';
 import RelatedArticles from './_components/RelatedArticles';
+import AdBanner from '@/components/ads/AdBanner';
 
 export default function BlogPostPage({ params }) {
   // Unwrap params using React.use for Next 15+ compatibility
@@ -67,6 +68,7 @@ export default function BlogPostPage({ params }) {
             <BlogContent blog={blog} />
           </div>
 
+          <AdBanner />
           {/* Related Articles */}
           <RelatedArticles relatedBlogs={relatedBlogs} />
         </div>
