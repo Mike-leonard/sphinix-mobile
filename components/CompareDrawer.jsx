@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import {
   Sheet,
@@ -9,9 +11,11 @@ import {
 import { Button } from "@/components/ui/button"
 import { BarChart2, X } from 'lucide-react'
 import { useCompare } from '@/context/CompareContext';
+import { useRouter } from 'next/navigation';
 
 export default function CompareDrawer() {
   const { compareList, isOpen, setIsCompareOpen, handleToggleCompare, clearCompare } = useCompare();
+  const router = useRouter();
 
   // We read from isCompareOpen from context! Note context uses 'isCompareOpen'
   const isDrawerOpen = useCompare().isCompareOpen; 
@@ -86,7 +90,10 @@ export default function CompareDrawer() {
               Clear All
             </Button>
             <Button
-              onClick={() => alert("Comparison analysis loaded! Specs verified.")}
+              onClick={() => {
+                setIsCompareOpen(false);
+                router.push("/comparisons");
+              }}
               className="flex-1 bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white border-0 text-xs shadow-md shadow-brand-600/20"
             >
               Full Specs
