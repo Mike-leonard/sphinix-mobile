@@ -66,4 +66,31 @@ describe('Navbar Component', () => {
     
     expect(setIsCompareOpenMock).toHaveBeenCalledWith(true);
   });
+
+  it('renders the Sign In button when no user is provided', () => {
+    vi.spyOn(CompareContext, 'useCompare').mockReturnValue({
+      compareList: [],
+      setIsCompareOpen: vi.fn()
+    });
+
+    render(<Navbar />);
+    expect(screen.getAllByRole('link', { name: /Sign In/i })[0]).toBeInTheDocument();
+  });
+
+  it('renders the Profile dropdown when a user is provided', () => {
+    vi.spyOn(CompareContext, 'useCompare').mockReturnValue({
+      compareList: [],
+      setIsCompareOpen: vi.fn()
+    });
+
+    const mockUser = { name: 'Test User', role: 'Normal' };
+    render(<Navbar user={mockUser} />);
+    
+    // "Test User" profile should be present, not "Sign In"
+    expect(screen.queryByRole('link', { name: /Sign In/i })).not.toBeInTheDocument();
+    
+    // The profile button/avatar should be visible
+    const profileButton = screen.getByRole('button', { name: /Toggle profile menu/i });
+    expect(profileButton).toBeInTheDocument();
+  });
 });
