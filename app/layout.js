@@ -28,7 +28,8 @@ export default function RootLayout({ children, modal }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body 
-        className={`${plusJakartaSans.variable} min-h-screen bg-slate-50 dark:bg-slate-950 dark:bg-dark-bg text-slate-900 dark:text-slate-800 dark:text-slate-100 antialiased selection:bg-brand-500 selection:text-slate-900 dark:text-white transition-colors duration-300`}
+        className={`${plusJakartaSans.variable} min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 antialiased selection:bg-brand-500/30 selection:text-brand-900 dark:selection:text-brand-100 flex flex-col`}
+        suppressHydrationWarning
       >
         <ThemeProvider
           attribute="class"
