@@ -3,10 +3,10 @@ import { X } from 'lucide-react';
 
 export default function ComparisonHeader({ compareList, gridColsClass, handleToggleCompare }) {
   return (
-    <div className={`sticky top-[64px] z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800 grid ${gridColsClass} divide-x divide-slate-200 dark:divide-slate-800 rounded-t-2xl shadow-sm`}>
+    <div className={`sticky top-[64px] z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border border-slate-200 dark:border-slate-800 grid ${gridColsClass} divide-x divide-slate-200 dark:divide-slate-800 rounded-2xl shadow-sm`}>
       {/* Empty first cell for the 'labels' column */}
-      <div className="p-4 md:p-6 flex items-center justify-center">
-        <span className="text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Specifications</span>
+      <div className="p-2 md:p-6 flex items-center justify-center text-center">
+        <span className="text-[9px] md:text-sm font-bold md:font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider md:tracking-widest">Specs</span>
       </div>
 
       {/* Device Columns */}

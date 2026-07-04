@@ -10,7 +10,7 @@ export default function BrandList({ brands, selectedBrand, setSelectedBrand }) {
           <Button
             variant="link"
             onClick={() => setSelectedBrand("All")}
-            className="text-[10px] text-brand-400 h-auto p-0"
+            className="text-[10px] text-brand-400 h-auto p-0 cursor-pointer"
           >
             Show All
           </Button>
@@ -23,7 +23,7 @@ export default function BrandList({ brands, selectedBrand, setSelectedBrand }) {
             key={brand}
             variant={selectedBrand === brand ? "default" : "ghost"}
             onClick={() => setSelectedBrand(brand)}
-            className={`text-xs py-2.5 px-1 h-auto text-center rounded-xl font-bold truncate transition-all active:scale-95 border ${selectedBrand === brand ? "bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-600/10 border-brand-500" : "bg-slate-50 border-slate-300 hover:bg-slate-100 text-slate-600 hover:text-slate-900 dark:bg-slate-800/80 dark:border-slate-700/60 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-white"}`}
+            className={`cursor-pointer text-xs py-2.5 px-1 h-auto text-center rounded-xl font-bold truncate transition-all active:scale-95 border ${selectedBrand === brand ? "bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-600/10 border-brand-500" : "bg-slate-50 border-slate-300 hover:bg-slate-100 text-slate-600 hover:text-slate-900 dark:bg-slate-800/80 dark:border-slate-700/60 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-white"}`}
           >
             {brand}
           </Button>

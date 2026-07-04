@@ -112,7 +112,7 @@ export default function HeroCarousel() {
           variant="outline"
           size="icon"
           onClick={() => setActiveSlide(prev => (prev === 0 ? HERO_SLIDES.length - 1 : prev - 1))}
-          className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-900 dark:text-white border-slate-300 dark:border-slate-700/50 hover:scale-105 active:scale-95 transition-all"
+          className="cursor-pointer w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-900 dark:text-white border-slate-300 dark:border-slate-700/50 hover:scale-105 active:scale-95 transition-all"
         >
           <ArrowLeft className="w-4 h-4" />
         </Button>
@@ -129,7 +129,7 @@ export default function HeroCarousel() {
           variant="outline"
           size="icon"
           onClick={() => setActiveSlide(prev => (prev === HERO_SLIDES.length - 1 ? 0 : prev + 1))}
-          className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-900 dark:text-white border-slate-300 dark:border-slate-700/50 hover:scale-105 active:scale-95 transition-all"
+          className="cursor-pointer w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-900 dark:text-white border-slate-300 dark:border-slate-700/50 hover:scale-105 active:scale-95 transition-all"
         >
           <ArrowRight className="w-4 h-4" />
         </Button>

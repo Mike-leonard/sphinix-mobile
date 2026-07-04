@@ -3,6 +3,7 @@ import ProductCard from '@/app/(main)/_components/_cards/ProductCard';
 import InFeedAd from '@/components/ads/InFeedAd';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
+import Link from 'next/link';
 
 export default function ProductSection({
   filteredProducts,
@@ -62,13 +63,13 @@ export default function ProductSection({
       )}
       {/* View More button */}
       <div className="text-center pt-2">
-        <Button
-          variant="outline"
-          className="rounded-xl hover:scale-[1.01] active:scale-[0.99] transition-all gap-2"
+        <Link
+          href="/devices"
+          className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 font-bold hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-colors border border-brand-200 dark:border-brand-500/30"
         >
-          View More Products
+          View More Devices
           <ChevronDown className="w-4 h-4" />
-        </Button>
+        </Link>
       </div>
     </section>
   );

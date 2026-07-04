@@ -43,30 +43,44 @@ export default function Navbar({ searchQuery: externalSearchQuery, setSearchQuer
         {/* Desktop Nav */}
         <nav className="hidden lg:flex items-center gap-8 font-medium text-sm text-slate-600 dark:text-slate-400">
           {navLinks.map((link) => (
-            <Link 
-              key={link.name} 
-              href={link.href} 
+            <Link
+              key={link.name}
+              href={link.href}
               className={`transition-colors hover:text-brand-400 ${pathname === link.href ? 'text-slate-900 dark:text-white font-semibold' : ''}`}
             >
               {link.name}
             </Link>
           ))}
-          <button 
-            className={`relative transition-colors ${compareCount > 0 ? "text-brand-400 font-semibold cursor-default" : "text-slate-600 dark:text-slate-400 cursor-default"}`}
-          >
-            Compare
-            {compareCount > 0 && (
-              <span className="absolute -top-2 -right-4 bg-brand-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
-                {compareCount}
-              </span>
+          {/* Compare button with tooltip */}
+          <div className="relative group">
+            <button
+              onClick={() => compareCount > 0 && setIsCompareOpen(true)}
+              className={`relative transition-colors ${compareCount > 0
+                ? "text-brand-400 font-semibold cursor-pointer hover:text-brand-500"
+                : "text-slate-600 dark:text-slate-400 cursor-default"
+                }`}
+            >
+              Compare
+              {compareCount > 0 && (
+                <span className="absolute -top-2 -right-4 bg-brand-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
+                  {compareCount}
+                </span>
+              )}
+            </button>
+
+            {compareCount === 0 && (
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs text-white bg-slate-800 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                Select items to compare
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-slate-800" />
+              </div>
             )}
-          </button>
+          </div>
         </nav>
 
         <div className="flex items-center gap-4">
           <ThemeToggle />
 
-          <Button 
+          <Button
             variant="outline"
             size="icon"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -83,33 +97,33 @@ export default function Navbar({ searchQuery: externalSearchQuery, setSearchQuer
       </div>
 
       {/* Mobile Nav */}
-      <div 
-        className={`absolute top-16 inset-x-0 z-50 lg:hidden bg-white/95 dark:bg-slate-950/95 backdrop-blur-md shadow-2xl overflow-hidden transition-all duration-500 ease-in-out ${
-          isMobileMenuOpen 
-            ? 'max-h-[600px] opacity-100 border-b border-t border-slate-200 dark:border-slate-800 pointer-events-auto' 
-            : 'max-h-0 opacity-0 border-transparent pointer-events-none'
-        }`}
+      <div
+        className={`absolute top-16 inset-x-0 z-50 lg:hidden bg-white/95 dark:bg-slate-950/95 backdrop-blur-md shadow-2xl overflow-hidden transition-all duration-500 ease-in-out ${isMobileMenuOpen
+          ? 'max-h-[600px] opacity-100 border-b border-t border-slate-200 dark:border-slate-800 pointer-events-auto'
+          : 'max-h-0 opacity-0 border-transparent pointer-events-none'
+          }`}
       >
         <div className="px-4 py-4 space-y-4">
           {navLinks.map((link) => (
-            <Link 
-              key={link.name} 
-              href={link.href} 
+            <Link
+              key={link.name}
+              href={link.href}
               onClick={() => setIsMobileMenuOpen(false)}
               className={`block text-base font-medium transition-colors hover:text-brand-400 ${pathname === link.href ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'}`}
             >
               {link.name}
             </Link>
           ))}
-          <button 
-            className={`block text-base font-medium w-full text-left transition-colors cursor-default ${compareCount > 0 ? "text-brand-400" : "text-slate-600 dark:text-slate-400"}`}
+          <button
+            onClick={() => compareCount > 0 && setIsCompareOpen(true)}
+            className={`block text-base font-medium w-full text-left transition-colors ${compareCount > 0 ? "text-brand-400 cursor-pointer" : "text-slate-600 dark:text-slate-400 cursor-default"}`}
           >
             Compare {compareCount > 0 && `(${compareCount})`}
           </button>
           {/* Mobile Search */}
           {setSearchQuery && (
             <div className="mb-4">
-              <Search 
+              <Search
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
                 selectedCategory={selectedCategory}

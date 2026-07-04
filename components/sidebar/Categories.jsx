@@ -13,7 +13,7 @@ export default function Categories({ categories, selectedCategory, setSelectedCa
             <Button
               variant={selectedCategory === cat.name ? "secondary" : "ghost"}
               onClick={() => { setSelectedCategory(cat.name); }}
-              className={`w-full justify-between h-auto py-2 px-3 ${selectedCategory === cat.name ? "bg-brand-600/10 text-brand-400 border border-brand-500/20 font-bold hover:bg-brand-600/20" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"}`}
+              className={`cursor-pointer w-full justify-between h-auto py-2 px-3 ${selectedCategory === cat.name ? "bg-brand-600/10 text-brand-400 border border-brand-500/20 font-bold hover:bg-brand-600/20" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"}`}
             >
               <span className="flex items-center gap-2">
                 <span className={`w-1.5 h-1.5 rounded-full ${cat.count > 0 ? "bg-brand-500" : "bg-slate-300 dark:bg-slate-700"}`}></span>

@@ -7,8 +7,8 @@ test.describe('Right Sidebar Dynamic Logic', () => {
     // On devices route, NewArrivals should be hidden
     await expect(page.locator('h3:has-text("New Arrivals")')).not.toBeVisible();
 
-    // Latest Blogs should be visible
-    await expect(page.locator('h3:has-text("Latest Articles")')).toBeVisible();
+    // Trending Articles should be visible
+    await expect(page.locator('h3:has-text("Trending Articles")')).toBeVisible();
 
     // Categories and Top Rated should also be visible
     await expect(page.locator('h3:has-text("Categories")')).toBeVisible();
@@ -25,8 +25,8 @@ test.describe('Right Sidebar Dynamic Logic', () => {
     await expect(page.locator('h3:has-text("New Arrivals")')).toBeVisible();
     await expect(page.locator('h3:has-text("Top Rated")')).toBeVisible();
 
-    // Latest Blogs should also be visible
-    await expect(page.locator('h3:has-text("Latest Articles")')).toBeVisible();
+    // Trending Articles should also be visible
+    await expect(page.locator('h3:has-text("Trending Articles")')).toBeVisible();
   });
 
   test('home page should show everything except categories optionally', async ({ page }) => {
@@ -34,7 +34,7 @@ test.describe('Right Sidebar Dynamic Logic', () => {
 
     // Home page shows almost everything
     await expect(page.locator('h3:has-text("New Arrivals")').first()).toBeVisible();
-    await expect(page.locator('h3:has-text("Latest Articles")').first()).toBeVisible();
+    await expect(page.locator('h3:has-text("Trending Articles")').first()).toBeVisible();
     // In our logic, Categories is actually shown on the Home Route!
     await expect(page.locator('h3:has-text("Categories")').first()).toBeVisible();
   });
