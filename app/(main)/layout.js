@@ -1,12 +1,12 @@
 import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/navbar/Navbar";
 import { CompareProvider } from "@/context/CompareContext";
 import { cookies } from "next/headers";
 
 export default async function MainLayout({ children }) {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get('session');
-  
+
   let user = null;
   if (sessionCookie && sessionCookie.value) {
     try {

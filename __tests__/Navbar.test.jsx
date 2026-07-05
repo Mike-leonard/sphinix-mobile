@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import Navbar from '../components/Navbar';
+import Navbar from '../components/navbar/Navbar';
 import * as CompareContext from '@/context/CompareContext';
 
 // Mock next/navigation and next-themes since we are testing outside Next.js
@@ -22,7 +22,7 @@ describe('Navbar Component', () => {
       compareList: [],
       setIsCompareOpen: vi.fn()
     });
-    
+
     render(<Navbar />);
     expect(screen.getAllByText('Home')[0]).toBeInTheDocument();
     expect(screen.getAllByText('Devices')[0]).toBeInTheDocument();
@@ -60,10 +60,10 @@ describe('Navbar Component', () => {
     });
 
     render(<Navbar />);
-    
+
     const compareButtons = screen.getAllByRole('button', { name: /Compare/i });
     fireEvent.click(compareButtons[0]);
-    
+
     expect(setIsCompareOpenMock).toHaveBeenCalledWith(true);
   });
 
@@ -85,10 +85,10 @@ describe('Navbar Component', () => {
 
     const mockUser = { name: 'Test User', role: 'Normal' };
     render(<Navbar user={mockUser} />);
-    
+
     // "Test User" profile should be present, not "Sign In"
     expect(screen.queryByRole('link', { name: /Sign In/i })).not.toBeInTheDocument();
-    
+
     // The profile button/avatar should be visible
     const profileButton = screen.getByRole('button', { name: /Toggle profile menu/i });
     expect(profileButton).toBeInTheDocument();
