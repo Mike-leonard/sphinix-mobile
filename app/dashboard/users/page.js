@@ -1,6 +1,6 @@
 import React from 'react';
 import { cookies } from 'next/headers';
-
+import UsersTable from '@/app/dashboard/users/_components/UsersTable';
 import { getUsers } from '@/actions/users';
 
 export default async function UsersPage() {
@@ -28,7 +28,7 @@ export default async function UsersPage() {
           Manage all registered users, roles, and permissions.
         </p>
         
-       
+        <UsersTable initialUsers={initialUsers} />
       </div>
     </div>
   );
