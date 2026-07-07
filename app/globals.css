@@ -60,6 +60,15 @@
   html {
     @apply font-sans;
   }
+
+  h1 { font-size: var(--font-size-h1, 2.25rem); }
+  h2 { font-size: var(--font-size-h2, 1.875rem); }
+  h3 { font-size: var(--font-size-h3, 1.5rem); }
+  p { font-size: var(--font-size-p, 1rem); }
+  
+  /* Utility classes for dynamic settings */
+  .text-dynamic-nav { font-size: var(--font-size-nav, 0.875rem); }
+  .text-dynamic-btn { font-size: var(--font-size-btn, 0.875rem); }
 }
 
 @theme inline {

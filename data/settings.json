@@ -1,0 +1,77 @@
+{
+  "seo": {
+    "home": {
+      "title": "Sphinix Mobile | In-Depth Smartphone Reviews & Tech Blog",
+      "description": "Read expert, unbiased smartphone reviews, detailed mobile specifications, comparison guides, and the latest mobile technology blog posts on Sphinix Mobile.",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": "",
+      "favicon": ""
+    },
+    "devices": {
+      "title": "Devices- get knowledge",
+      "description": "More knowledge about devices",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    },
+    "blogs": {
+      "title": "",
+      "description": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    },
+    "comparisons": {
+      "title": "",
+      "description": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  "typography": {
+    "h1Size": "2.25rem",
+    "h2Size": "1.875rem",
+    "h3Size": "1.5rem",
+    "pSize": "1rem",
+    "navSize": "0.875rem",
+    "buttonSize": "0.875rem"
+  },
+  "appearance": {
+    "primaryColor": "#8b5cf6"
+  },
+  "analytics": {
+    "googleAnalyticsId": ""
+  },
+  "advertisements": {
+    "adsensePublisherId": "",
+    "enableAds": false
+  },
+  "comments": {
+    "enableComments": true,
+    "requireApproval": false
+  },
+  "localization": {
+    "language": "en",
+    "timezone": "UTC"
+  },
+  "maintenance": {
+    "maintenanceMode": false,
+    "maintenanceMessage": "We are currently undergoing scheduled maintenance. Please check back soon."
+  },
+  "socialMedia": {
+    "facebook": "",
+    "twitter": "",
+    "instagram": "",
+    "youtube": ""
+  },
+  "media": {
+    "maxUploadSizeMB": 5,
+    "allowedFormats": "jpg, png, webp, mp4"
+  },
+  "security": {
+    "twoFactorAuth": false,
+    "maxLoginAttempts": 5
+  }
+}

@@ -45,7 +45,7 @@ export default function MobileNav({
             key={link.name}
             href={link.href}
             onClick={() => setIsMobileMenuOpen(false)}
-            className={`block text-base font-medium transition-colors hover:text-brand-400 ${pathname === link.href ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'}`}
+            className={`block font-medium transition-colors hover:text-brand-400 text-dynamic-nav ${pathname === link.href ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'}`}
           >
             {link.name}
           </Link>

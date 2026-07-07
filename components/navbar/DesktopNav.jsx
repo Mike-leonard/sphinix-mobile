@@ -16,7 +16,7 @@ export default function DesktopNav({ navLinks }) {
         <Link
           key={link.name}
           href={link.href}
-          className={`transition-colors hover:text-brand-400 ${pathname === link.href ? 'text-slate-900 dark:text-white font-semibold' : ''}`}
+          className={`transition-colors hover:text-brand-400 text-dynamic-nav ${pathname === link.href ? 'text-slate-900 dark:text-white font-semibold' : ''}`}
         >
           {link.name}
         </Link>
