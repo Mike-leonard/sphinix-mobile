@@ -1,12 +1,28 @@
 import React from 'react';
+import { useSettings } from '@/context/SettingsContext';
 
-export default function InFeedAd() {
+export default function InFeedAd({ placement = '' }) {
+  const settings = useSettings();
+  const adSettings = settings?.advertisements;
+
+  // Check if ads are enabled and if this placement is enabled
+  if (!adSettings?.enableAds) return null;
+  if (placement && adSettings?.placements?.[placement] === false) return null;
+
+  const activeNetwork = adSettings?.network || 'Google AdSense';
+  const networkDisplay = {
+    google_adsense: 'Google AdSense',
+    journey_mv: 'Journey',
+    monumetric: 'Monumetric',
+    custom: 'Custom Ad'
+  }[activeNetwork] || 'Ad';
+
   return (
     <div className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden group">
       
       {/* Required Ad Compliance Label */}
       <div className="absolute top-0 right-0 bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[9px] font-bold px-2 py-0.5 rounded-bl-lg uppercase tracking-wider">
-        Advertisement
+        {networkDisplay}
       </div>
 
       {/* Ad Image Placeholder */}

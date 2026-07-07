@@ -2,8 +2,11 @@ import React from 'react';
 import InFeedAd from '@/components/ads/InFeedAd';
 import ProductCard from '@/app/(main)/_components/_cards/ProductCard';
 import DeviceListCard from '@/app/(main)/devices/_components/DeviceListCard';
+import { useSettings } from '@/context/SettingsContext';
 
 export default function DeviceGrid({ currentProducts, viewMode, compareList, handleToggleCompare }) {
+  const settings = useSettings();
+  const freq = settings?.advertisements?.injectionFrequency?.devicesPageGrid || 6;
   if (currentProducts.length === 0) {
     return (
       <div className="py-20 text-center text-slate-500 dark:text-slate-400">
@@ -20,9 +23,9 @@ export default function DeviceGrid({ currentProducts, viewMode, compareList, han
     }>
       {currentProducts.map((product, index) => (
         <React.Fragment key={product.id}>
-          {index === 6 && (
+          {index > 0 && index % freq === 0 && (
             <div className="col-span-full w-full py-2">
-              <InFeedAd />
+              <InFeedAd placement="homePageInFeed" />
             </div>
           )}
           {viewMode === 'grid' ? (

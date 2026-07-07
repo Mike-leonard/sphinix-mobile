@@ -87,8 +87,36 @@ const defaultSettings = {
     googleAnalyticsId: ""
   },
   advertisements: {
-    adsensePublisherId: "",
-    enableAds: false
+    enableAds: false,
+    network: "google_adsense",
+    googleAdsense: {
+      publisherId: ""
+    },
+    journeyMv: {
+      siteId: ""
+    },
+    monumetric: {
+      propertyId: ""
+    },
+    custom: {
+      htmlCode: ""
+    },
+    placements: {
+      homePageBanner: true,
+      homePageInFeed: true,
+      devicesPageSidebar: true,
+      blogsPageSidebar: true,
+      blogDetailsInFeed: true,
+      deviceDetailsBanner: true,
+      comparisonsBanner: true
+    },
+    injectionFrequency: {
+      homePageDevices: 6,
+      homePageBlogs: 4,
+      devicesPageGrid: 6,
+      blogsPageGrid: 4,
+      comparisons: 3
+    }
   },
   comments: {
     enableComments: true,

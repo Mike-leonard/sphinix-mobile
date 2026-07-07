@@ -4,8 +4,11 @@ import BlogCard from '../_cards/BlogCard';
 import InFeedAd from '@/components/ads/InFeedAd';
 import MOCK_BLOGS from '@/data/blogs.json';
 import { ArrowRight } from 'lucide-react';
+import { useSettings } from '@/context/SettingsContext';
 
 export default function BlogSection({ limit = 8 }) {
+  const settings = useSettings();
+  const freq = settings?.advertisements?.injectionFrequency?.homePageBlogs || 4;
   const displayedBlogs = MOCK_BLOGS.slice(0, limit);
 
   return (
@@ -17,9 +20,9 @@ export default function BlogSection({ limit = 8 }) {
       <div className="space-y-4">
         {displayedBlogs.map((blog, index) => (
           <React.Fragment key={blog.id}>
-            {index === 4 && (
+            {index > 0 && index % freq === 0 && (
               <div className="w-full py-2">
-                <InFeedAd />
+                <InFeedAd placement="homePageInFeed" />
               </div>
             )}
             <BlogCard blog={blog} />

@@ -68,7 +68,7 @@ export default function BlogPostPage({ params }) {
             <BlogContent blog={blog} />
           </div>
 
-          <AdBanner />
+          <AdBanner placement="blogDetailsInFeed" />
           {/* Related Articles */}
           <RelatedArticles relatedBlogs={relatedBlogs} />
         </div>

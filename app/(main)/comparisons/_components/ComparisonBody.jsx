@@ -6,6 +6,7 @@ import {
   Battery, LayoutTemplate, Cpu, Monitor, Film, Camera
 } from 'lucide-react';
 import AdBanner from '@/components/ads/AdBanner';
+import { useSettings } from '@/context/SettingsContext';
 
 const BoolIcon = ({ value }) => value
   ? <CheckCircle2 className="w-5 h-5 fill-green-500 text-white border-none mx-auto" />
@@ -27,6 +28,9 @@ const categories = [
 ];
 
 export default function ComparisonBody({ compareList, gridColsClass }) {
+  const settings = useSettings();
+  const freq = settings?.advertisements?.injectionFrequency?.comparisons || 3;
+
   return (
     <div className="flex flex-col gap-6">
       {categories.map((category, index) => {
@@ -86,10 +90,10 @@ export default function ComparisonBody({ compareList, gridColsClass }) {
               </div>
             </div>
 
-            {/* Inject Ads after the 4th and 8th categories */}
-            {(index === 2 || index === 5 || index === 8) && (
+            {/* Inject Ads after the frequency threshold */}
+            {index > 0 && index % freq === 0 && (
               <div className="w-full">
-                <AdBanner type="horizontal" />
+                <AdBanner type="horizontal" placement="comparisonsBanner" />
               </div>
             )}
           </React.Fragment>

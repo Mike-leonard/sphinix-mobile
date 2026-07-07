@@ -108,8 +108,30 @@
     "googleAnalyticsId": ""
   },
   "advertisements": {
-    "adsensePublisherId": "",
-    "enableAds": false
+    "enableAds": true,
+    "network": "custom",
+    "googleAdsense": {
+      "publisherId": ""
+    },
+    "journeyMv": {
+      "siteId": ""
+    },
+    "monumetric": {
+      "propertyId": ""
+    },
+    "custom": {
+      "htmlCode": ""
+    },
+    "placements": {
+      "homePageBanner": true,
+      "homePageInFeed": true,
+      "devicesPageSidebar": true,
+      "blogsPageSidebar": true,
+      "blogDetailsInFeed": true,
+      "deviceDetailsBanner": true,
+      "comparisonsBanner": true
+    },
+    "adsensePublisherId": ""
   },
   "comments": {
     "enableComments": true,

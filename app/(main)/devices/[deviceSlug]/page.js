@@ -52,7 +52,7 @@ export default function DeviceDetailsPage({ params }) {
           {/* Tabbed Content: Specs, Overview, Reviews */}
           <DeviceTabs device={device} />
 
-          <AdBanner className='mt-10'/>
+          <AdBanner placement="deviceDetailsBanner" className='mt-10'/>
           {/* Related Devices */}
           <RelatedDevices currentDevice={device} />
 

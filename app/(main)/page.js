@@ -52,7 +52,7 @@ export default function Home() {
           <div className="lg:col-span-8 space-y-12">
 
             {/* TOP LEADERBOARD AD */}
-            <AdBanner type="horizontal" className="hidden sm:flex" />
+            <AdBanner type="horizontal" placement="homePageBanner" className="hidden sm:flex" />
 
             <HeroCarousel />
 
@@ -69,7 +69,7 @@ export default function Home() {
             />
 
             {/* IN-FEED AD BANNER */}
-            <AdBanner type="horizontal" />
+            <AdBanner type="horizontal" placement="homePageBanner" />
 
             {/* LATEST NEWS / BLOG SECTION */}
             <BlogSection limit={homeLimits.blogLimit} />
@@ -95,7 +95,7 @@ export default function Home() {
 
       {/* BOTTOM FULL-WIDTH AD */}
       <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-        <AdBanner type="horizontal" />
+        <AdBanner type="horizontal" placement="homePageBanner" />
       </div>
 
       {/* Compare Drawer Overlay */}

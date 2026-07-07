@@ -1,6 +1,22 @@
 import React from 'react';
+import { useSettings } from '@/context/SettingsContext';
 
-export default function AdBanner({ type = 'horizontal', className = '' }) {
+export default function AdBanner({ type = 'horizontal', placement = '', className = '' }) {
+  const settings = useSettings();
+  const adSettings = settings?.advertisements;
+
+  // Check if ads are enabled and if this placement is enabled
+  if (!adSettings?.enableAds) return null;
+  if (placement && adSettings?.placements?.[placement] === false) return null;
+
+  const activeNetwork = adSettings?.network || 'Google AdSense';
+  const networkDisplay = {
+    google_adsense: 'Google AdSense',
+    journey_mv: 'Journey by Mediavine',
+    monumetric: 'Monumetric',
+    custom: 'Custom Ad'
+  }[activeNetwork] || 'Ad Network';
+
   const isHorizontal = type === 'horizontal';
   
   // Base classes for the ad container
@@ -19,8 +35,8 @@ export default function AdBanner({ type = 'horizontal', className = '' }) {
       
       {/* Ad Label */}
       <div className="relative flex flex-col items-center gap-2">
-        <span className="text-xs tracking-widest uppercase opacity-50">Advertisement</span>
-        <span className="text-center px-4">
+        <span className="text-xs tracking-widest uppercase opacity-50 font-bold">{networkDisplay}</span>
+        <span className="text-center px-4 font-semibold text-slate-500 dark:text-slate-400">
           {isHorizontal ? '728 x 90 (Leaderboard)' : '300 x 600 (Half Page)'}
         </span>
         

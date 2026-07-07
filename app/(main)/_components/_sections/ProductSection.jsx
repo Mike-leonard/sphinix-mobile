@@ -4,6 +4,7 @@ import InFeedAd from '@/components/ads/InFeedAd';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 import Link from 'next/link';
+import { useSettings } from '@/context/SettingsContext';
 
 export default function ProductSection({
   filteredProducts,
@@ -15,6 +16,11 @@ export default function ProductSection({
   handleToggleCompare,
   isHomePage = false
 }) {
+  const settings = useSettings();
+  const freq = isHomePage 
+    ? (settings?.advertisements?.injectionFrequency?.homePageDevices || 6)
+    : (settings?.advertisements?.injectionFrequency?.devicesPageGrid || 6);
+
   return (
     <section className="space-y-6">
       <div className="flex items-center justify-between">
@@ -47,9 +53,9 @@ export default function ProductSection({
             const isComparing = compareList.some(item => item.id === product.id);
             return (
               <React.Fragment key={product.id}>
-                {index === 4 && (
+                {index > 0 && index % freq === 0 && (
                   <div className="col-span-full w-full py-2">
-                    <InFeedAd />
+                    <InFeedAd placement="homePageInFeed" />
                   </div>
                 )}
                 <ProductCard

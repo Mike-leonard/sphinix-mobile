@@ -87,7 +87,10 @@ export default function RightSidebar({
 
       {/* SIDEBAR AD BANNER (Sticky) */}
       <div className="sticky top-24">
-        <AdBanner type="vertical" />
+        <AdBanner 
+          type="vertical" 
+          placement={isBlogsRoute ? "blogsPageSidebar" : "devicesPageSidebar"} 
+        />
       </div>
     </div>
   );
