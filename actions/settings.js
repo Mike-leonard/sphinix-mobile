@@ -3,6 +3,7 @@
 import fs from 'fs';
 import path from 'path';
 import { revalidatePath } from 'next/cache';
+import { verifySession } from './auth';
 
 const settingsFilePath = path.join(process.cwd(), 'data', 'settings.json');
 
@@ -148,6 +149,11 @@ export async function getSettings() {
 
 export async function updateSettings(newSettings) {
   try {
+    const session = await verifySession();
+    if (!session || session.role !== 'Admin') {
+      return { success: false, error: 'Unauthorized. Admin access required.' };
+    }
+
     // Deep merge to not lose anything during partial updates
     const currentSettings = await getSettings();
     const mergedSettings = { ...currentSettings };

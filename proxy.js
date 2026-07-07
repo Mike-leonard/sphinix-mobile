@@ -1,6 +1,18 @@
 import { NextResponse } from 'next/server';
 
-export function proxy(request) {
+const SECRET = process.env.SESSION_SECRET || 'fallback_secret_do_not_use_in_prod';
+
+async function verifySignature(payload, signature) {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw', encoder.encode(SECRET), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+  );
+  const signatureBuffer = await crypto.subtle.sign('HMAC', key, encoder.encode(JSON.stringify(payload)));
+  const expectedSignature = Array.from(new Uint8Array(signatureBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+  return expectedSignature === signature;
+}
+
+export async function proxy(request) {
   const { pathname } = request.nextUrl;
   
   // Define privileged roles
@@ -18,7 +30,14 @@ export function proxy(request) {
     }
 
     try {
-      const session = JSON.parse(sessionCookie.value);
+      const sessionData = JSON.parse(sessionCookie.value);
+      const { signature, ...session } = sessionData;
+      
+      const isValid = await verifySignature(session, signature);
+      if (!isValid) {
+        throw new Error('Invalid signature');
+      }
+
       const isPrivileged = PRIVILEGED_ROLES.includes(session.role);
       
       // Dashboard restriction: only privileged users

@@ -3,6 +3,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { revalidatePath } from 'next/cache';
+import { verifySession } from './auth';
 
 const dataFilePath = path.join(process.cwd(), 'data', 'users.json');
 
@@ -36,6 +37,11 @@ export async function getUsers(currentUserId = null) {
 }
 
 export async function deleteUser(userId) {
+  const session = await verifySession();
+  if (!session || session.role !== 'Admin') {
+    return { success: false, message: 'Unauthorized. Admin access required.' };
+  }
+
   const users = await readUsers();
   const updatedUsers = users.filter(u => u.id !== userId);
   
@@ -49,6 +55,11 @@ export async function deleteUser(userId) {
 }
 
 export async function updateUserRole(userId, newRole) {
+  const session = await verifySession();
+  if (!session || session.role !== 'Admin') {
+    return { success: false, message: 'Unauthorized. Admin access required.' };
+  }
+
   const users = await readUsers();
   let found = false;
   
