@@ -8,17 +8,24 @@ const settingsFilePath = path.join(process.cwd(), 'data', 'settings.json');
 
 const defaultSettings = {
   seo: {
+    advanced: {
+      generateSitemap: true,
+      robotsTxt: "User-agent: *\nAllow: /\nSitemap: https://sphinix-mobile.com/sitemap.xml",
+      globalStructuredData: "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"WebSite\",\n  \"name\": \"Sphinix Mobile\",\n  \"url\": \"https://sphinix-mobile.com\"\n}"
+    },
     home: { 
       title: "Sphinix Mobile | In-Depth Smartphone Reviews & Tech Blog", 
       description: "Read expert, unbiased smartphone reviews, detailed mobile specifications, comparison guides, and the latest mobile technology blog posts on Sphinix Mobile.",
+      keywords: "smartphone reviews, mobile specifications, phone comparisons, tech blog, latest phones, Sphinix Mobile",
+      structuredData: "",
       ogTitle: "",
       ogDescription: "",
       ogImage: "",
       favicon: ""
     },
-    devices: { title: "", description: "", ogTitle: "", ogDescription: "", ogImage: "" },
-    blogs: { title: "", description: "", ogTitle: "", ogDescription: "", ogImage: "" },
-    comparisons: { title: "", description: "", ogTitle: "", ogDescription: "", ogImage: "" }
+    devices: { title: "", description: "", keywords: "", structuredData: "", ogTitle: "", ogDescription: "", ogImage: "" },
+    blogs: { title: "", description: "", keywords: "", structuredData: "", ogTitle: "", ogDescription: "", ogImage: "" },
+    comparisons: { title: "", description: "", keywords: "", structuredData: "", ogTitle: "", ogDescription: "", ogImage: "" }
   },
   typography: {
     h1Size: {
@@ -114,11 +121,21 @@ export async function getSettings() {
     
     // specifically handle nested objects to prevent missing keys on old data
     for (const key of Object.keys(defaultSettings)) {
-      if (typeof defaultSettings[key] === 'object') {
+      if (typeof defaultSettings[key] === 'object' && defaultSettings[key] !== null) {
         mergedSettings[key] = {
           ...defaultSettings[key],
           ...(parsedData[key] || {})
         };
+        
+        // Go one level deeper for seo.home, typography.h1Size, etc.
+        for (const subKey of Object.keys(defaultSettings[key])) {
+          if (typeof defaultSettings[key][subKey] === 'object' && defaultSettings[key][subKey] !== null) {
+            mergedSettings[key][subKey] = {
+              ...defaultSettings[key][subKey],
+              ...((parsedData[key] && parsedData[key][subKey]) || {})
+            };
+          }
+        }
       }
     }
 
@@ -138,6 +155,12 @@ export async function updateSettings(newSettings) {
     for (const key of Object.keys(newSettings)) {
       if (typeof newSettings[key] === 'object' && newSettings[key] !== null) {
          mergedSettings[key] = { ...mergedSettings[key], ...newSettings[key] };
+         // Merge sub objects
+         for (const subKey of Object.keys(newSettings[key])) {
+           if (typeof newSettings[key][subKey] === 'object' && newSettings[key][subKey] !== null) {
+             mergedSettings[key][subKey] = { ...mergedSettings[key]?.[subKey], ...newSettings[key][subKey] };
+           }
+         }
       } else {
          mergedSettings[key] = newSettings[key];
       }

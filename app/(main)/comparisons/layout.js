@@ -7,6 +7,7 @@ export async function generateMetadata() {
   return {
     title: data.title || "Comparisons",
     description: data.description || "",
+    keywords: data.keywords?.split(',').map(k => k.trim()) || [],
     openGraph: {
       title: data.ogTitle || data.title || "Comparisons",
       description: data.ogDescription || data.description || "",
@@ -15,6 +16,19 @@ export async function generateMetadata() {
   };
 }
 
-export default function ComparisonsLayout({ children }) {
-  return <>{children}</>;
+export default async function ComparisonsLayout({ children }) {
+  const settings = await getSettings();
+  const structuredData = settings?.seo?.comparisons?.structuredData;
+
+  return (
+    <>
+      {structuredData && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: structuredData }}
+        />
+      )}
+      {children}
+    </>
+  );
 }

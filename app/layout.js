@@ -19,7 +19,7 @@ export async function generateMetadata() {
       template: "%s | " + settings.seo.home.title.split(' |')[0],
     },
     description: settings.seo.home.description,
-    keywords: ["smartphone reviews", "mobile specifications", "phone comparisons", "tech blog", "latest phones", "Sphinix Mobile"],
+    keywords: settings.seo.home.keywords?.split(',').map(k => k.trim()) || ["smartphone reviews", "mobile specifications", "phone comparisons", "tech blog", "latest phones", "Sphinix Mobile"],
     openGraph: {
       title: settings.seo.home.ogTitle || settings.seo.home.title,
       description: settings.seo.home.ogDescription || settings.seo.home.description,
@@ -82,6 +82,18 @@ export default async function RootLayout({ children, modal }) {
             }
           `
         }} />
+        {settings.seo.advanced?.globalStructuredData && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: settings.seo.advanced.globalStructuredData }}
+          />
+        )}
+        {settings.seo.home?.structuredData && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: settings.seo.home.structuredData }}
+          />
+        )}
       </head>
       <body 
         className={`${plusJakartaSans.variable} min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 antialiased selection:bg-brand-500/30 selection:text-brand-900 dark:selection:text-brand-100 flex flex-col`}

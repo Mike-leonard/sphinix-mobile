@@ -1,8 +1,15 @@
 {
   "seo": {
+    "advanced": {
+      "generateSitemap": true,
+      "robotsTxt": "User-agent: *\nAllow: /\nSitemap: https://sphinix-mobile.com/sitemap.xml",
+      "globalStructuredData": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"WebSite\",\n  \"name\": \"Sphinix Mobile\",\n  \"url\": \"https://sphinix-mobile.com\"\n}"
+    },
     "home": {
       "title": "Sphinix Mobile | In-Depth Smartphone Reviews & Tech Blog",
       "description": "Read expert, unbiased smartphone reviews, detailed mobile specifications, comparison guides, and the latest mobile technology blog posts on Sphinix Mobile.",
+      "keywords": "smartphone reviews, mobile specifications, phone comparisons, tech blog, latest phones, Sphinix Mobile",
+      "structuredData": "",
       "ogTitle": "",
       "ogDescription": "",
       "ogImage": "",
@@ -11,6 +18,8 @@
     "devices": {
       "title": "Devices- get knowledge",
       "description": "More knowledge about devices",
+      "keywords": "",
+      "structuredData": "",
       "ogTitle": "",
       "ogDescription": "",
       "ogImage": ""
@@ -18,6 +27,8 @@
     "blogs": {
       "title": "",
       "description": "",
+      "keywords": "",
+      "structuredData": "",
       "ogTitle": "",
       "ogDescription": "",
       "ogImage": ""
@@ -25,6 +36,8 @@
     "comparisons": {
       "title": "",
       "description": "",
+      "keywords": "",
+      "structuredData": "",
       "ogTitle": "",
       "ogDescription": "",
       "ogImage": ""
