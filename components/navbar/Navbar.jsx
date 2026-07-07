@@ -24,7 +24,7 @@ export default function Navbar({ user, searchQuery, setSearchQuery, selectedCate
       <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
           {/* Logo */}
-          <Link href="/" className="relative group cursor-pointer block">
+          <Link href="/" style={{fontSize: "var(--font-size-link-nav, var(--font-size-link-default))"}} className="relative group cursor-pointer block">
             <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-brand-500 to-pink-500 opacity-75 blur-sm transition duration-300 group-hover:opacity-100"></div>
             <div className="relative px-4 py-2 bg-slate-50 dark:bg-slate-950 rounded-lg text-slate-900 dark:text-white font-extrabold tracking-wider border border-slate-200 dark:border-slate-800 text-lg">
               SPHINIX <span className="text-brand-400 font-normal">MOBILE</span>
@@ -57,7 +57,7 @@ export default function Navbar({ user, searchQuery, setSearchQuery, selectedCate
                 dropdownClasses="right-0 mt-2 slide-in-from-top-2"
               />
             ) : (
-              <Link href="/login" className="inline-flex items-center justify-center h-10 px-4 py-2 bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 rounded-xl shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all text-white font-medium text-sm border-0">
+              <Link href="/login" style={{fontSize: "var(--font-size-link-nav, var(--font-size-link-default))"}} className="inline-flex items-center justify-center h-10 px-4 py-2 bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 rounded-xl shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all text-white font-medium text-sm border-0">
                 Sign In
               </Link>
             )}

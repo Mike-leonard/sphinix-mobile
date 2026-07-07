@@ -3,6 +3,7 @@
 import React, { useState, useTransition } from 'react';
 import { Save, CheckCircle2, Upload, Link as LinkIcon } from 'lucide-react';
 import { updateSettings } from '@/actions/settings';
+import { Button } from "@/components/ui/button";
 
 export default function SeoMetadataForm({ initialSettings }) {
   const [settings, setSettings] = useState(initialSettings);
@@ -53,14 +54,14 @@ export default function SeoMetadataForm({ initialSettings }) {
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       <div className="flex flex-col gap-4">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+        <h2  style={{fontSize: "var(--font-size-h2-settings, var(--font-size-h2-default))"}} className="text-lg font-bold text-slate-900 dark:text-white mb-2">
           SEO & Metadata
         </h2>
         
         {/* Main Tab Navigation (Pages) */}
         <div className="flex border-b border-slate-200 dark:border-slate-800 overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => (
-            <button
+            <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-default, var(--font-size-button-default))"}} 
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`px-6 py-3 font-semibold text-sm transition-colors whitespace-nowrap rounded-t-lg ${
@@ -70,7 +71,7 @@ export default function SeoMetadataForm({ initialSettings }) {
               }`}
             >
               {tab.label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -79,7 +80,7 @@ export default function SeoMetadataForm({ initialSettings }) {
         {/* Sub Tab Navigation (General vs OpenGraph) */}
         <div className="flex border-b border-slate-200 dark:border-slate-800 mb-6 overflow-x-auto scrollbar-hide">
           {subTabs.map((tab) => (
-            <button
+            <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-default, var(--font-size-button-default))"}} 
               key={tab.id}
               onClick={() => setActiveSubTab(tab.id)}
               className={`px-6 py-3 font-semibold text-sm transition-colors whitespace-nowrap rounded-t-lg ${
@@ -89,7 +90,7 @@ export default function SeoMetadataForm({ initialSettings }) {
               }`}
             >
               {tab.label}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -139,7 +140,7 @@ export default function SeoMetadataForm({ initialSettings }) {
                     </div>
                     <div className="flex-1 relative">
                       <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                        <LinkIcon className="w-4 h-4 text-slate-400" />
+                        <LinkIcon style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="w-4 h-4 text-slate-400" />
                       </div>
                       <input
                         type="text"
@@ -150,7 +151,7 @@ export default function SeoMetadataForm({ initialSettings }) {
                       />
                     </div>
                   </div>
-                  <p className="text-xs text-slate-500 mt-2">Provide a URL to your favicon image (ico, png, svg).</p>
+                  <p  style={{fontSize: "var(--font-size-p-form, var(--font-size-p-default))"}} className="text-xs text-slate-500 mt-2">Provide a URL to your favicon image (ico, png, svg).</p>
                 </div>
               )}
             </div>
@@ -192,7 +193,7 @@ export default function SeoMetadataForm({ initialSettings }) {
                 <div className="flex gap-3">
                   <div className="flex-1 relative">
                     <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                      <LinkIcon className="w-4 h-4 text-slate-400" />
+                      <LinkIcon style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="w-4 h-4 text-slate-400" />
                     </div>
                     <input
                       type="text"
@@ -216,7 +217,7 @@ export default function SeoMetadataForm({ initialSettings }) {
       </div>
 
       <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-end">
-        <button
+        <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-primary, var(--font-size-button-default))"}} 
           onClick={handleSave}
           disabled={isPending}
           className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-medium transition-all text-white ${
@@ -233,7 +234,7 @@ export default function SeoMetadataForm({ initialSettings }) {
             <Save className="w-5 h-5" />
           )}
           {success ? 'Saved!' : 'Save Settings'}
-        </button>
+        </Button>
       </div>
     </div>
   );

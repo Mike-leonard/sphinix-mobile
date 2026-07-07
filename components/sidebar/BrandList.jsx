@@ -5,7 +5,7 @@ export default function BrandList({ brands, selectedBrand, setSelectedBrand }) {
   return (
     <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Popular Brands</h3>
+        <h3 style={{fontSize: "var(--font-size-h3-section, var(--font-size-h3-default))"}} className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Popular Brands</h3>
         {selectedBrand !== "All" && (
           <Button
             variant="link"

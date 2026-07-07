@@ -3,7 +3,7 @@ import React from 'react';
 export default function TopRated({ topRated, setSelectedBrand, setSearchQuery }) {
   return (
     <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
-      <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Top Rated</h3>
+      <h3 style={{fontSize: "var(--font-size-h3-section, var(--font-size-h3-default))"}} className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Top Rated</h3>
 
       <div className="space-y-3">
         {topRated.slice(0, 3).map(prod => (

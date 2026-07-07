@@ -30,8 +30,8 @@ export default function SettingsLayout({ children }) {
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Settings</h1>
-          <p className="text-slate-600 dark:text-slate-400">
+          <h1 style={{fontSize: "var(--font-size-h1-dashboard, var(--font-size-h1-default))"}} className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Settings</h1>
+          <p style={{fontSize: "var(--font-size-p-default, var(--font-size-p-default))"}} className="text-slate-600 dark:text-slate-400">
             Configure site-wide settings, metadata, and preferences.
           </p>
         </div>

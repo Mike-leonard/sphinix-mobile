@@ -23,8 +23,8 @@ export default async function UsersPage() {
   return (
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Users Management</h1>
-        <p className="text-slate-600 dark:text-slate-400 mb-8">
+        <h1  style={{fontSize: "var(--font-size-h1-dashboard, var(--font-size-h1-default))"}} className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Users Management</h1>
+        <p  style={{fontSize: "var(--font-size-p-default, var(--font-size-p-default))"}} className="text-slate-600 dark:text-slate-400 mb-8">
           Manage all registered users, roles, and permissions.
         </p>
         

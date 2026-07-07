@@ -7,6 +7,7 @@ import { User, Activity, LayoutDashboard, LogOut } from 'lucide-react';
 import { useCompare } from '@/context/CompareContext';
 import { Search } from '../Search';
 import { logoutAction } from '@/actions/auth';
+import { Button } from "@/components/ui/button";
 
 export default function MobileNav({
   isMobileMenuOpen,
@@ -50,7 +51,7 @@ export default function MobileNav({
             {link.name}
           </Link>
         ))}
-        <button
+        <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-sidebar, var(--font-size-button-default))"}} 
           onClick={() => {
             if (compareCount > 0) setIsCompareOpen(true);
             setIsMobileMenuOpen(false);
@@ -58,7 +59,7 @@ export default function MobileNav({
           className={`block text-base font-medium w-full text-left transition-colors ${compareCount > 0 ? "text-brand-400 cursor-pointer" : "text-slate-600 dark:text-slate-400 cursor-default"}`}
         >
           Compare {compareCount > 0 && `(${compareCount})`}
-        </button>
+        </Button>
 
         {/* Mobile Search */}
         {setSearchQuery && (
@@ -118,13 +119,13 @@ export default function MobileNav({
                   </Link>
                 )}
 
-                <button
+                <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-sidebar, var(--font-size-button-default))"}} 
                   onClick={handleLogout}
                   className="flex w-full items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30"
                 >
                   <LogOut className="w-5 h-5" />
                   Logout
-                </button>
+                </Button>
               </div>
             </div>
           ) : (

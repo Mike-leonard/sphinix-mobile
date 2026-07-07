@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 export default function Categories({ categories, selectedCategory, setSelectedCategory }) {
   return (
     <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
-      <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Product Categories</h3>
+      <h3 style={{fontSize: "var(--font-size-h3-section, var(--font-size-h3-default))"}} className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Product Categories</h3>
 
       <ul className="space-y-2">
         {categories.map(cat => (

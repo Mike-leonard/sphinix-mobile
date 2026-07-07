@@ -8,7 +8,7 @@ export default function BlogCard({ blog }) {
   const href = `/blogs/${slug}`;
 
   return (
-    <Link href={href} className="block group">
+    <Link href={href} style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="block group">
       <Card className="rounded-2xl border-slate-200 dark:border-slate-800 group-hover:border-brand-500/20 group-hover:shadow-lg transition-all duration-300 bg-white dark:bg-slate-900 overflow-hidden border-0">
       <CardContent className="p-6 flex flex-col md:flex-row gap-6 items-start w-full">
         {/* Blog image banner */}
@@ -29,10 +29,10 @@ export default function BlogCard({ blog }) {
             <span>•</span>
             <span>By {blog.author}</span>
           </div>
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-brand-400 transition-colors leading-snug">
+          <h3  style={{fontSize: "var(--font-size-h3-card, var(--font-size-h3-default))"}} className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-brand-400 transition-colors leading-snug">
             {blog.title}
           </h3>
-          <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed line-clamp-2">
+          <p  style={{fontSize: "var(--font-size-p-card, var(--font-size-p-default))"}} className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed line-clamp-2">
             {blog.excerpt}
           </p>
           <span className="inline-flex items-center text-xs font-bold text-brand-400 group-hover:text-brand-300 group-hover:underline gap-1 pt-1">

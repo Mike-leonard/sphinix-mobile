@@ -1,5 +1,6 @@
 import React from 'react';
 import { LayoutGrid, List } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 
 export default function SortingControl({ viewMode, setViewMode, sortOption, setSortOption, selectedBrand, setSelectedBrand, BRANDS, setShowFilters, showFilters }) {
     return (
@@ -8,18 +9,18 @@ export default function SortingControl({ viewMode, setViewMode, sortOption, setS
             <div className="flex items-center gap-4">
                 <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">Display:</span>
                 <div className="flex bg-slate-100 dark:bg-slate-800 rounded-md p-1">
-                    <button
+                    <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-default, var(--font-size-button-default))"}} 
                         onClick={() => setViewMode('grid')}
                         className={`cursor-pointer p-1.5 rounded-sm transition-colors ${viewMode === 'grid' ? 'bg-brand-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
                     >
                         <LayoutGrid className="w-4 h-4" />
-                    </button>
-                    <button
+                    </Button>
+                    <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-default, var(--font-size-button-default))"}} 
                         onClick={() => setViewMode('list')}
                         className={`cursor-pointer p-1.5 rounded-sm transition-colors ${viewMode === 'list' ? 'bg-brand-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
                     >
                         <List className="w-4 h-4" />
-                    </button>
+                    </Button>
                 </div>
             </div>
 
@@ -44,13 +45,13 @@ export default function SortingControl({ viewMode, setViewMode, sortOption, setS
                 </select>
             </div>
 
-            <button
+            <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-default, var(--font-size-button-default))"}} 
                 onClick={() => setShowFilters(!showFilters)}
                 className="cursor-pointer lg:hidden text-sm font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1"
             >
                 Filters
                 <span className={`transition-transform duration-200 ${showFilters ? 'rotate-180' : ''}`}>▾</span>
-            </button>
+            </Button>
         </div>
     );
 }

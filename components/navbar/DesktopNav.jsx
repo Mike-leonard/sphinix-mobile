@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCompare } from '@/context/CompareContext';
+import { Button } from "@/components/ui/button";
 
 export default function DesktopNav({ navLinks }) {
   const pathname = usePathname();
@@ -23,7 +24,7 @@ export default function DesktopNav({ navLinks }) {
       ))}
       {/* Compare button with tooltip */}
       <div className="relative group">
-        <button
+        <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-sidebar, var(--font-size-button-default))"}} 
           onClick={() => compareCount > 0 && setIsCompareOpen(true)}
           className={`relative transition-colors ${compareCount > 0
             ? "text-brand-400 font-semibold cursor-pointer hover:text-brand-500"
@@ -36,7 +37,7 @@ export default function DesktopNav({ navLinks }) {
               {compareCount}
             </span>
           )}
-        </button>
+        </Button>
 
         {compareCount === 0 && (
           <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 text-xs text-white bg-slate-800 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">

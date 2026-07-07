@@ -6,6 +6,7 @@ import {
   LineChart, Line, BarChart, Bar, Radar, RadarChart, PolarGrid, PolarAngleAxis 
 } from 'recharts';
 import { Plus, MoreHorizontal } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 
 // Mock Data
 const salesData = [
@@ -50,10 +51,10 @@ export default function DashboardPage() {
       {/* Sales Overview Card */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-bold text-slate-800 dark:text-white">Sales Overview</h2>
-          <button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+          <h2  style={{fontSize: "var(--font-size-h2-settings, var(--font-size-h2-default))"}} className="text-lg font-bold text-slate-800 dark:text-white">Sales Overview</h2>
+          <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-primary, var(--font-size-button-default))"}}  className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
             <Plus className="w-4 h-4" /> Add Offer
-          </button>
+          </Button>
         </div>
 
         <div className="flex justify-between items-end mb-4">
@@ -174,7 +175,7 @@ export default function DashboardPage() {
         
         {/* Top Selling Categories (Radar Chart) */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
-          <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4">Top Selling Categories</h3>
+          <h3  style={{fontSize: "var(--font-size-h3-section, var(--font-size-h3-default))"}} className="text-sm font-bold text-slate-800 dark:text-white mb-4">Top Selling Categories</h3>
           <div className="h-[250px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
@@ -191,10 +192,10 @@ export default function DashboardPage() {
         {/* Latest Added Products (List) */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm lg:col-span-2">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-sm font-bold text-slate-800 dark:text-white">Latest Added Products</h3>
-            <button className="text-slate-400 hover:text-slate-600 transition-colors">
+            <h3  style={{fontSize: "var(--font-size-h3-section, var(--font-size-h3-default))"}} className="text-sm font-bold text-slate-800 dark:text-white">Latest Added Products</h3>
+            <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-default, var(--font-size-button-default))"}}  className="text-slate-400 hover:text-slate-600 transition-colors">
               <MoreHorizontal className="w-5 h-5" />
-            </button>
+            </Button>
           </div>
 
           <div className="space-y-4">

@@ -51,10 +51,10 @@ export default function HeroCarousel() {
                 <span className="inline-block px-3 py-1 bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-semibold uppercase tracking-widest rounded-full mb-6">
                   {slide.subtitle}
                 </span>
-                <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-tight text-slate-900 dark:text-white mb-6">
+                <h1  style={{fontSize: "var(--font-size-h1-hero, var(--font-size-h1-default))"}} className="text-3xl md:text-5xl font-black tracking-tight leading-tight text-slate-900 dark:text-white mb-6">
                   {slide.title}
                 </h1>
-                <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base leading-relaxed mb-6">
+                <p  style={{fontSize: "var(--font-size-p-subtitle, var(--font-size-p-default))"}} className="text-slate-600 dark:text-slate-400 text-sm md:text-base leading-relaxed mb-6">
                   {slide.description}
                 </p>
                 <div className="flex gap-4">
@@ -118,7 +118,7 @@ export default function HeroCarousel() {
         </Button>
         <div className="flex gap-1.5">
           {HERO_SLIDES.map((_, idx) => (
-            <button 
+            <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-default, var(--font-size-button-default))"}}  
               key={idx}
               onClick={() => setActiveSlide(idx)}
               className={`w-2 h-2 rounded-full transition-all ${idx === activeSlide ? "w-6 bg-brand-500" : "bg-slate-300 dark:bg-slate-700"}`}

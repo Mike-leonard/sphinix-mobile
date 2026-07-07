@@ -1,10 +1,11 @@
 import React from 'react';
+import { Button } from "@/components/ui/button";
 
 export default function TabNavigation({ tabs, activeTab, setActiveTab }) {
   return (
     <div className="flex border-b border-slate-200 dark:border-slate-800 mb-8 overflow-x-auto scrollbar-hide">
       {tabs.map((tab) => (
-        <button
+        <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-sidebar, var(--font-size-button-default))"}} 
           key={tab}
           onClick={() => setActiveTab(tab)}
           className={`px-6 py-3 font-semibold text-sm transition-colors whitespace-nowrap rounded-t-lg ${
@@ -14,7 +15,7 @@ export default function TabNavigation({ tabs, activeTab, setActiveTab }) {
           }`}
         >
           {tab}
-        </button>
+        </Button>
       ))}
     </div>
   );

@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 
 export default function AuthModal({ children }) {
   const overlay = useRef(null);
@@ -49,13 +50,13 @@ export default function AuthModal({ children }) {
         className="fixed inset-0 flex items-center justify-center p-4 sm:p-6"
       >
         <div className="relative w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
-          <button
+          <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-secondary, var(--font-size-button-default))"}} 
             onClick={onDismiss}
             className="absolute -top-3 -right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 shadow-sm border border-slate-200 dark:border-slate-700 transition-colors"
           >
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
-          </button>
+          </Button>
           {children}
         </div>
       </div>

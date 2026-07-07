@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { User, Activity, LayoutDashboard, LogOut, ChevronDown } from 'lucide-react';
 import { logoutAction } from '@/actions/auth';
+import { Button } from "@/components/ui/button";
 
 export default function UserProfileDropdown({ 
   user, 
@@ -39,7 +40,7 @@ export default function UserProfileDropdown({
 
   return (
     <div className="relative" ref={profileRef}>
-      <button
+      <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-default, var(--font-size-button-default))"}} 
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Toggle profile menu"
         className={buttonClasses}
@@ -57,7 +58,7 @@ export default function UserProfileDropdown({
             <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
           </>
         )}
-      </button>
+      </Button>
 
       {isOpen && (
         <div className={`absolute w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg py-1 z-50 animate-in fade-in duration-200 ${dropdownClasses}`}>
@@ -91,13 +92,13 @@ export default function UserProfileDropdown({
           )}
 
           <div className="h-px bg-slate-200 dark:bg-slate-800 my-1"></div>
-          <button
+          <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-default, var(--font-size-button-default))"}} 
             onClick={handleLogout}
             className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
           >
             <LogOut className="w-4 h-4" />
             Logout
-          </button>
+          </Button>
         </div>
       )}
     </div>

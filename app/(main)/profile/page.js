@@ -1,11 +1,12 @@
 import React from 'react';
+import { Button } from "@/components/ui/button";
 
 export default function ProfilePage() {
   return (
     <div className="flex-1 px-4 py-16 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full">
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-sm">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">My Profile</h1>
-        <p className="text-slate-600 dark:text-slate-400 mb-8">
+        <h1  style={{fontSize: "var(--font-size-h1-dashboard, var(--font-size-h1-default))"}} className="text-2xl font-bold text-slate-900 dark:text-white mb-2">My Profile</h1>
+        <p  style={{fontSize: "var(--font-size-p-default, var(--font-size-p-default))"}} className="text-slate-600 dark:text-slate-400 mb-8">
           Manage your account settings and preferences.
         </p>
 
@@ -25,9 +26,9 @@ export default function ProfilePage() {
             </div>
           </div>
           
-          <button type="button" className="bg-brand-500 hover:bg-brand-600 text-white font-medium rounded-md px-4 py-2 transition-colors">
+          <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-primary, var(--font-size-button-default))"}}  type="button" className="bg-brand-500 hover:bg-brand-600 text-white font-medium rounded-md px-4 py-2 transition-colors">
             Edit Profile
-          </button>
+          </Button>
         </div>
       </div>
     </div>

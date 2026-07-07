@@ -92,7 +92,7 @@ export function Search({ searchQuery, setSearchQuery }) {
 
   return (
     <div ref={containerRef} className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-4 shadow-sm relative z-40">
-      <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Search Database</h3>
+      <h3 style={{fontSize: "var(--font-size-h3-section, var(--font-size-h3-default))"}} className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Search Database</h3>
       
       <div className="relative">
         <Input 

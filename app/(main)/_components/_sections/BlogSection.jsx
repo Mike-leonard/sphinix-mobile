@@ -11,8 +11,8 @@ export default function BlogSection() {
   return (
     <section className="space-y-6">
       <div>
-        <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Latest News & Tech Articles</h2>
-        <p className="text-xs text-slate-600 dark:text-slate-400">Stay updated with deep technical benchmarks and mobile news</p>
+        <h2  style={{fontSize: "var(--font-size-h2-section, var(--font-size-h2-default))"}} className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Latest News & Tech Articles</h2>
+        <p  style={{fontSize: "var(--font-size-p-subtitle, var(--font-size-p-default))"}} className="text-xs text-slate-600 dark:text-slate-400">Stay updated with deep technical benchmarks and mobile news</p>
       </div>
       <div className="space-y-4">
         {displayedBlogs.map((blog, index) => (
@@ -29,8 +29,7 @@ export default function BlogSection() {
 
       <div className="flex justify-center pt-4">
         <Link
-          href="/blogs"
-          className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 font-bold hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-colors border border-brand-200 dark:border-brand-500/30"
+          href="/blogs" style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 font-bold hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-colors border border-brand-200 dark:border-brand-500/30"
         >
           Read More Blogs
           <ArrowRight className="w-4 h-4" />

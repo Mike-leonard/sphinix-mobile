@@ -20,13 +20,13 @@ export default function InFeedAd() {
         <h4 className="text-lg font-bold text-slate-900 dark:text-white line-clamp-1 group-hover:text-brand-500 transition-colors">
           Experience the Future of Mobile
         </h4>
-        <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
+        <p style={{fontSize: "var(--font-size-p-subtitle, var(--font-size-p-default))"}} className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
           Discover the latest deals on flagship devices and exclusive carrier offers. Upgrade today and save up to $500 on trade-ins.
         </p>
         
         {/* Ad Call to Action */}
         <div className="pt-2">
-          <a href="#" className="inline-flex items-center justify-center h-9 px-4 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-bold transition-colors">
+          <a href="#" style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="inline-flex items-center justify-center h-9 px-4 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-bold transition-colors">
             Learn More
           </a>
         </div>

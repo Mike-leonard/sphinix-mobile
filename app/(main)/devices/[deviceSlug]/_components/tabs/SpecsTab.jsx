@@ -24,7 +24,7 @@ export default function SpecsTab({ device }) {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
-      <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-6">
+      <h2  style={{fontSize: "var(--font-size-h2-default, var(--font-size-h2-default))"}} className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-6">
         {device.name} - Specs
       </h2>
 

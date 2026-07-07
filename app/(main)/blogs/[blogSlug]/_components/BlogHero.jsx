@@ -8,7 +8,7 @@ export default function BlogHero({ blog }) {
         <span className="bg-white/90 dark:bg-slate-900/90 text-brand-400 text-[10px] font-bold px-3 py-1 rounded border border-slate-200 dark:border-slate-800 uppercase tracking-widest inline-block mb-4 shadow-sm">
           {blog.category}
         </span>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight drop-shadow-md">
+        <h1  style={{fontSize: "var(--font-size-h1-blogs, var(--font-size-h1-default))"}} className="text-3xl sm:text-4xl font-extrabold text-white leading-tight drop-shadow-md">
           {blog.title}
         </h1>
       </div>

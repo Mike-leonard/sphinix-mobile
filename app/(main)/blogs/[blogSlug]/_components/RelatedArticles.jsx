@@ -6,7 +6,7 @@ export default function RelatedArticles({ relatedBlogs }) {
 
   return (
     <div className="mt-4 mb-8">
-      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+      <h3  style={{fontSize: "var(--font-size-h3-section, var(--font-size-h3-default))"}} className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
         <span className="w-2 h-6 bg-brand-500 rounded-full inline-block"></span>
         Related Articles
       </h3>

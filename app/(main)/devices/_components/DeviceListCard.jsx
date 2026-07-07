@@ -26,7 +26,7 @@ export default function DeviceListCard({ product, isComparing, onToggleCompare }
       <div className="flex-1 p-6 flex flex-col justify-between">
         <div>
           <div className="flex justify-between items-start mb-2">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+            <h3  style={{fontSize: "var(--font-size-h3-section, var(--font-size-h3-default))"}} className="text-2xl font-bold text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
               {product.name}
             </h3>
             <span className="bg-slate-600 dark:bg-slate-700 text-white text-sm font-bold px-3 py-1 rounded-full shadow-sm">
@@ -45,7 +45,7 @@ export default function DeviceListCard({ product, isComparing, onToggleCompare }
         </div>
 
         <div className="mt-6 flex items-center justify-between">
-          <Link href={`/devices/${slug}`} className="text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 text-sm font-semibold flex items-center gap-1 group/link">
+          <Link href={`/devices/${slug}`} style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 text-sm font-semibold flex items-center gap-1 group/link">
             View Details <span className="group-hover/link:translate-x-1 transition-transform">→</span>
           </Link>
           

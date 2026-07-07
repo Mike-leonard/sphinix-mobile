@@ -3,6 +3,7 @@
 import React, { useState, useTransition } from 'react';
 import { Save, CheckCircle2 } from 'lucide-react';
 import { updateSettings } from '@/actions/settings';
+import { Button } from "@/components/ui/button";
 
 export default function CommentsForm({ initialSettings }) {
   const [settings, setSettings] = useState(initialSettings);
@@ -33,7 +34,7 @@ export default function CommentsForm({ initialSettings }) {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-      <h2 className="text-lg font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-4">
+      <h2  style={{fontSize: "var(--font-size-h2-settings, var(--font-size-h2-default))"}} className="text-lg font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-4">
         Comments
       </h2>
       
@@ -59,7 +60,7 @@ export default function CommentsForm({ initialSettings }) {
       </div>
 
       <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-start">
-        <button
+        <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-primary, var(--font-size-button-default))"}} 
           onClick={handleSave}
           disabled={isPending}
           className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-medium transition-all text-white ${
@@ -76,7 +77,7 @@ export default function CommentsForm({ initialSettings }) {
             <Save className="w-5 h-5" />
           )}
           {success ? 'Saved!' : 'Save Settings'}
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -25,7 +25,7 @@ export default function RelatedDevices({ currentDevice }) {
   return (
     <div className="mt-16 mb-8">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <h2  style={{fontSize: "var(--font-size-h2-default, var(--font-size-h2-default))"}} className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
           <span className="w-2 h-6 bg-brand-500 rounded-full inline-block"></span>
           Related Devices
         </h2>

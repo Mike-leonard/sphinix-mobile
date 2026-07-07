@@ -19,7 +19,7 @@ export default function SidebarNav({ isCollapsed }) {
   return (
     <div className="flex-1 py-6 overflow-y-auto overflow-x-hidden">
       {!isCollapsed && (
-        <h2 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4 px-7">
+        <h2  className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4 px-7">
           Admin Panel
         </h2>
       )}

@@ -1,11 +1,12 @@
 import React from 'react';
 import { ANGLES } from './constants';
+import { Button } from "@/components/ui/button";
 
 export default function GalleryThumbnails({ device, activeIndex, setActiveIndex }) {
   return (
     <div className="grid grid-cols-4 gap-2 sm:gap-4">
       {ANGLES.map((angle, idx) => (
-        <button 
+        <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-default, var(--font-size-button-default))"}}  
           key={idx}
           onClick={() => setActiveIndex(idx)}
           className={`w-full aspect-square rounded-xl border-2 transition-all flex flex-col items-center justify-center bg-white dark:bg-slate-950 overflow-hidden relative shadow-sm ${activeIndex === idx ? 'border-brand-500 ring-2 ring-brand-500/20' : 'border-slate-200 dark:border-slate-700 hover:border-brand-300'}`}
@@ -15,7 +16,7 @@ export default function GalleryThumbnails({ device, activeIndex, setActiveIndex 
           <span className={`relative text-[9px] font-bold text-center px-1 leading-tight ${activeIndex === idx ? 'text-brand-600 dark:text-brand-400' : 'text-slate-500 dark:text-slate-400'}`}>
             {angle.label}
           </span>
-        </button>
+        </Button>
       ))}
     </div>
   );

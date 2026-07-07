@@ -29,7 +29,7 @@ export default function SpecCard({ title, icon: Icon, specs }) {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
       <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
-        <h3 className="text-lg font-bold text-slate-900 dark:text-white">{title}</h3>
+        <h3  style={{fontSize: "var(--font-size-h3-section, var(--font-size-h3-default))"}} className="text-lg font-bold text-slate-900 dark:text-white">{title}</h3>
         {Icon && <Icon className="w-5 h-5 text-slate-400 dark:text-slate-500" />}
       </div>
       <div className="divide-y divide-slate-100 dark:divide-slate-800/50">

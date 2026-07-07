@@ -7,7 +7,7 @@ export default function BlogContent({ blog }) {
   return (
     <>
       <div className="p-6 sm:p-8 space-y-6 text-slate-700 dark:text-slate-300 leading-relaxed">
-        <p className="text-lg font-medium text-slate-900 dark:text-slate-100">
+        <p  style={{fontSize: "var(--font-size-p-default, var(--font-size-p-default))"}} className="text-lg font-medium text-slate-900 dark:text-slate-100">
           {blog.excerpt}
         </p>
 
@@ -20,7 +20,7 @@ export default function BlogContent({ blog }) {
           <InFeedAd />
         </div>
 
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mt-8 mb-4">Deep Dive Analysis</h2>
+        <h2  style={{fontSize: "var(--font-size-h2-default, var(--font-size-h2-default))"}} className="text-2xl font-bold text-slate-900 dark:text-white mt-8 mb-4">Deep Dive Analysis</h2>
 
         <p>
           Looking closely at the architectural decisions made by major manufacturers, it is clear that the focus has shifted from pure theoretical performance to sustained efficiency and thermal management. The integration of neural processing units (NPUs) directly into the die signifies a permanent move toward localized AI workloads.
@@ -31,7 +31,7 @@ export default function BlogContent({ blog }) {
         </p>
 
         <div className="bg-brand-50 dark:bg-brand-500/10 border-l-4 border-brand-500 p-6 rounded-r-xl my-8">
-          <p className="italic text-brand-800 dark:text-brand-200 font-medium">
+          <p  style={{fontSize: "var(--font-size-p-default, var(--font-size-p-default))"}} className="italic text-brand-800 dark:text-brand-200 font-medium">
             "The true measure of a device's capability in 2026 isn't benchmark scores, but how seamlessly it manages background intelligence without the user ever noticing."
           </p>
         </div>
@@ -42,7 +42,7 @@ export default function BlogContent({ blog }) {
       </div>
 
       <div className="p-6 sm:p-8 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#0b1120]">
-        <Link href="/blogs" className="inline-flex items-center gap-2 text-sm font-bold text-brand-500 hover:text-brand-400 transition-colors">
+        <Link href="/blogs" style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="inline-flex items-center gap-2 text-sm font-bold text-brand-500 hover:text-brand-400 transition-colors">
           <ArrowLeft className="w-4 h-4" />
           Back to all articles
         </Link>

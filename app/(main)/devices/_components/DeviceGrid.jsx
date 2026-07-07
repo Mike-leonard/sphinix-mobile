@@ -7,7 +7,7 @@ export default function DeviceGrid({ currentProducts, viewMode, compareList, han
   if (currentProducts.length === 0) {
     return (
       <div className="py-20 text-center text-slate-500 dark:text-slate-400">
-        <p className="text-xl font-bold mb-2">No devices found</p>
+        <p  style={{fontSize: "var(--font-size-p-default, var(--font-size-p-default))"}} className="text-xl font-bold mb-2">No devices found</p>
         <p>Try adjusting your filters or search query.</p>
       </div>
     );

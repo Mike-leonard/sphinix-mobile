@@ -3,7 +3,7 @@ import React from 'react';
 export default function NewArrivals({ newArrivals, setSelectedBrand, setSearchQuery }) {
   return (
     <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
-      <h3 className="text-base font-bold text-slate-900 dark:text-white tracking-tight flex items-center justify-between">
+      <h3 style={{fontSize: "var(--font-size-h3-section, var(--font-size-h3-default))"}} className="text-base font-bold text-slate-900 dark:text-white tracking-tight flex items-center justify-between">
         <span>New Arrivals</span>
         <span className="px-2 py-0.5 bg-brand-500/10 text-brand-400 border border-brand-500/20 text-[9px] font-extrabold uppercase rounded-full tracking-wider animate-pulse">Hot</span>
       </h3>

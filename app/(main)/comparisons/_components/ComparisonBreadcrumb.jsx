@@ -5,7 +5,7 @@ export default function ComparisonBreadcrumb({ title }) {
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white dark:bg-[#1a2035] p-4 rounded-lg border border-slate-200 dark:border-slate-800 mb-6 gap-4 min-h-[64px]">
       <div className="flex items-center gap-2 flex-wrap">
-        <h1 className="text-lg md:text-xl font-extrabold text-slate-900 dark:text-white line-clamp-1 break-all sm:break-normal">
+        <h1  style={{fontSize: "var(--font-size-h1-comparisons, var(--font-size-h1-default))"}} className="text-lg md:text-xl font-extrabold text-slate-900 dark:text-white line-clamp-1 break-all sm:break-normal">
           {title}
         </h1>
       </div>
