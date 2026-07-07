@@ -84,7 +84,9 @@ const defaultSettings = {
     }
   },
   analytics: {
-    googleAnalyticsId: ""
+    googleAnalyticsId: "",
+    googleSearchConsoleId: "",
+    enableVisitorStats: true
   },
   advertisements: {
     enableAds: false,

@@ -39,14 +39,43 @@ export default function AnalyticsForm({ initialSettings }) {
       </h2>
       
       <div className="space-y-6 max-w-2xl">
-        <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Google Analytics ID</label>
+        <div className="p-5 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/20 space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Google Analytics Measurement ID</label>
+            <input
+              type="text"
+              value={settings['analytics']?.googleAnalyticsId || ''}
+              onChange={(e) => handleChange('googleAnalyticsId', e.target.value)}
+              placeholder="G-XXXXXXXXXX"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all outline-none"
+            />
+            <p className="text-xs text-slate-500 mt-2">Find this in your Google Analytics dashboard (starts with G-).</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Google Search Console Verification Code</label>
+            <input
+              type="text"
+              value={settings['analytics']?.googleSearchConsoleId || ''}
+              onChange={(e) => handleChange('googleSearchConsoleId', e.target.value)}
+              placeholder="e.g. j7x..._1sA"
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all outline-none"
+            />
+            <p className="text-xs text-slate-500 mt-2">Paste the 'content' value from your HTML tag verification method.</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 p-5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
           <input
-            type="text"
-            value={settings['analytics'].googleAnalyticsId || ''}
-            onChange={(e) => handleChange('googleAnalyticsId', e.target.value)}
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all outline-none"
+            type="checkbox"
+            checked={settings['analytics']?.enableVisitorStats ?? true}
+            onChange={(e) => handleChange('enableVisitorStats', e.target.checked)}
+            className="w-5 h-5 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
           />
+          <div>
+            <label className="text-base font-bold text-slate-900 dark:text-white">Enable Visitor Statistics Tracking</label>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Toggle this to track basic page views and display visitor stats on the dashboard.</p>
+          </div>
         </div>
       </div>
 

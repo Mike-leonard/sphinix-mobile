@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/provider/ThemeProvider";
 import { getSettings } from "@/actions/settings";
 import { SettingsProvider } from "@/context/SettingsContext";
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -14,7 +15,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export async function generateMetadata() {
   const settings = await getSettings();
   
-  return {
+  const metadata = {
     title: {
       default: settings.seo.home.title,
       template: "%s | " + settings.seo.home.title.split(' |')[0],
@@ -31,6 +32,14 @@ export async function generateMetadata() {
       icon: settings.seo.home.favicon || "/favicon.ico"
     }
   };
+
+  if (settings.analytics?.googleSearchConsoleId) {
+    metadata.verification = {
+      google: settings.analytics.googleSearchConsoleId,
+    };
+  }
+
+  return metadata;
 }
 
 export default async function RootLayout({ children, modal }) {
@@ -100,6 +109,9 @@ export default async function RootLayout({ children, modal }) {
         className={`${plusJakartaSans.variable} min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 antialiased selection:bg-brand-500/30 selection:text-brand-900 dark:selection:text-brand-100 flex flex-col`}
         suppressHydrationWarning
       >
+        {settings.analytics?.googleAnalyticsId && (
+          <GoogleAnalytics gaId={settings.analytics.googleAnalyticsId} />
+        )}
         <ThemeProvider
           attribute="class"
           defaultTheme={settings.appearance?.theme || "system"}
