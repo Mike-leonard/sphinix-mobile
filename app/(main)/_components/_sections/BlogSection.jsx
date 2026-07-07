@@ -5,8 +5,8 @@ import InFeedAd from '@/components/ads/InFeedAd';
 import MOCK_BLOGS from '@/data/blogs.json';
 import { ArrowRight } from 'lucide-react';
 
-export default function BlogSection() {
-  const displayedBlogs = MOCK_BLOGS.slice(0, 8);
+export default function BlogSection({ limit = 8 }) {
+  const displayedBlogs = MOCK_BLOGS.slice(0, limit);
 
   return (
     <section className="space-y-6">

@@ -6,10 +6,12 @@ import MOCK_BLOGS from '@/data/blogs.json';
 import MOCK_PRODUCTS from '@/data/products.json';
 import BlogPageHeader from './_components/BlogPageHeader';
 import BlogList from './_components/BlogList';
-
-const ITEMS_PER_PAGE = 12;
+import { useSettings } from '@/context/SettingsContext';
 
 export default function BlogsPage() {
+  const settings = useSettings();
+  const ITEMS_PER_PAGE = settings?.appearance?.blogs?.blogLimit || 12;
+
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");

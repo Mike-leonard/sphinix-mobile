@@ -68,7 +68,20 @@ const defaultSettings = {
     }
   },
   appearance: {
-    primaryColor: "#8b5cf6"
+    theme: "system",
+    primaryColor: "#8b5cf6",
+    home: {
+      deviceLimit: 8,
+      blogLimit: 3,
+      deviceCardSpecLimit: 3
+    },
+    devices: {
+      deviceLimit: 12,
+      deviceCardSpecLimit: 3
+    },
+    blogs: {
+      blogLimit: 9
+    }
   },
   analytics: {
     googleAnalyticsId: ""

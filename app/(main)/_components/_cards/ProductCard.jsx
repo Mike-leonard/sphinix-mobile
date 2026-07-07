@@ -5,9 +5,14 @@ import { generateDeviceSlug } from '@/lib/utils';
 import ProductCardImage from './ProductCardImage';
 import ProductCardSpecs from './ProductCardSpecs';
 import ProductCardFooter from './ProductCardFooter';
+import { useSettings } from '@/context/SettingsContext';
 
-export default function ProductCard({ product, isComparing, onToggleCompare }) {
+export default function ProductCard({ product, isComparing, onToggleCompare, isHomePage = false }) {
   const slug = generateDeviceSlug(product.name);
+  const settings = useSettings();
+  const limit = isHomePage 
+    ? (settings?.appearance?.home?.deviceCardSpecLimit || 3) 
+    : (settings?.appearance?.devices?.deviceCardSpecLimit || 3);
   return (
     <Card className="group rounded-2xl border-slate-200 dark:border-slate-800/80 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/5 transition-all duration-300 flex flex-col justify-between bg-white dark:bg-slate-900 overflow-hidden">
       <Link href={`/devices/${slug}`} style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="block flex-1">
@@ -19,7 +24,7 @@ export default function ProductCard({ product, isComparing, onToggleCompare }) {
               {product.name}
             </h3>
             
-            <ProductCardSpecs specs={product.specs} />
+            <ProductCardSpecs specs={product.specs} limit={limit} />
           </div>
         </CardContent>
       </Link>

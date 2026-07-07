@@ -12,6 +12,7 @@ import SortingControl from './_components/SortingControl';
 import { useCompare } from '@/context/CompareContext';
 import MobileFiltersSheet from './_components/MobileFiltersSheet';
 import DeviceGrid from './_components/DeviceGrid';
+import { useSettings } from '@/context/SettingsContext';
 
 const BRANDS = ["All", "Apple", "Samsung", "OnePlus", "Google", "LG", "Nokia", "HTC", "Sony", "Motorola", "Huawei", "Oppo"];
 const CATEGORIES = [
@@ -23,9 +24,10 @@ const CATEGORIES = [
   { name: "Gadgets", count: 0 }
 ];
 
-const ITEMS_PER_PAGE = 12;
-
 export default function DevicesPage() {
+  const settings = useSettings();
+  const ITEMS_PER_PAGE = settings?.appearance?.devices?.deviceLimit || 12;
+
   // Global Sidebar States
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("All");

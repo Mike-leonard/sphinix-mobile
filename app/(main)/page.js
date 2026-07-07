@@ -9,6 +9,7 @@ import AdBanner from '@/components/ads/AdBanner';
 import ProductSection from './_components/_sections/ProductSection';
 import BlogSection from './_components/_sections/BlogSection';
 import { useCompare } from '@/context/CompareContext';
+import { useSettings } from '@/context/SettingsContext';
 const BRANDS = ["All", "Apple", "Samsung", "OnePlus", "Google", "LG", "Nokia", "HTC", "Sony", "Motorola", "Huawei", "Oppo"];
 const CATEGORIES = [
   { name: "Devices", count: 95 },
@@ -24,6 +25,8 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState("Devices");
 
   const { compareList, isCompareOpen, setIsCompareOpen, handleToggleCompare, clearCompare } = useCompare();
+  const settings = useSettings();
+  const homeLimits = settings?.appearance?.home || { deviceLimit: 8, blogLimit: 3 };
 
   // Filtered Products logic
   const filteredProducts = useMemo(() => {
@@ -34,8 +37,8 @@ export default function Home() {
       const matchesBrand = selectedBrand === "All" || product.brand === selectedBrand;
       const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
       return matchesSearch && matchesBrand && matchesCategory;
-    });
-  }, [searchQuery, selectedBrand, selectedCategory]);
+    }).slice(0, homeLimits.deviceLimit);
+  }, [searchQuery, selectedBrand, selectedCategory, homeLimits.deviceLimit]);
 
   const newArrivals = useMemo(() => MOCK_PRODUCTS.filter(p => p.isNew), []);
   const topRated = useMemo(() => MOCK_PRODUCTS.filter(p => p.isTopRated), []);
@@ -62,13 +65,14 @@ export default function Home() {
               setSelectedCategory={setSelectedCategory}
               compareList={compareList}
               handleToggleCompare={handleToggleCompare}
+              isHomePage={true}
             />
 
             {/* IN-FEED AD BANNER */}
             <AdBanner type="horizontal" />
 
             {/* LATEST NEWS / BLOG SECTION */}
-            <BlogSection />
+            <BlogSection limit={homeLimits.blogLimit} />
 
           </div>
 

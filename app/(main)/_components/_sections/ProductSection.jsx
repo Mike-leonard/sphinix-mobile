@@ -12,7 +12,8 @@ export default function ProductSection({
   selectedCategory,
   setSelectedCategory,
   compareList,
-  handleToggleCompare
+  handleToggleCompare,
+  isHomePage = false
 }) {
   return (
     <section className="space-y-6">
@@ -55,6 +56,7 @@ export default function ProductSection({
                   product={product}
                   isComparing={isComparing}
                   onToggleCompare={() => handleToggleCompare(product)}
+                  isHomePage={isHomePage}
                 />
               </React.Fragment>
             );

@@ -2,6 +2,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/provider/ThemeProvider";
 import { getSettings } from "@/actions/settings";
+import { SettingsProvider } from "@/context/SettingsContext";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -101,13 +102,16 @@ export default async function RootLayout({ children, modal }) {
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme={settings.appearance?.theme || "system"}
+          forcedTheme={settings.appearance?.theme && settings.appearance.theme !== "system" ? settings.appearance.theme : undefined}
         >
-          {/* Renders either the (main) layout or the (auth) layout */}
-          {children} 
-          
-          {/* Renders the intercepting login/register modal if active */}
-          {modal}
+          <SettingsProvider settings={settings}>
+            {/* Renders either the (main) layout or the (auth) layout */}
+            {children} 
+            
+            {/* Renders the intercepting login/register modal if active */}
+            {modal}
+          </SettingsProvider>
         </ThemeProvider>
       </body>
     </html>
