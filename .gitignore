@@ -16,7 +16,7 @@ pg_*
 # next.js
 /.next/
 /out/
-
+/data/
 # production
 /build
 /nextjs-file-labels
