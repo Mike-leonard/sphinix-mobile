@@ -3,13 +3,14 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, FileText, Star, Settings } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, Star, Settings, Smartphone } from 'lucide-react';
 
 const navItems = [
   { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Users', href: '/dashboard/users', icon: Users },
+  { name: 'Devices', href: '/dashboard/devices', icon: Smartphone },
   { name: 'Blogs', href: '/dashboard/blogs', icon: FileText },
   { name: 'Reviews', href: '/dashboard/reviews', icon: Star },
+  { name: 'Users', href: '/dashboard/users', icon: Users },
   { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
 
