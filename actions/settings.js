@@ -140,11 +140,41 @@ const defaultSettings = {
   },
   media: {
     maxUploadSizeMB: 5,
-    allowedFormats: "jpg, png, webp, mp4"
+    allowedFormats: "jpg, png, webp, mp4",
+    imageQuality: 80,
+    imageCompression: true,
+    webpConversion: true,
+    thumbnailSize: "300x300",
+    cdnEnabled: false,
+    cdnUrl: "",
+    cdnDomains: ["res.cloudinary.com", "images.unsplash.com"]
   },
   security: {
     twoFactorAuth: false,
-    maxLoginAttempts: 5
+    maxLoginAttempts: 5,
+    ipWhitelist: [],
+    ipBlacklist: [],
+    rateLimit: {
+      enabled: false,
+      maxRequests: 100,
+      timeWindowMinutes: 15
+    }
+  },
+  ai: {
+    enableAiFeatures: false,
+    apiKey: "",
+    model: "gpt-4-turbo",
+    temperature: 0.7
+  },
+  recaptcha: {
+    enabled: false,
+    siteKey: "",
+    secretKey: ""
+  },
+  backups: {
+    automaticBackups: false,
+    schedule: "daily", // daily, weekly, monthly
+    lastBackup: null
   }
 };
 
