@@ -5,6 +5,7 @@ import { Save, CheckCircle2, Shield, Brain, Database, Upload, Download, Plus, X 
 import { updateSettings } from '@/actions/settings';
 import { createBackup, restoreBackup } from '@/actions/backup';
 import { Button } from "@/components/ui/button";
+import Link from 'next/link';
 
 export default function SecurityForm({ initialSettings }) {
   const [settings, setSettings] = useState(initialSettings);
@@ -361,19 +362,17 @@ export default function SecurityForm({ initialSettings }) {
         <div className="space-y-6 animate-in fade-in duration-300">
           <div className="space-y-6">
             <div className="flex gap-4">
-              <Button type="button" onClick={handleCreateBackup} className="bg-brand-600 hover:bg-brand-700 text-white flex-1 gap-2">
+              <Button type="button" onClick={handleCreateBackup} className="cursor-pointer bg-brand-600 hover:bg-brand-700 text-white flex-1 gap-2">
                 <Database className="w-4 h-4" /> Create Local Backup
               </Button>
-              <Button type="button" asChild className="bg-slate-100 hover:bg-slate-200 text-slate-900 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white flex-1 gap-2">
-                <a href="/api/backup/download" download>
-                  <Download className="w-4 h-4" /> Download Latest
-                </a>
-              </Button>
+              <Link href="/api/backup/download" download className="flex items-center justify-center gap-2 h-10 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-medium dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white flex-1 transition-all">
+                <Download className="w-4 h-4" /> Download Latest
+              </Link>
             </div>
 
             <div className="pt-2">
               <input type="file" accept=".json" className="hidden" ref={fileInputRef} onChange={handleRestoreBackup} />
-              <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="w-full border-dashed border-2 border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 gap-2">
+              <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="cursor-pointer w-full border-dashed border-2 border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 gap-2">
                 <Upload className="w-4 h-4" /> Upload & Restore Backup
               </Button>
               {backupMsg && <p className="text-sm mt-3 text-brand-600 dark:text-brand-400 text-center font-medium">{backupMsg}</p>}
