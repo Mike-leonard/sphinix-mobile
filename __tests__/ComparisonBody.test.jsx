@@ -1,6 +1,15 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import ComparisonBody from '@/app/(main)/comparisons/_components/ComparisonBody';
+import { SettingsProvider } from '@/context/SettingsContext';
+
+const mockSettings = {
+  typography: {
+    fontSizes: {
+      body: '16px'
+    }
+  }
+};
 
 // We only provide a few categories to keep the test simple
 const mockCompareList = [
@@ -29,10 +38,12 @@ const mockCompareList = [
 describe('ComparisonBody Component', () => {
   it('renders correctly with string and boolean specifications', () => {
     const { container } = render(
-      <ComparisonBody 
-        compareList={mockCompareList} 
-        gridColsClass="grid-cols-3" 
-      />
+      <SettingsProvider settings={mockSettings}>
+        <ComparisonBody 
+          compareList={mockCompareList} 
+          gridColsClass="grid-cols-3" 
+        />
+      </SettingsProvider>
     );
     
     // Check if category title is rendered
@@ -63,10 +74,12 @@ describe('ComparisonBody Component', () => {
     ];
     
     render(
-      <ComparisonBody 
-        compareList={emptyList} 
-        gridColsClass="grid-cols-3" 
-      />
+      <SettingsProvider settings={mockSettings}>
+        <ComparisonBody 
+          compareList={emptyList} 
+          gridColsClass="grid-cols-3" 
+        />
+      </SettingsProvider>
     );
     
     // None of the categories should render if there are no specs

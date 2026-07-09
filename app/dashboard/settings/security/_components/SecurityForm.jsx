@@ -5,7 +5,6 @@ import { Save, CheckCircle2, Shield, Brain, Database, Upload, Download, Plus, X 
 import { updateSettings } from '@/actions/settings';
 import { createBackup, restoreBackup } from '@/actions/backup';
 import { Button } from "@/components/ui/button";
-import Link from 'next/link';
 
 export default function SecurityForm({ initialSettings }) {
   const [settings, setSettings] = useState(initialSettings);
@@ -365,9 +364,9 @@ export default function SecurityForm({ initialSettings }) {
               <Button type="button" onClick={handleCreateBackup} className="cursor-pointer bg-brand-600 hover:bg-brand-700 text-white flex-1 gap-2">
                 <Database className="w-4 h-4" /> Create Local Backup
               </Button>
-              <Link href="/api/backup/download" download className="flex items-center justify-center gap-2 h-10 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-medium dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white flex-1 transition-all">
+              <a href="/api/backup/download" download className="flex items-center justify-center gap-2 h-10 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-medium dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white flex-1 transition-all">
                 <Download className="w-4 h-4" /> Download Latest
-              </Link>
+              </a>
             </div>
 
             <div className="pt-2">
