@@ -182,3 +182,12 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 }
+
+/* Custom Prose Styling (since typography plugin is absent) */
+.prose a {
+  @apply text-brand-500 font-medium underline underline-offset-4 decoration-brand-500/30 hover:decoration-brand-500 transition-colors;
+}
+
+.prose code {
+  @apply bg-slate-100 dark:bg-slate-800 text-brand-600 dark:text-brand-400 px-1.5 py-0.5 rounded-md font-mono text-sm;
+}

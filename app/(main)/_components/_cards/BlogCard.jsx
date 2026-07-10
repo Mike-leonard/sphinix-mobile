@@ -13,9 +13,15 @@ export default function BlogCard({ blog }) {
       <CardContent className="p-6 flex flex-col md:flex-row gap-6 items-start w-full">
         {/* Blog image banner */}
         <div className="w-full md:w-48 h-32 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-950 flex-shrink-0 relative">
-          <div className={`absolute inset-0 bg-gradient-to-br ${blog.color} opacity-40 group-hover:scale-110 transition-transform duration-500`}></div>
-          <div className="absolute inset-0 flex items-center justify-center font-black text-2xl text-white/20 select-none">SPHINIX</div>
-          <span className="absolute bottom-3 left-3 bg-white/90 dark:bg-slate-900/90 text-brand-400 text-[9px] font-bold px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800 uppercase tracking-widest">
+          {blog.image ? (
+            <img src={blog.image} alt={blog.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+          ) : (
+            <>
+              <div className={`absolute inset-0 bg-gradient-to-br ${blog.color || 'from-slate-800 to-slate-900'} opacity-40 group-hover:scale-110 transition-transform duration-500`}></div>
+              <div className="absolute inset-0 flex items-center justify-center font-black text-2xl text-white/20 select-none">SPHINIX</div>
+            </>
+          )}
+          <span className="absolute bottom-3 left-3 bg-white dark:bg-slate-950 text-brand-700 dark:text-brand-400 text-[10px] font-bold px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-800 uppercase tracking-widest shadow-md">
             {blog.category}
           </span>
         </div>
