@@ -161,10 +161,12 @@ const defaultSettings = {
     }
   },
   ai: {
-    enableAiFeatures: false,
+    enableAiFeatures: true,
+    provider: "gemini",
+    model: "gemini-3.5-flash",
     apiKey: "",
-    model: "gpt-4-turbo",
-    temperature: 0.7
+    temperature: 0.7,
+    systemPrompt: "You are an expert tech blog writer for Sphinix Mobile, a premium smartphone and technology review site. Write with an analytical, engaging, and authoritative tone. Focus on detailed specifications, real-world performance, and objective comparisons. Structure your articles with an engaging introduction, detailed H2 sub-sections (e.g., Design & Build, Performance, Camera), and a strong conclusive summary."
   },
   recaptcha: {
     enabled: false,

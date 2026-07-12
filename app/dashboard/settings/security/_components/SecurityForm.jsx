@@ -127,7 +127,6 @@ export default function SecurityForm({ initialSettings }) {
       <div className="flex flex-wrap gap-2 mb-6 border-b border-slate-200 dark:border-slate-800 pb-px">
         {[
           { id: 'access', label: 'Access & IPs', icon: Shield },
-          { id: 'ai', label: 'AI Configuration', icon: Brain },
           { id: 'recaptcha', label: 'reCAPTCHA', icon: Shield },
           { id: 'backup', label: 'Backups', icon: Database }
         ].map(tab => (
@@ -250,67 +249,6 @@ export default function SecurityForm({ initialSettings }) {
                 ))}
               </div>
             </div>
-            {renderSaveButton()}
-          </div>
-        </div>
-        )}
-
-        {/* --- AI CONFIGURATION --- */}
-        {activeTab === 'ai' && (
-        <div className="space-y-6 animate-in fade-in duration-300">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                checked={settings.ai?.enableAiFeatures || false}
-                onChange={(e) => handleChange('ai', 'enableAiFeatures', e.target.checked)}
-                className="w-5 h-5 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
-              />
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Enable AI Features globally</label>
-            </div>
-
-            {settings.ai?.enableAiFeatures && (
-              <div className="space-y-4 animate-in fade-in duration-300">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">API Key</label>
-                  <input
-                    type="password"
-                    placeholder="sk-..."
-                    value={settings.ai?.apiKey || ''}
-                    onChange={(e) => handleChange('ai', 'apiKey', e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">AI Model</label>
-                  <select
-                    value={settings.ai?.model || 'gpt-4-turbo'}
-                    onChange={(e) => handleChange('ai', 'model', e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none"
-                  >
-                    <option value="gpt-4-turbo">GPT-4 Turbo</option>
-                    <option value="gpt-4o">GPT-4o</option>
-                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                    <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
-                    <option value="claude-3-opus">Claude 3 Opus</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Temperature ({settings.ai?.temperature || 0.7})
-                  </label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="2"
-                    step="0.1"
-                    value={settings.ai?.temperature || 0.7}
-                    onChange={(e) => handleChange('ai', 'temperature', parseFloat(e.target.value))}
-                    className="w-full accent-brand-600"
-                  />
-                </div>
-              </div>
-            )}
             {renderSaveButton()}
           </div>
         </div>

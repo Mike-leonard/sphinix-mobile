@@ -191,3 +191,15 @@
 .prose code {
   @apply bg-slate-100 dark:bg-slate-800 text-brand-600 dark:text-brand-400 px-1.5 py-0.5 rounded-md font-mono text-sm;
 }
+
+/* Tiptap Placeholder Styling */
+.tiptap p.is-editor-empty:first-child::before {
+  color: #94a3b8; /* slate-400 */
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.dark .tiptap p.is-editor-empty:first-child::before {
+  color: #475569; /* slate-600 */
+}
