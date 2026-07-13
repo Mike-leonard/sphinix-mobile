@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { getSettings } from '@/actions/settings';
 import SeoMetadataForm from '@/app/dashboard/settings/seo-metadata/_components/SeoMetadataForm';
 
