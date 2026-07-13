@@ -1,5 +1,5 @@
 import React from 'react';
-import BlogEditor from '@/app/dashboard/blogs/_components/BlogEditor';
+import BlogEditor from '@/app/dashboard/blogs/_components/editor/BlogEditor';
 import { getCategories } from '@/actions/categories';
 
 export const metadata = {

@@ -1,5 +1,5 @@
 import React from 'react';
-import BlogEditor from '@/app/dashboard/blogs/_components/BlogEditor';
+import BlogEditor from '@/app/dashboard/blogs/_components/editor/BlogEditor';
 import { getBlogById } from '@/actions/blogs';
 import { getCategories } from '@/actions/categories';
 import { notFound } from 'next/navigation';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { getBlogs } from '@/actions/blogs';
-import BlogsManager from '@/app/dashboard/blogs/_components/BlogsManager';
+import BlogsManager from '@/app/dashboard/blogs/_components/manager/BlogsManager';
 
 export default async function BlogsPage() {
   const initialBlogs = await getBlogs();
