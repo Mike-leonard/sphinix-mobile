@@ -230,52 +230,52 @@ export default function BlogEditor({ initialData = null, categories = [] }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Editor Area */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
-            <BlogHeader 
-              titleRef={titleRef}
-              formData={formData}
-              setFormData={setFormData}
-              handleGenerateBlog={handleGenerateBlog}
-              isGeneratingBlog={isGeneratingBlog}
-            />
-            
-            {isPreview ? (
-              <div className="bg-white dark:bg-slate-900 overflow-hidden w-full">
-                <BlogHero blog={previewBlog} />
-                <BlogMeta blog={previewBlog} />
-                <div className="pointer-events-none">
-                  <BlogContent blog={previewBlog} />
+        {isPreview ? (
+          <div className="lg:col-span-3 bg-white dark:bg-slate-900 overflow-hidden w-full rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm pointer-events-none">
+            <BlogHero blog={previewBlog} />
+            <BlogMeta blog={previewBlog} />
+            <BlogContent blog={previewBlog} />
+          </div>
+        ) : (
+          <>
+            {/* Main Editor Area */}
+            <div className="lg:col-span-2 space-y-6">
+              <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+                <BlogHeader 
+                  titleRef={titleRef}
+                  formData={formData}
+                  setFormData={setFormData}
+                  handleGenerateBlog={handleGenerateBlog}
+                  isGeneratingBlog={isGeneratingBlog}
+                />
+                
+                <div className="flex flex-col">
+                  <EditorMenuBar editor={editor} />
+                  <EditorContent editor={editor} />
                 </div>
               </div>
-            ) : (
-              <div className="flex flex-col">
-                <EditorMenuBar editor={editor} />
-                <EditorContent editor={editor} />
-              </div>
-            )}
-          </div>
 
-          {/* SEO Controls */}
-          <BlogSEOSettings 
-            formData={formData}
-            setFormData={setFormData}
-            handleGenerateSEO={handleGenerateSEO}
-            isGeneratingSEO={isGeneratingSEO}
-          />
-        </div>
+              {/* SEO Controls */}
+              <BlogSEOSettings 
+                formData={formData}
+                setFormData={setFormData}
+                handleGenerateSEO={handleGenerateSEO}
+                isGeneratingSEO={isGeneratingSEO}
+              />
+            </div>
 
-        {/* Sidebar Controls */}
-        <BlogSidebar 
-          formData={formData}
-          setFormData={setFormData}
-          categories={categories}
-          sourceUrl={sourceUrl}
-          setSourceUrl={setSourceUrl}
-          handleGenerateFromUrl={handleGenerateFromUrl}
-          isGeneratingFromUrl={isGeneratingFromUrl}
-        />
+            {/* Sidebar Controls */}
+            <BlogSidebar 
+              formData={formData}
+              setFormData={setFormData}
+              categories={categories}
+              sourceUrl={sourceUrl}
+              setSourceUrl={setSourceUrl}
+              handleGenerateFromUrl={handleGenerateFromUrl}
+              isGeneratingFromUrl={isGeneratingFromUrl}
+            />
+          </>
+        )}
       </div>
 
       {/* Leave Confirmation Modal */}

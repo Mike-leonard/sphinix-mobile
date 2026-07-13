@@ -1,9 +1,14 @@
 import React from 'react';
+import { usePathname } from 'next/navigation';
 import { useSettings } from '@/context/SettingsContext';
 
 export default function AdBanner({ type = 'horizontal', placement = '', className = '' }) {
   const settings = useSettings();
+  const pathname = usePathname();
   const adSettings = settings?.advertisements;
+
+  // Don't show ads in the admin dashboard (e.g., during preview)
+  if (pathname && pathname.includes('/dashboard')) return null;
 
   // Check if ads are enabled and if this placement is enabled
   if (!adSettings?.enableAds) return null;

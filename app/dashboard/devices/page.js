@@ -1,11 +1,15 @@
 import React from 'react';
+import { getDevices } from '@/actions/devices';
+import DevicesManager from './_components/manager/DevicesManager';
 
 export const metadata = {
   title: 'Device Management | Dashboard',
   description: 'Manage devices and their specifications.',
 };
 
-export default function DevicesPage() {
+export default async function DevicesPage() {
+  const devices = await getDevices();
+  
   return (
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
@@ -14,9 +18,7 @@ export default function DevicesPage() {
           Manage the devices catalog, their specifications, and images.
         </p>
         
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 text-center text-slate-500">
-          <p>Device management interface coming soon...</p>
-        </div>
+        <DevicesManager initialDevices={devices} />
       </div>
     </div>
   );

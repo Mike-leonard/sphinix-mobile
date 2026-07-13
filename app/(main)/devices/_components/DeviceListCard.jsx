@@ -1,10 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
-import { generateDeviceSlug } from '@/lib/utils';
 
 export default function DeviceListCard({ product, isComparing, onToggleCompare }) {
-  const slug = generateDeviceSlug(product.name);
+  const slug = product.id;
   return (
     <Card className="group rounded-2xl border-slate-200 dark:border-slate-800 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/5 transition-all duration-300 flex flex-col sm:flex-row bg-white dark:bg-slate-900 overflow-hidden relative">
       

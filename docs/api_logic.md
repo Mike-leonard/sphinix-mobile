@@ -17,10 +17,10 @@
 ## 3. External API Logics
 While internal endpoints use Server Actions, the application acts as an API Consumer for several third-party services:
 
-### 1. Google Gemini API (`@google/genai`)
+### 1. Dynamic AI Providers (Gemini, OpenAI, Ollama)
 *   **Usage:** For generating tech blog content from titles and parsing DOM text to generate SEO metadata.
-*   **Authentication:** `apiKey` passed in via `settings.json` configuration at runtime.
-*   **Endpoints Called:** `gemini-2.5-flash`
+*   **Authentication:** AI configurations (provider, model, apiKey) are fetched dynamically from `settings.json` (specifically `settings.ai`) at runtime.
+*   **Endpoints Called:** Varies based on configuration (e.g., `gemini-2.5-flash`, `gpt-4o`, `ollama` local endpoints).
 
 ### 2. Jina Reader API (`https://r.jina.ai/`)
 *   **Usage:** Bypassing bot protections (like Cloudflare) to scrape external tech news websites cleanly into Markdown format.

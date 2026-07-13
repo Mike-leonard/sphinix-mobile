@@ -1,14 +1,13 @@
 import React from 'react';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
-import { generateDeviceSlug } from '@/lib/utils';
 import ProductCardImage from './ProductCardImage';
 import ProductCardSpecs from './ProductCardSpecs';
 import ProductCardFooter from './ProductCardFooter';
 import { useSettings } from '@/context/SettingsContext';
 
 export default function ProductCard({ product, isComparing, onToggleCompare, isHomePage = false }) {
-  const slug = generateDeviceSlug(product.name);
+  const slug = product.id;
   const settings = useSettings();
   const limit = isHomePage 
     ? (settings?.appearance?.home?.deviceCardSpecLimit || 3) 

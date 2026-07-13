@@ -16,9 +16,9 @@
 *   **Deep Revalidation:** `updateSettings` triggers `revalidatePath('/', 'layout')` to instantly update global typography and SEO rules site-wide.
 
 ## 3. Query Patterns & Optimizations
-*   **Pagination:**
-    *   Implemented via client-side offset pagination in components (e.g., `BlogsManager`).
-    *   State-driven variables: `currentPage`, `itemsPerPage` calculate the slice of the array to render.
+*   **Pagination & Orchestration:**
+    *   State-driven parameters (`currentPage`, `itemsPerPage`, `search`, `category`) are lifted to a high-level Orchestrator component (e.g., `BlogsManager`, `CategoryManager`).
+    *   The orchestrator runs the arrays through client-side `useMemo` hooks, and then calculates the paginated slice to pass down to simple, presentational child components (e.g., `BlogsTable`, `BlogsPagination`).
 *   **Search & Filtering:**
     *   Client-side search uses lowercase string matching (`includes()`) across titles, categories, and excerpts.
     *   Visibility filters (like "Trash View") conditionally modify the base array before search filters apply.

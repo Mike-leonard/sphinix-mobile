@@ -54,9 +54,18 @@
 ### Entity: `Settings` (`data/settings.json`)
 *   **Description:** Global application configuration.
 *   **Fields:**
-    *   `seo`: Global SEO metadata rules and overrides.
-    *   `typography`: Dynamic sizes for `h1`, `h2`, `h3`, `p`.
-    *   `ai`: AI generation keys (`provider`, `model`, `apiKey`, `systemPrompt`, `enableAiFeatures`).
+    *   `seo`: Global SEO metadata rules and overrides (title, description, keywords).
+    *   `typography`: Dynamic CSS size configurations for headers, text, and buttons.
+    *   `ai`: Multiple AI providers configurations (`enableAiFeatures`, `provider`, `model`, `apiKey`, `temperature`, `systemPrompt`).
+    *   `advertisements`: Ad network configurations, injection frequency rules, and placements.
+    *   `appearance`: Theming (light/dark mode) and layout/grid display limits.
+    *   `analytics`: Tracking IDs for Google Analytics, Search Console, and native visitor stats.
+    *   `media`: Upload limits, CDN configurations, and automatic WebP conversion toggles.
+    *   `security`: Recaptcha keys, rate limiting, login attempt protections, and backup schedules.
+    *   `maintenance`: Maintenance mode toggles and custom offline messaging.
+    *   `socialMedia`: Profile links for external brand channels.
+    *   `comments`: Comment approval toggles.
+    *   `localization`: Site language and timezone defaults.
 
 ## 2. Database Connections & Configurations
 *   **Storage Mechanism:** File System (`fs/promises`). Data is read/written asynchronously to the `data/` folder.

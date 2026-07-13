@@ -37,8 +37,8 @@
 *   **Auth Required**: Yes, for all mutations.
 
 ### AI Integrations (`actions/ai.js`)
-*   `generateBlogFromTitle(title)`: Calls Gemini API to write a full HTML blog post based on a title.
-*   `generateBlogFromUrl(url)`: Uses Jina Reader API to scrape external content, bypass bot protections, and rewrite it via Gemini.
+*   `generateBlogFromTitle(title)`: Calls the dynamic AI Provider to write a full HTML blog post based on a title.
+*   `generateBlogFromUrl(url)`: Uses Jina Reader API to scrape external content, bypass bot protections, and rewrite it via the selected AI model.
 *   `generateSEOFromContent(htmlContent, title)`: Generates strict JSON for `metaTitle`, `metaDescription`, and `keywords`.
 *   **Auth Required**: Yes. Includes hard caps on string lengths.
 

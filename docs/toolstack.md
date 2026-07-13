@@ -19,7 +19,7 @@
 ## 3. Advanced Features & Integrations
 *   **Rich Text Editor:** `@tiptap/react` and `@tiptap/starter-kit` (Used for headless content editing in the admin panel).
 *   **Data Visualization:** `recharts` (Used for admin dashboard analytics like Line, Bar, and Radar charts).
-*   **AI SDK:** `@google/genai` (Handles interactions with Gemini models for blog generation and SEO tasks).
+*   **AI SDK:** `@google/genai`, `@ai-sdk/openai`, `ollama` (Dynamic multi-provider configuration handles interactions with LLM models for blog generation and SEO tasks).
 *   **HTML Sanitization:** `isomorphic-dompurify` (Secures dynamically generated AI HTML and Tiptap editor output).
 *   **Web Scraping:** `cheerio` (For parsing DOM elements) and Jina Reader API (for bypassing bot protections).
 *   **Cryptography:** Node.js built-in `crypto` module (Used for HMAC SHA-256 session signature generation and validation).

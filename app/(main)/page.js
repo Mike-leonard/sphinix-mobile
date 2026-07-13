@@ -31,17 +31,18 @@ export default function Home() {
   // Filtered Products logic
   const filteredProducts = useMemo(() => {
     return MOCK_PRODUCTS.filter(product => {
+      const matchesStatus = product.status === 'published';
       const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.specs.chipset.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesBrand = selectedBrand === "All" || product.brand === selectedBrand;
       const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
-      return matchesSearch && matchesBrand && matchesCategory;
+      return matchesStatus && matchesSearch && matchesBrand && matchesCategory;
     }).slice(0, homeLimits.deviceLimit);
   }, [searchQuery, selectedBrand, selectedCategory, homeLimits.deviceLimit]);
 
-  const newArrivals = useMemo(() => MOCK_PRODUCTS.filter(p => p.isNew), []);
-  const topRated = useMemo(() => MOCK_PRODUCTS.filter(p => p.isTopRated), []);
+  const newArrivals = useMemo(() => MOCK_PRODUCTS.filter(p => p.isNew && p.status === 'published'), []);
+  const topRated = useMemo(() => MOCK_PRODUCTS.filter(p => p.isTopRated && p.status === 'published'), []);
   return (
     <div className="text-slate-800 dark:text-slate-100">
 

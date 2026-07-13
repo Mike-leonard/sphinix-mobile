@@ -28,10 +28,11 @@
     *   Dashboard elements utilize a flatter, more condensed layout (e.g. data tables) compared to the public marketing pages.
 
 ## 3. UI Component System
+*   **State Orchestrator Pattern:** Complex features (e.g., `BlogsManager`, `BlogEditor`, `CategoryManager`, and all `SettingsForm` variants) have been refactored to use the Orchestrator pattern. A parent component manages the top-level state and API interactions, while modular, dumb child components handle the UI rendering.
 *   **Base Library:** `shadcn/ui` components have been heavily integrated to handle accessibility and logic, while strictly preserving the custom Tailwind brand aesthetics.
 *   **Modals & Dialogs:**
     *   Sliding drawers (Compare Drawer, Mobile Nav) use Shadcn's `<Sheet>`.
-    *   **Custom Modals:** Critical administrative actions (e.g., Delete, Trash, Unsaved Changes) bypass native `window.confirm()` in favor of high-fidelity, custom backdrop-blurred modals utilizing Tailwind animations (`animate-in fade-in zoom-in-95`).
+    *   **Custom Modals:** Critical administrative actions (e.g., Delete, Trash, Unsaved Changes) completely bypass native `window.confirm()` and `window.alert()`. Instead, we use mandatory high-fidelity, custom backdrop-blurred modals (like `DeleteCategoryModal`, `BlogsConfirmModal`, `LeaveConfirmationModal`) utilizing Tailwind animations (`animate-in fade-in zoom-in-95`).
 *   **Cards & Lists:**
     *   `ProductCard` and `BlogCard` are built using Shadcn's `<Card>` and `<CardContent>`.
 *   **Admin Data Tables:**

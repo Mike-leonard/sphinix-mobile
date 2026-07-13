@@ -4,7 +4,6 @@ import { notFound } from 'next/navigation';
 import RightSidebar from '@/components/sidebar/RightSidebar';
 import MOCK_PRODUCTS from '@/data/products.json';
 import MOCK_BLOGS from '@/data/blogs.json';
-import { generateDeviceSlug } from '@/lib/utils';
 import CompareDrawer from '@/components/CompareDrawer';
 
 import DeviceBreadcrumb from './_components/DeviceBreadcrumb';
@@ -22,13 +21,13 @@ export default function DeviceDetailsPage({ params }) {
   const [selectedBrand, setSelectedBrand] = useState("All");
 
   const device = useMemo(() => {
-    return MOCK_PRODUCTS.find(p => generateDeviceSlug(p.name) === deviceSlug);
+    return MOCK_PRODUCTS.find(p => p.id === deviceSlug);
   }, [deviceSlug]);
 
   const newArrivals = useMemo(() => MOCK_PRODUCTS.filter(p => p.isNew), []);
   const topRated = useMemo(() => MOCK_PRODUCTS.filter(p => p.isTopRated), []);
 
-  if (!device) {
+  if (!device || device.status !== 'published') {
     return notFound();
   }
 
