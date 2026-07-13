@@ -3,6 +3,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { revalidatePath } from 'next/cache';
+import { verifySession } from './auth';
 
 const getBlogsFilePath = () => path.join(process.cwd(), 'data', 'blogs.json');
 
@@ -29,6 +30,9 @@ export async function getBlogById(id) {
 
 export async function createBlog(formData) {
   try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+    
     const blogs = await getBlogs();
     
     // Generate new ID
@@ -63,6 +67,9 @@ export async function createBlog(formData) {
 
 export async function updateBlog(id, formData) {
   try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+
     const blogs = await getBlogs();
     const index = blogs.findIndex(b => b.id === id);
     
@@ -85,23 +92,69 @@ export async function updateBlog(id, formData) {
   }
 }
 
-export async function deleteBlog(id) {
+export async function trashBlog(id) {
   try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+
+    const blogs = await getBlogs();
+    const index = blogs.findIndex(b => b.id === parseInt(id));
+    if (index === -1) return { success: false, error: 'Blog not found' };
+    
+    blogs[index].status = 'trash';
+    await fs.writeFile(getBlogsFilePath(), JSON.stringify(blogs, null, 2));
+    revalidatePath('/dashboard/blogs');
+    
+    return { success: true, message: 'Blog moved to trash' };
+  } catch (error) {
+    console.error('Error trashing blog:', error);
+    return { success: false, error: 'Failed to trash blog' };
+  }
+}
+
+export async function permanentlyDeleteBlog(id) {
+  try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+
     const blogs = await getBlogs();
     const filteredBlogs = blogs.filter(b => b.id !== parseInt(id));
     
     await fs.writeFile(getBlogsFilePath(), JSON.stringify(filteredBlogs, null, 2));
     revalidatePath('/dashboard/blogs');
     
-    return { success: true, message: 'Blog deleted successfully' };
+    return { success: true, message: 'Blog permanently deleted' };
   } catch (error) {
     console.error('Error deleting blog:', error);
     return { success: false, error: 'Failed to delete blog' };
   }
 }
 
+export async function restoreBlog(id) {
+  try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+
+    const blogs = await getBlogs();
+    const index = blogs.findIndex(b => b.id === parseInt(id));
+    if (index === -1) return { success: false, error: 'Blog not found' };
+    
+    blogs[index].status = 'draft';
+    await fs.writeFile(getBlogsFilePath(), JSON.stringify(blogs, null, 2));
+    revalidatePath('/dashboard/blogs');
+    
+    return { success: true, message: 'Blog restored as draft' };
+  } catch (error) {
+    console.error('Error restoring blog:', error);
+    return { success: false, error: 'Failed to restore blog' };
+  }
+}
+
 export async function reassignCategory(oldCategory, newCategory) {
   try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+
     const blogs = await getBlogs();
     let updated = false;
 

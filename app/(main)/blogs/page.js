@@ -18,8 +18,9 @@ export default function BlogsPage() {
 
   // Since we only have a few categories in the mock, we can hardcode or dynamically generate them.
   const categories = useMemo(() => {
-    const counts = { "All": MOCK_BLOGS.length };
-    MOCK_BLOGS.forEach(blog => {
+    const publishedBlogs = MOCK_BLOGS.filter(blog => blog.status === 'published');
+    const counts = { "All": publishedBlogs.length };
+    publishedBlogs.forEach(blog => {
       counts[blog.category] = (counts[blog.category] || 0) + 1;
     });
     return Object.entries(counts).map(([name, count]) => ({ name, count }));
@@ -30,10 +31,11 @@ export default function BlogsPage() {
 
   const filteredBlogs = useMemo(() => {
     return MOCK_BLOGS.filter(blog => {
+      const isPublished = blog.status === 'published';
       const matchesSearch = blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         blog.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = selectedCategory === "All" || blog.category === selectedCategory;
-      return matchesSearch && matchesCategory;
+      return isPublished && matchesSearch && matchesCategory;
     });
   }, [searchQuery, selectedCategory]);
 

@@ -1,34 +1,97 @@
 'use client';
 
 import React, { useState, useMemo, useTransition } from 'react';
-import { Search, Plus, Edit2, Trash2, SlidersHorizontal, ChevronLeft, ChevronRight, X, Image as ImageIcon, Tags } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, SlidersHorizontal, ChevronLeft, ChevronRight, X, Image as ImageIcon, Tags, ChevronUp, ChevronDown, ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { createBlog, updateBlog, deleteBlog } from '@/actions/blogs';
+import { createBlog, updateBlog, trashBlog, permanentlyDeleteBlog, restoreBlog } from '@/actions/blogs';
 
 import Link from 'next/link';
+import { generateBlogSlug } from '@/lib/utils';
 
 export default function BlogsManager({ initialBlogs }) {
   const [blogs, setBlogs] = useState(initialBlogs);
+  const [viewMode, setViewMode] = useState('active');
   const [search, setSearch] = useState('');
-  const [sortBy, setSortBy] = useState('newest'); // 'newest', 'oldest', 'title', 'category'
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [sortField, setSortField] = useState('date');
+  const [sortOrder, setSortOrder] = useState('desc');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
+  const [activeRowId, setActiveRowId] = useState(null);
+
+  const [modalConfig, setModalConfig] = useState({
+    isOpen: false,
+    type: '',
+    blogId: null,
+    title: '',
+    message: ''
+  });
+
+  const categories = useMemo(() => {
+    const cats = new Set(blogs.filter(b => b.status !== 'trash').map(b => b.category));
+    return ['All', ...Array.from(cats)].filter(Boolean);
+  }, [blogs]);
 
   const [isPending, startTransition] = useTransition();
 
-  const handleDelete = async (id) => {
-    if (confirm('Are you sure you want to delete this blog?')) {
-      startTransition(async () => {
-        const res = await deleteBlog(id);
+  const promptTrash = (id) => {
+    setModalConfig({
+      isOpen: true,
+      type: 'trash',
+      blogId: id,
+      title: 'Move to Trash',
+      message: 'Are you sure you want to move this blog to the trash?'
+    });
+  };
+
+  const promptPermanentDelete = (id) => {
+    setModalConfig({
+      isOpen: true,
+      type: 'delete',
+      blogId: id,
+      title: 'Permanently Delete',
+      message: 'Are you sure you want to permanently delete this blog? This action cannot be undone.'
+    });
+  };
+
+  const handleConfirm = async () => {
+    const { type, blogId } = modalConfig;
+    if (!blogId) return;
+
+    startTransition(async () => {
+      if (type === 'trash') {
+        const res = await trashBlog(blogId);
         if (res.success) {
-          setBlogs(blogs.filter(b => b.id !== id));
+          setBlogs(blogs.map(b => b.id === blogId ? { ...b, status: 'trash' } : b));
+          setModalConfig({ ...modalConfig, isOpen: false });
         }
-      });
-    }
+      } else if (type === 'delete') {
+        const res = await permanentlyDeleteBlog(blogId);
+        if (res.success) {
+          setBlogs(blogs.filter(b => b.id !== blogId));
+          setModalConfig({ ...modalConfig, isOpen: false });
+        }
+      }
+    });
+  };
+
+  const handleRestore = async (id) => {
+    startTransition(async () => {
+      const res = await restoreBlog(id);
+      if (res.success) {
+        setBlogs(blogs.map(b => b.id === id ? { ...b, status: 'draft' } : b));
+      }
+    });
   };
 
   const filteredAndSortedBlogs = useMemo(() => {
     let result = [...blogs];
+    
+    if (viewMode === 'active') {
+      result = result.filter(b => b.status !== 'trash');
+    } else {
+      result = result.filter(b => b.status === 'trash');
+    }
     
     if (search) {
       const q = search.toLowerCase();
@@ -38,24 +101,42 @@ export default function BlogsManager({ initialBlogs }) {
         b.excerpt.toLowerCase().includes(q)
       );
     }
-    
-    switch (sortBy) {
-      case 'newest':
-        result.sort((a, b) => new Date(b.date) - new Date(a.date));
-        break;
-      case 'oldest':
-        result.sort((a, b) => new Date(a.date) - new Date(b.date));
-        break;
-      case 'title':
-        result.sort((a, b) => a.title.localeCompare(b.title));
-        break;
-      case 'category':
-        result.sort((a, b) => a.category.localeCompare(b.category));
-        break;
+
+    if (selectedCategory !== 'All') {
+      result = result.filter(b => b.category === selectedCategory);
     }
     
+    result.sort((a, b) => {
+      let comparison = 0;
+      if (sortField === 'date') {
+        comparison = new Date(a.date) - new Date(b.date);
+      } else if (sortField === 'title') {
+        comparison = a.title.localeCompare(b.title);
+      } else if (sortField === 'category') {
+        comparison = (a.category || '').localeCompare(b.category || '');
+      } else if (sortField === 'status') {
+        comparison = (a.status || 'draft').localeCompare(b.status || 'draft');
+      }
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+    
     return result;
-  }, [blogs, search, sortBy]);
+  }, [blogs, search, selectedCategory, sortField, sortOrder, viewMode]);
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
+    setCurrentPage(1);
+  };
+
+  const SortIcon = ({ field }) => {
+    if (sortField !== field) return <ArrowUpDown className="w-3 h-3 opacity-30" />;
+    return sortOrder === 'asc' ? <ChevronUp className="w-3 h-3 text-brand-600 dark:text-brand-400" /> : <ChevronDown className="w-3 h-3 text-brand-600 dark:text-brand-400" />;
+  };
 
   const totalPages = Math.ceil(filteredAndSortedBlogs.length / itemsPerPage);
   const paginatedBlogs = filteredAndSortedBlogs.slice(
@@ -80,18 +161,24 @@ export default function BlogsManager({ initialBlogs }) {
         
         <div className="flex w-full sm:w-auto items-center gap-3">
           <div className="relative">
-            <SlidersHorizontal className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <select 
-              value={sortBy}
-              onChange={(e) => { setSortBy(e.target.value); setCurrentPage(1); }}
-              className="pl-9 pr-8 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm outline-none cursor-pointer appearance-none"
+              value={selectedCategory}
+              onChange={(e) => { setSelectedCategory(e.target.value); setCurrentPage(1); }}
+              className="pl-4 pr-8 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm outline-none cursor-pointer appearance-none"
             >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-              <option value="title">Alphabetical (A-Z)</option>
-              <option value="category">By Category</option>
+              {categories.map(c => (
+                <option key={c} value={c}>{c === 'All' ? 'All Categories' : c}</option>
+              ))}
             </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
           </div>
+          <Button 
+            variant={viewMode === 'trash' ? 'default' : 'outline'} 
+            onClick={() => { setViewMode(viewMode === 'active' ? 'trash' : 'active'); setCurrentPage(1); }} 
+            className={`cursor-pointer gap-2 rounded-xl ${viewMode === 'trash' ? 'bg-red-600 hover:bg-red-700 text-white border-transparent' : 'text-slate-600 dark:text-slate-300'}`}
+          >
+            <Trash2 className="w-4 h-4" /> {viewMode === 'trash' ? 'Exit Trash' : 'Trash'}
+          </Button>
           <Link href="/dashboard/blogs/categories">
             <Button variant="outline" className="cursor-pointer gap-2 rounded-xl text-slate-600 dark:text-slate-300">
               <Tags className="w-4 h-4" /> Manage Categories
@@ -105,58 +192,90 @@ export default function BlogsManager({ initialBlogs }) {
         </div>
       </div>
 
-      {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {paginatedBlogs.map(blog => (
-          <div key={blog.id} className="group flex flex-col bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden hover:shadow-md transition-all">
-            {/* Image/Cover */}
-            <div className="relative h-48 overflow-hidden bg-slate-100 dark:bg-slate-800">
-              {blog.image ? (
-                <img src={blog.image} alt={blog.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-              ) : (
-                <div className={`w-full h-full bg-gradient-to-br ${blog.color} opacity-80`} />
+      {/* Table View */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm whitespace-nowrap">
+            <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+              <tr>
+                <th className="px-6 py-4 font-medium cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors select-none" onClick={() => handleSort('title')}>
+                  <div className="flex items-center gap-2">Title <SortIcon field="title" /></div>
+                </th>
+                <th className="px-6 py-4 font-medium cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors select-none" onClick={() => handleSort('category')}>
+                  <div className="flex items-center gap-2">Category <SortIcon field="category" /></div>
+                </th>
+                <th className="px-6 py-4 font-medium cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors select-none" onClick={() => handleSort('status')}>
+                  <div className="flex items-center gap-2">Status <SortIcon field="status" /></div>
+                </th>
+                <th className="px-6 py-4 font-medium cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors select-none" onClick={() => handleSort('date')}>
+                  <div className="flex items-center gap-2">Created Date <SortIcon field="date" /></div>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+              {paginatedBlogs.map(blog => (
+                <tr key={blog.id} onClick={() => setActiveRowId(activeRowId === blog.id ? null : blog.id)} className="group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors relative cursor-pointer">
+                  <td className="px-6 py-4 min-w-[300px]">
+                    <div className="flex flex-col">
+                      <Link 
+                        href={`/dashboard/blogs/${blog.id}/edit`} 
+                        className={`font-bold text-base mb-1 truncate max-w-md ${
+                          blog.status === 'draft' 
+                            ? 'text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300' 
+                            : 'text-slate-900 dark:text-white hover:text-brand-600 dark:hover:text-brand-400'
+                        }`}
+                      >
+                        {blog.title}
+                      </Link>
+                      {/* Actions on Hover / Click */}
+                      <div className={`flex items-center gap-3 transition-opacity text-sm font-medium h-5 mt-1 ${activeRowId === blog.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                        {viewMode === 'active' ? (
+                          <>
+                            <Link href={`/dashboard/blogs/${blog.id}/edit`} className="text-brand-600 hover:text-brand-700 dark:text-brand-400">Edit</Link>
+                            <span className="text-slate-300 dark:text-slate-700">|</span>
+                            <button disabled={isPending || blog.status === 'published'} onClick={() => promptTrash(blog.id)} className={`text-red-600 ${blog.status === 'published' ? 'opacity-50 cursor-not-allowed' : 'hover:text-red-700'}`} title={blog.status === 'published' ? 'Cannot delete published blog' : ''}>Trash</button>
+                            <span className="text-slate-300 dark:text-slate-700">|</span>
+                            <Link href={`/blogs/${blog.slug || generateBlogSlug(blog.title)}`} className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">View</Link>
+                          </>
+                        ) : (
+                          <>
+                            <button disabled={isPending} onClick={() => handleRestore(blog.id)} className="text-emerald-600 hover:text-emerald-700">Restore</button>
+                            <span className="text-slate-300 dark:text-slate-700">|</span>
+                            <button disabled={isPending} onClick={() => promptPermanentDelete(blog.id)} className="text-red-600 hover:text-red-700 font-bold">Delete Permanently</button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="inline-flex px-2.5 py-1 text-[11px] font-bold tracking-wider uppercase text-slate-600 bg-slate-100 dark:text-slate-300 dark:bg-slate-800 rounded-full">
+                      {blog.category}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`inline-flex px-2.5 py-1 text-[11px] font-bold tracking-wider uppercase rounded-full ${
+                      blog.status === 'trash' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                      blog.status === 'draft' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 
+                      'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                    }`}>
+                      {blog.status || 'draft'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-slate-500 dark:text-slate-400">
+                    {blog.date}
+                  </td>
+                </tr>
+              ))}
+              {paginatedBlogs.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
+                    No blogs found matching your criteria.
+                  </td>
+                </tr>
               )}
-              <div className="absolute top-3 left-3 flex flex-col gap-2">
-                <span className="px-2.5 py-1 text-[10px] font-bold tracking-wider uppercase text-white bg-black/40 backdrop-blur-md rounded-full w-fit">
-                  {blog.category}
-                </span>
-                <span className={`px-2.5 py-1 text-[10px] font-bold tracking-wider uppercase text-white rounded-full w-fit ${blog.status === 'draft' ? 'bg-amber-500/80' : 'bg-emerald-500/80'} backdrop-blur-md`}>
-                  {blog.status || 'draft'}
-                </span>
-              </div>
-              
-              {/* Actions Overlay */}
-              <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Link href={`/dashboard/blogs/${blog.id}/edit`} className="p-1.5 bg-white/90 dark:bg-slate-900/90 hover:bg-white text-brand-600 rounded-lg backdrop-blur-md transition-colors shadow-sm inline-block">
-                  <Edit2 className="w-4 h-4" />
-                </Link>
-                <button disabled={isPending} onClick={() => handleDelete(blog.id)} className="p-1.5 bg-white/90 dark:bg-slate-900/90 hover:bg-red-50 text-red-600 rounded-lg backdrop-blur-md transition-colors shadow-sm">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-            
-            {/* Content */}
-            <div className="p-5 flex flex-col flex-1">
-              <h3 className="font-bold text-slate-900 dark:text-white line-clamp-2 mb-2 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
-                {blog.title}
-              </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-3 mb-4 flex-1">
-                {blog.excerpt}
-              </p>
-              
-              <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-4 border-t border-slate-100 dark:border-slate-800">
-                <span>{blog.date}</span>
-                <span>{blog.readTime}</span>
-              </div>
-            </div>
-          </div>
-        ))}
-        {paginatedBlogs.length === 0 && (
-          <div className="col-span-full py-12 text-center text-slate-500">
-            No blogs found matching your criteria.
-          </div>
-        )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Pagination */}
@@ -174,6 +293,29 @@ export default function BlogsManager({ initialBlogs }) {
         </div>
       )}
 
+      {/* Confirmation Modal */}
+      {modalConfig.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 max-w-md w-full shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{modalConfig.title}</h3>
+            <p className="text-slate-500 dark:text-slate-400 mb-6">
+              {modalConfig.message}
+            </p>
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setModalConfig({ ...modalConfig, isOpen: false })} disabled={isPending}>
+                Cancel
+              </Button>
+              <Button 
+                className="bg-red-600 hover:bg-red-700 text-white" 
+                onClick={handleConfirm}
+                disabled={isPending}
+              >
+                {isPending ? 'Processing...' : 'Confirm'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

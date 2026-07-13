@@ -1,18 +1,13 @@
 import React from 'react';
 import DashboardSidebar from '@/app/dashboard/DashboardSidebar';
-import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { verifySession } from '@/actions/auth';
 
 export default async function DashboardLayout({ children }) {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('session');
+  const user = await verifySession();
 
-  let user = null;
-  if (sessionCookie && sessionCookie.value) {
-    try {
-      user = JSON.parse(sessionCookie.value);
-    } catch (e) {
-      console.error("Failed to parse session cookie", e);
-    }
+  if (!user || user.role !== 'Admin') {
+    redirect('/login');
   }
 
   return (

@@ -23,8 +23,9 @@ export default function BlogPostPage({ params }) {
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   const categories = useMemo(() => {
-    const counts = { "All": MOCK_BLOGS.length };
-    MOCK_BLOGS.forEach(b => {
+    const publishedBlogs = MOCK_BLOGS.filter(blog => blog.status === 'published');
+    const counts = { "All": publishedBlogs.length };
+    publishedBlogs.forEach(b => {
       counts[b.category] = (counts[b.category] || 0) + 1;
     });
     return Object.entries(counts).map(([name, count]) => ({ name, count }));
@@ -34,14 +35,14 @@ export default function BlogPostPage({ params }) {
   const topRated = useMemo(() => MOCK_PRODUCTS.filter(p => p.isTopRated), []);
 
   const blog = useMemo(() => {
-    return MOCK_BLOGS.find(b => generateBlogSlug(b.title) === blogSlug);
+    return MOCK_BLOGS.find(b => generateBlogSlug(b.title) === blogSlug && b.status === 'published');
   }, [blogSlug]);
 
   const relatedBlogs = useMemo(() => {
     if (!blog) return [];
-    let related = MOCK_BLOGS.filter(b => b.category === blog.category && b.id !== blog.id);
+    let related = MOCK_BLOGS.filter(b => b.category === blog.category && b.id !== blog.id && b.status === 'published');
     if (related.length < 3) {
-      const others = MOCK_BLOGS.filter(b => b.category !== blog.category && b.id !== blog.id);
+      const others = MOCK_BLOGS.filter(b => b.category !== blog.category && b.id !== blog.id && b.status === 'published');
       related = [...related, ...others];
     }
     return related.slice(0, 3);

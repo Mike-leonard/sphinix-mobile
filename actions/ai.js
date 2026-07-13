@@ -3,6 +3,7 @@
 import { GoogleGenAI } from '@google/genai';
 import * as cheerio from 'cheerio';
 import { getSettings } from './settings';
+import { verifySession } from './auth';
 
 /**
  * Unified text generation function that handles Gemini, OpenAI, and Anthropic.
@@ -124,6 +125,10 @@ async function generateText(prompt, systemInstruction = '', jsonMode = false) {
  */
 export async function generateBlogFromTitle(title) {
   try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+    if (!title || title.length > 500) throw new Error('Invalid title length');
+
     const settings = await getSettings();
     const system = settings?.ai?.systemPrompt || `You are an expert tech blog writer for Sphinix Mobile, a premium smartphone and tech review site.`;
     const prompt = `
@@ -160,6 +165,10 @@ export async function generateBlogFromTitle(title) {
  */
 export async function generateSEOFromContent(htmlContent, currentTitle) {
   try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+    if (!htmlContent || htmlContent.length > 50000) throw new Error('Content too large');
+
     const system = `You are an expert SEO specialist.`;
     const prompt = `
       Review the following blog post HTML content and its original title.
@@ -201,6 +210,10 @@ export async function generateSEOFromContent(htmlContent, currentTitle) {
  */
 export async function generateBlogFromUrl(url) {
   try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+    if (!url || url.length > 2000) throw new Error('Invalid URL length');
+
     // Use Jina Reader API to bypass bot protections (Cloudflare) and get clean markdown
     const fetchRes = await fetch(`https://r.jina.ai/${url}`);
     

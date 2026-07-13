@@ -5,7 +5,7 @@
 ---
 
 ## 1. Core Framework & Runtimes
-*   **Framework:** Next.js (Version 16.x) with App Router
+*   **Framework:** Next.js (App Router, Server Actions)
 *   **UI Library:** React (Version 19.x)
 *   **Runtime:** Node.js
 
@@ -16,19 +16,15 @@
 *   **Icon Library:** `lucide-react` (Scalable SVG icons)
 *   **Animation Library:** `tw-animate-css` and Tailwind built-in transitions
 
-## 3. State Management & Data Fetching
-*   **Architecture:** Heavily relies on Next.js Server Components combined with standard React hooks (`useState`, `useEffect`) for client-side interactivity (e.g., search, sliders, modals).
-*   **Global Contexts:** Utilizes standard React Context API for global state management (e.g., `CompareContext` for cross-component device comparison).
-*   **Data Fetching:** Currently utilizing synchronous/mock JSON data imports for prototyping (e.g., `mockProducts`, `mockBlogs`).
+## 3. Advanced Features & Integrations
+*   **Rich Text Editor:** `@tiptap/react` and `@tiptap/starter-kit` (Used for headless content editing in the admin panel).
+*   **Data Visualization:** `recharts` (Used for admin dashboard analytics like Line, Bar, and Radar charts).
+*   **AI SDK:** `@google/genai` (Handles interactions with Gemini models for blog generation and SEO tasks).
+*   **HTML Sanitization:** `isomorphic-dompurify` (Secures dynamically generated AI HTML and Tiptap editor output).
+*   **Web Scraping:** `cheerio` (For parsing DOM elements) and Jina Reader API (for bypassing bot protections).
+*   **Cryptography:** Node.js built-in `crypto` module (Used for HMAC SHA-256 session signature generation and validation).
 
-## 4. Backend & Databases
-*   *Currently mocking data. Backend architectures (Database, ORM, Auth) are pending implementation.*
-
-## 5. Development & Build Tools
-*   **Package Manager:** npm
-*   **Linting & Formatting:** ESLint
-*   **Build Pipeline:** Next.js Turbopack (Optimized production builds & fast dev server)
-
-## 6. Testing & Quality Assurance
-*   **Unit Testing:** `vitest` configured with `jsdom` (mocking Next.js routing) for testing React components in isolation.
-*   **End-to-End (E2E) Testing:** `playwright` (`@playwright/test`) configured to run automated browser-based flows across Chromium, Firefox, and WebKit to guarantee integration integrity.
+## 4. Development & Testing
+*   **Unit Testing:** Vitest and React Testing Library
+*   **E2E Testing:** Playwright
+*   **Data Storage:** Native `fs/promises` reading from local JSON files (`blogs.json`, `users.json`, `settings.json`) as a mock database.

@@ -101,8 +101,6 @@ export default function BlogEditor({ initialData = null, categories = [] }) {
   const [isDirty, setIsDirty] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const titleRef = React.useRef(null);
-  const isInitialMount = React.useRef(true);
-
   const [formData, setFormData] = useState({
     title: initialData?.title || '',
     excerpt: initialData?.excerpt || '',
@@ -112,6 +110,8 @@ export default function BlogEditor({ initialData = null, categories = [] }) {
     status: initialData?.status || 'draft',
     seo: initialData?.seo || { metaTitle: '', metaDescription: '', keywords: '' }
   });
+
+  const [initialFormState] = useState(formData);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -143,19 +143,19 @@ export default function BlogEditor({ initialData = null, categories = [] }) {
         class: 'prose prose-sm sm:prose-base dark:prose-invert max-w-none focus:outline-none min-h-[400px] px-6 py-6',
       },
     },
-    onUpdate: () => {
-      setIsDirty(true);
+    onUpdate: ({ editor }) => {
+      if (editor.isFocused) {
+        setIsDirty(true);
+      }
     },
   });
 
   // Track form data changes
   React.useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-    } else {
+    if (JSON.stringify(formData) !== JSON.stringify(initialFormState)) {
       setIsDirty(true);
     }
-  }, [formData]);
+  }, [formData, initialFormState]);
 
   // Block tab closing/reloading
   React.useEffect(() => {
@@ -289,8 +289,8 @@ export default function BlogEditor({ initialData = null, categories = [] }) {
           <Button type="button" variant="secondary" onClick={() => handleSave('draft')} disabled={isPending} className="gap-2 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700">
             <Save className="w-4 h-4" /> {isPending ? 'Saving...' : 'Save Draft'}
           </Button>
-          <Button type="button" onClick={() => handleSave('published')} disabled={isPending} className="gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white shadow-lg shadow-brand-500/25">
-            <Send className="w-4 h-4" /> {isPending ? 'Publishing...' : 'Publish'}
+          <Button type="button" onClick={() => handleSave('published')} disabled={isPending || (initialData?.status === 'published' && !isDirty)} className={`gap-2 rounded-xl text-white shadow-lg shadow-brand-500/25 ${initialData?.status === 'published' && !isDirty ? 'bg-brand-400 opacity-80 cursor-not-allowed' : 'bg-brand-600 hover:bg-brand-700'}`}>
+            <Send className="w-4 h-4" /> {isPending ? 'Publishing...' : (initialData?.status === 'published' && !isDirty ? 'Published' : 'Publish')}
           </Button>
         </div>
       </div>

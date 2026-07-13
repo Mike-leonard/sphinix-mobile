@@ -3,6 +3,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { revalidatePath } from 'next/cache';
+import { verifySession } from './auth';
 
 const getCategoriesFilePath = () => path.join(process.cwd(), 'data', 'categories.json');
 
@@ -19,6 +20,9 @@ export async function getCategories() {
 
 export async function createCategory(newCategory) {
   try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+
     if (!newCategory || typeof newCategory !== 'string' || newCategory.trim() === '') {
       return { success: false, error: 'Category name is required' };
     }
@@ -53,6 +57,9 @@ export async function createCategory(newCategory) {
 
 export async function updateCategory(oldCategory, newCategory) {
   try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+
     if (oldCategory.toLowerCase() === 'uncategorized') {
       return { success: false, error: 'Cannot rename the Uncategorized category' };
     }
@@ -93,6 +100,9 @@ export async function updateCategory(oldCategory, newCategory) {
 
 export async function deleteCategory(categoryToDelete) {
   try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+
     if (categoryToDelete.toLowerCase() === 'uncategorized') {
       return { success: false, error: 'Cannot delete the Uncategorized category' };
     }

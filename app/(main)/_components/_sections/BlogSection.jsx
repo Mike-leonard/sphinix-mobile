@@ -9,7 +9,7 @@ import { useSettings } from '@/context/SettingsContext';
 export default function BlogSection({ limit = 8 }) {
   const settings = useSettings();
   const freq = settings?.advertisements?.injectionFrequency?.homePageBlogs || 4;
-  const displayedBlogs = MOCK_BLOGS.slice(0, limit);
+  const displayedBlogs = MOCK_BLOGS.filter(b => b.status === 'published').slice(0, limit);
 
   return (
     <section className="space-y-6">

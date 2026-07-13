@@ -58,7 +58,7 @@ export default function RightSidebar({
       {/* LATEST BLOGS */}
       {/* Show on Devices and Home, or specifically if we want to cross-pollinate on Devices */}
       {(isDevicesRoute || isHomeRoute || isBlogsRoute) && (
-        <TrendingBlogsSidebar blogs={MOCK_BLOGS} />
+        <TrendingBlogsSidebar blogs={MOCK_BLOGS.filter(b => b.status === 'published')} />
       )}
 
       {/* TOP RATED (Devices) */}

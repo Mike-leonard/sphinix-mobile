@@ -75,8 +75,8 @@ export function Search({ searchQuery, setSearchQuery }) {
     // Filter Blogs
     if (activeScope === "All" || activeScope === "Blogs") {
       const matchedBlogs = MOCK_BLOGS.filter(b => 
-        b.title.toLowerCase().includes(query) || 
-        b.excerpt.toLowerCase().includes(query)
+        (b.title.toLowerCase().includes(query) || 
+        b.excerpt.toLowerCase().includes(query)) && b.status === 'published'
       ).map(b => ({
         type: 'blog',
         id: b.id,
