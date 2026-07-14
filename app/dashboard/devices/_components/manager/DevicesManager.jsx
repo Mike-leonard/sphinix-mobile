@@ -3,12 +3,13 @@
 import React, { useState, useMemo, useTransition } from 'react';
 import { deleteDevice, trashDevice, restoreDevice } from '@/actions/devices';
 
+import DeviceTabsRoute from './DeviceTabsRoute';
 import DevicesToolbar from './DevicesToolbar';
 import DevicesTable from './DevicesTable';
 import DevicesPagination from './DevicesPagination';
 import DevicesConfirmModal from './DevicesConfirmModal';
 
-export default function DevicesManager({ initialDevices }) {
+export default function DevicesManager({ initialDevices, initialBrands = [] }) {
   const [devices, setDevices] = useState(initialDevices);
   const [viewMode, setViewMode] = useState('active');
   const [search, setSearch] = useState('');
@@ -27,10 +28,7 @@ export default function DevicesManager({ initialDevices }) {
     message: ''
   });
 
-  const brands = useMemo(() => {
-    const b = new Set(devices.filter(d => d.status !== 'trash').map(d => d.brand));
-    return ['All', ...Array.from(b)].filter(Boolean);
-  }, [devices]);
+  const brands = ['All', ...initialBrands];
 
   const [isPending, startTransition] = useTransition();
 
@@ -149,6 +147,8 @@ export default function DevicesManager({ initialDevices }) {
 
   return (
     <div className="space-y-6">
+      {/* Route Tabs */}
+      <DeviceTabsRoute />
       <DevicesToolbar 
         search={search}
         setSearch={setSearch}

@@ -48,8 +48,10 @@ const DEFAULT_DEVICE = {
   }
 };
 
-export default function DeviceEditor({ initialDevice, isEditMode = false }) {
+export default function DeviceEditor({ initialDevice = null, brands = [] }) {
   const router = useRouter();
+  const isEditMode = !!initialDevice;
+  
   const [formData, setFormData] = useState(initialDevice || DEFAULT_DEVICE);
   const [initialFormState] = useState(formData);
   const [isPending, startTransition] = useTransition();
@@ -166,7 +168,8 @@ export default function DeviceEditor({ initialDevice, isEditMode = false }) {
                 
                 <DeviceBasicInfo 
                   formData={formData} 
-                  setFormData={setFormData} 
+                  setFormData={setFormData}
+                  brands={brands} 
                 />
               </div>
 

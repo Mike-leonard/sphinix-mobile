@@ -181,3 +181,31 @@ export async function restoreDevice(id) {
   }
 }
 
+export async function reassignDeviceBrand(oldBrand, newBrand) {
+  try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+
+    const devices = await getDevices();
+    let updated = false;
+    
+    for (const device of devices) {
+      if (device.brand && device.brand.toLowerCase() === oldBrand.toLowerCase()) {
+        device.brand = newBrand;
+        updated = true;
+      }
+    }
+    
+    if (updated) {
+      await fs.writeFile(getDevicesFilePath(), JSON.stringify(devices, null, 2));
+      revalidatePath('/dashboard/devices');
+      revalidatePath('/devices');
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error reassinging device brand:', error);
+    return { success: false, error: 'Failed to reassign device brand' };
+  }
+}
+

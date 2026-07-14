@@ -4,7 +4,7 @@ import React from 'react';
 import { Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function DeviceBasicInfo({ formData, setFormData }) {
+export default function DeviceBasicInfo({ formData, setFormData, brands = [] }) {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -49,15 +49,18 @@ export default function DeviceBasicInfo({ formData, setFormData }) {
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
             Brand *
           </label>
-          <input
-            type="text"
+          <select
             name="brand"
             value={formData.brand}
             onChange={handleChange}
-            placeholder="e.g., Apple"
             className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
             required
-          />
+          >
+            <option value="" disabled>Select a brand</option>
+            {brands.map(brand => (
+              <option key={brand} value={brand}>{brand}</option>
+            ))}
+          </select>
         </div>
 
         <div>

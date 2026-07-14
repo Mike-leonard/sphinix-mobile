@@ -1,5 +1,6 @@
 import React from 'react';
 import { getDevices } from '@/actions/devices';
+import { getDeviceBrands } from '@/actions/device-brands';
 import DevicesManager from './_components/manager/DevicesManager';
 
 export const metadata = {
@@ -9,6 +10,7 @@ export const metadata = {
 
 export default async function DevicesPage() {
   const devices = await getDevices();
+  const brands = await getDeviceBrands();
   
   return (
     <div className="p-8">
@@ -18,7 +20,7 @@ export default async function DevicesPage() {
           Manage the devices catalog, their specifications, and images.
         </p>
         
-        <DevicesManager initialDevices={devices} />
+        <DevicesManager initialDevices={devices} initialBrands={brands} />
       </div>
     </div>
   );
