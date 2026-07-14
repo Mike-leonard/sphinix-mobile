@@ -1,0 +1,417 @@
+'use client';
+
+import React, { useState, useTransition } from 'react';
+import { Tag, Edit2, Trash2, Check, X, Plus, ChevronDown, ChevronRight } from 'lucide-react';
+import { createDeviceAttribute, deleteDeviceAttribute, updateDeviceAttribute, addAttributeTerm, deleteAttributeTerm } from '@/actions/device-attributes';
+import { Button } from '@/components/ui/button';
+
+export default function AttributeManager({ initialAttributes, availableGroups = ['General'] }) {
+  const [attributes, setAttributes] = useState(initialAttributes || []);
+  const [newAttribute, setNewAttribute] = useState('');
+  const [newAttributeSlug, setNewAttributeSlug] = useState('');
+  const [newGroupIds, setNewGroupIds] = useState([availableGroups[0] || 'General']);
+  const [isPending, startTransition] = useTransition();
+  const [editingAttributeId, setEditingAttributeId] = useState(null);
+  const [editValue, setEditValue] = useState('');
+  const [editSlug, setEditSlug] = useState('');
+  const [editGroupIds, setEditGroupIds] = useState([]);
+
+  // Terms Management State
+  const [expandedRowId, setExpandedRowId] = useState(null);
+  const [newTermValues, setNewTermValues] = useState({});
+
+  // Layout State
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [collapsedGroups, setCollapsedGroups] = useState({});
+
+  const handleAddAttribute = (e) => {
+    e.preventDefault();
+    if (!newAttribute.trim()) return;
+
+    startTransition(async () => {
+      const res = await createDeviceAttribute(newAttribute, newGroupIds, newAttributeSlug);
+      if (res.success) {
+        setAttributes([...attributes, res.attribute].sort((a, b) => a.name.localeCompare(b.name)));
+        setNewAttribute('');
+        setNewAttributeSlug('');
+      } else {
+        alert(res.error);
+      }
+    });
+  };
+
+  const confirmDeleteAttribute = (attrId, attrName) => {
+    if (confirm(`Are you sure you want to delete the attribute "${attrName}"?`)) {
+      startTransition(async () => {
+        const res = await deleteDeviceAttribute(attrId);
+        if (res.success) {
+          setAttributes(attributes.filter(a => a.id !== attrId));
+          if (expandedRowId === attrId) setExpandedRowId(null);
+        } else {
+          alert(res.error);
+        }
+      });
+    }
+  };
+
+  const handleSaveEdit = (attrId) => {
+    if (!editValue.trim()) {
+      setEditingAttributeId(null);
+      return;
+    }
+
+    startTransition(async () => {
+      const res = await updateDeviceAttribute(attrId, editValue.trim(), editGroupIds, editSlug);
+      if (res.success) {
+        setAttributes(attributes.map(a => {
+          if (a.id === attrId) {
+            return { 
+              ...a, 
+              name: editValue.trim(), 
+              slug: editSlug.trim() || editValue.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''), 
+              groupIds: editGroupIds 
+            };
+          }
+          return a;
+        }).sort((a, b) => a.name.localeCompare(b.name)));
+        setEditingAttributeId(null);
+      } else {
+        alert(res.error);
+      }
+    });
+  };
+
+  const handleAddTerm = (attrId) => {
+    const term = newTermValues[attrId];
+    if (!term || !term.trim()) return;
+
+    startTransition(async () => {
+      const res = await addAttributeTerm(attrId, term);
+      if (res.success) {
+        setAttributes(attributes.map(a => {
+          if (a.id === attrId) {
+            return { ...a, terms: [...(a.terms || []), term.trim()] };
+          }
+          return a;
+        }));
+        setNewTermValues(prev => ({ ...prev, [attrId]: '' }));
+      } else {
+        alert(res.error);
+      }
+    });
+  };
+
+  const handleRemoveTerm = (attrId, term) => {
+    startTransition(async () => {
+      const res = await deleteAttributeTerm(attrId, term);
+      if (res.success) {
+        setAttributes(attributes.map(a => {
+          if (a.id === attrId) {
+            return { ...a, terms: a.terms.filter(t => t !== term) };
+          }
+          return a;
+        }));
+      } else {
+        alert(res.error);
+      }
+    });
+  };
+
+  const toggleRow = (id) => {
+    setExpandedRowId(prev => prev === id ? null : id);
+  };
+
+  const groupedAttributes = availableGroups.reduce((acc, group) => {
+    acc[group] = attributes.filter(a => {
+      if (a.groupIds && a.groupIds.length > 0) return a.groupIds.includes(group);
+      return (a.groupId || 'General') === group;
+    });
+    return acc;
+  }, {});
+
+  const toggleGroup = (group) => {
+    setCollapsedGroups(prev => ({ ...prev, [group]: !prev[group] }));
+  };
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Attributes</h2>
+        <Button onClick={() => setShowAddForm(!showAddForm)} className="bg-brand-600 hover:bg-brand-700 text-white gap-2">
+          {showAddForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+          {showAddForm ? 'Cancel' : 'Add Attribute'}
+        </Button>
+      </div>
+
+      {/* Add New Attribute Form */}
+      {showAddForm && (
+        <div className="w-full">
+        <form onSubmit={handleAddAttribute} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Name
+              </label>
+              <input
+                type="text"
+                value={newAttribute}
+                onChange={(e) => setNewAttribute(e.target.value)}
+                disabled={isPending}
+                placeholder="e.g., RAM"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:opacity-50"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Slug (Optional)
+              </label>
+              <input
+                type="text"
+                value={newAttributeSlug}
+                onChange={(e) => setNewAttributeSlug(e.target.value)}
+                disabled={isPending}
+                placeholder={newAttribute.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') || "e.g., ram"}
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:opacity-50"
+              />
+              <p className="text-xs text-slate-500 mt-2">Leave empty to auto-generate from name.</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Groups
+              </label>
+              <div className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 max-h-32 overflow-y-auto">
+                <div className="flex flex-col gap-2">
+                  {availableGroups.map(group => (
+                    <label key={group} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={newGroupIds.includes(group)}
+                        onChange={(e) => {
+                          if (e.target.checked) setNewGroupIds([...newGroupIds, group]);
+                          else setNewGroupIds(newGroupIds.filter(g => g !== group));
+                        }}
+                        disabled={isPending}
+                        className="rounded border-slate-300 text-brand-600 focus:ring-brand-500"
+                      />
+                      {group}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <Button 
+              type="submit" 
+              disabled={isPending || !newAttribute.trim()}
+              className="w-full bg-brand-600 hover:bg-brand-700 text-white rounded-xl shadow-lg shadow-brand-500/25 disabled:opacity-50"
+            >
+              {isPending ? 'Saving...' : 'Add Attribute'}
+            </Button>
+          </div>
+        </form>
+      </div>
+      )}
+
+      {/* Attributes List */}
+      <div className="w-full space-y-6">
+        {attributes.length === 0 ? (
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-12 flex flex-col items-center justify-center text-center shadow-sm">
+             <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
+               <Tag className="w-8 h-8 text-slate-300 dark:text-slate-600" />
+             </div>
+             <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-1">No attributes found</h3>
+             <p className="text-sm text-slate-500 max-w-sm">Get started by creating your first device attribute above.</p>
+          </div>
+        ) : (
+          availableGroups.map(group => {
+            const groupAttrs = groupedAttributes[group];
+            if (!groupAttrs || groupAttrs.length === 0) return null;
+
+            return (
+              <div key={`group-${group}`} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm transition-all duration-200">
+                {/* Group Header */}
+                <div 
+                  className="px-6 py-5 bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                  onClick={() => toggleGroup(group)}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-brand-100 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 flex items-center justify-center shadow-inner">
+                       <Tag className="w-4 h-4" />
+                    </div>
+                    <h3 className="font-bold text-slate-800 dark:text-slate-100 uppercase tracking-widest text-xs">{group}</h3>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                      {groupAttrs.length} Attribute{groupAttrs.length !== 1 ? 's' : ''}
+                    </span>
+                    <div className="p-1 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 transition-colors">
+                      {collapsedGroups[group] ? <ChevronRight className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Group Body */}
+                {!collapsedGroups[group] && (
+                  <div className="divide-y divide-slate-100 dark:divide-slate-800/50 p-2">
+                    {groupAttrs.map(attr => (
+                      <div key={attr.id} className="group/row flex flex-col p-2 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/25 transition-all">
+                        <div className="flex flex-wrap md:flex-nowrap items-center justify-between p-2 gap-4">
+                          
+                          <div className="flex items-center gap-4 flex-1 cursor-pointer" onClick={() => toggleRow(attr.id)}>
+                            <div className={`p-2 rounded-xl transition-colors ${expandedRowId === attr.id ? 'bg-brand-100 text-brand-600 dark:bg-brand-900/40 dark:text-brand-400' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 group-hover/row:bg-white dark:group-hover/row:bg-slate-700 shadow-sm'}`}>
+                              {expandedRowId === attr.id ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                            </div>
+                            
+                            {editingAttributeId === attr.id ? (
+                              <div className="flex flex-wrap items-center gap-3 w-full" onClick={e => e.stopPropagation()}>
+                                <input
+                                  type="text"
+                                  value={editValue}
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  className="w-40 bg-white dark:bg-slate-950 border border-brand-500 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none shadow-sm"
+                                  placeholder="Name"
+                                  autoFocus
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleSaveEdit(attr.id);
+                                    if (e.key === 'Escape') setEditingAttributeId(null);
+                                  }}
+                                />
+                                <input
+                                  type="text"
+                                  value={editSlug}
+                                  onChange={(e) => setEditSlug(e.target.value)}
+                                  className="w-40 bg-white dark:bg-slate-950 border border-brand-500 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none shadow-sm"
+                                  placeholder="Slug (optional)"
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleSaveEdit(attr.id);
+                                    if (e.key === 'Escape') setEditingAttributeId(null);
+                                  }}
+                                />
+                                <div className="flex flex-col gap-1.5 max-h-24 overflow-y-auto bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 min-w-[160px] shadow-inner">
+                                  {availableGroups.map(g => (
+                                    <label key={g} className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300 cursor-pointer hover:text-brand-600 transition-colors">
+                                      <input 
+                                        type="checkbox" 
+                                        checked={editGroupIds.includes(g)}
+                                        onChange={(e) => {
+                                          if (e.target.checked) setEditGroupIds([...editGroupIds, g]);
+                                          else setEditGroupIds(editGroupIds.filter(id => id !== g));
+                                        }}
+                                        className="rounded border-slate-300 text-brand-600 focus:ring-brand-500 h-3.5 w-3.5"
+                                      />
+                                      {g}
+                                    </label>
+                                  ))}
+                                </div>
+                                <button onClick={() => handleSaveEdit(attr.id)} disabled={isPending} className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-xl transition-colors shadow-sm bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                                  <Check className="w-4 h-4" />
+                                </button>
+                                <button onClick={() => setEditingAttributeId(null)} disabled={isPending} className="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors shadow-sm bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div>
+                                <h4 className="font-semibold text-slate-900 dark:text-white text-[15px]">{attr.name}</h4>
+                                <span className="text-xs text-slate-400 font-mono tracking-tight">{attr.slug}</span>
+                              </div>
+                            )}
+                          </div>
+                          
+                          <div className="flex items-center gap-6">
+                            <div className="flex">
+                              <span className="px-3 py-1 rounded-full text-[11px] font-semibold tracking-wide uppercase bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50 shadow-sm">
+                                {(attr.terms || []).length} Terms
+                              </span>
+                            </div>
+                            
+                            <div className="flex items-center gap-1 opacity-0 group-hover/row:opacity-100 transition-opacity">
+                              {editingAttributeId !== attr.id && (
+                                <>
+                                  <button
+                                    onClick={() => {
+                                      setEditingAttributeId(attr.id);
+                                      setEditValue(attr.name);
+                                      setEditSlug(attr.slug);
+                                      setEditGroupIds(attr.groupIds || (attr.groupId ? [attr.groupId] : ['General']));
+                                    }}
+                                    disabled={isPending}
+                                    className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow text-slate-400 hover:text-brand-600 hover:border-brand-200 dark:hover:border-brand-900/50 rounded-xl transition-all"
+                                    title="Edit"
+                                  >
+                                    <Edit2 className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => confirmDeleteAttribute(attr.id, attr.name)}
+                                    disabled={isPending}
+                                    className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow text-slate-400 hover:text-red-500 hover:border-red-200 dark:hover:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-all"
+                                    title="Delete"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Expandable Terms Section */}
+                        {expandedRowId === attr.id && (
+                          <div className="pl-14 pr-4 py-4 mt-2 border-t border-slate-100 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-950/20 rounded-xl mx-2 mb-2">
+                            <h4 className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                              Terms Options
+                              <span className="text-[10px] font-normal text-slate-400 bg-slate-200 dark:bg-slate-800 px-1.5 py-0.5 rounded-md">Configurable options for {attr.name}</span>
+                            </h4>
+                            
+                            <div className="flex flex-wrap gap-2 mb-6">
+                              {(attr.terms || []).length === 0 ? (
+                                <span className="text-sm text-slate-400 italic">No terms configured yet. Start adding them below.</span>
+                              ) : (
+                                (attr.terms || []).map(term => (
+                                  <span key={term} className="inline-flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm font-medium text-slate-700 dark:text-slate-300 shadow-sm hover:shadow-md transition-shadow group/term">
+                                    {term}
+                                    <button 
+                                      onClick={() => handleRemoveTerm(attr.id, term)}
+                                      disabled={isPending}
+                                      className="p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-slate-300 dark:text-slate-600 hover:text-red-500 transition-colors opacity-50 group-hover/term:opacity-100"
+                                    >
+                                      <X className="w-3.5 h-3.5" />
+                                    </button>
+                                  </span>
+                                ))
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-2 max-w-md bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500 transition-all">
+                              <input
+                                type="text"
+                                value={newTermValues[attr.id] || ''}
+                                onChange={(e) => setNewTermValues({ ...newTermValues, [attr.id]: e.target.value })}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') handleAddTerm(attr.id);
+                                }}
+                                placeholder="Add a new term (e.g. 8GB, Bluetooth 5.0)"
+                                disabled={isPending}
+                                className="flex-1 bg-transparent border-none px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-0 placeholder-slate-400"
+                              />
+                              <Button
+                                onClick={() => handleAddTerm(attr.id)}
+                                disabled={isPending || !(newTermValues[attr.id] || '').trim()}
+                                className="bg-brand-600 hover:bg-brand-700 text-white rounded-xl px-5 h-9 text-sm font-medium shadow-md shadow-brand-500/20 disabled:opacity-50"
+                              >
+                                Add Term
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+}

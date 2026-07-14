@@ -2,7 +2,7 @@ import React from 'react';
 import { LayoutGrid, List } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
-export default function SortingControl({ viewMode, setViewMode, sortOption, setSortOption, selectedBrand, setSelectedBrand, BRANDS, setShowFilters, showFilters }) {
+export default function SortingControl({ viewMode, setViewMode, sortOption, setSortOption, selectedBrand, setSelectedBrand, BRANDS, setShowFilters, showFilters, setCurrentPage }) {
     return (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white dark:bg-[#1a2035] p-3 rounded-lg border border-slate-200 dark:border-slate-800 mb-6 gap-4">
 

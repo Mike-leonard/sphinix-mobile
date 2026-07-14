@@ -1,11 +1,19 @@
 import React from 'react';
 import DeviceTabsRoute from '../_components/manager/DeviceTabsRoute';
+import AttributeManager from './_components/AttributeManager';
+import { getDeviceAttributes } from '@/actions/device-attributes';
+import { getDeviceGroups } from '@/actions/device-groups';
 
 export const metadata = {
   title: 'Attributes | Device Management',
 };
 
-export default function AttributesPage() {
+export default async function AttributesPage() {
+  const [attributes, groups] = await Promise.all([
+    getDeviceAttributes(),
+    getDeviceGroups()
+  ]);
+
   return (
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
@@ -15,9 +23,7 @@ export default function AttributesPage() {
         </p>
         
         <DeviceTabsRoute />
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-12 text-center text-slate-500">
-          Attributes management coming soon.
-        </div>
+        <AttributeManager initialAttributes={attributes} availableGroups={groups} />
       </div>
     </div>
   );

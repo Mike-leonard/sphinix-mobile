@@ -109,6 +109,7 @@ export default function DevicesPage() {
             BRANDS={BRANDS}
             setShowFilters={setShowFilters}
             showFilters={showFilters}
+            setCurrentPage={setCurrentPage}
           />
 
           {/* Mobile Advanced Filters Sheet */}

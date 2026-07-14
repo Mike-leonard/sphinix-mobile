@@ -1,11 +1,19 @@
 import React from 'react';
 import DeviceTabsRoute from '../_components/manager/DeviceTabsRoute';
+import GroupManager from './_components/GroupManager';
+import { getDeviceGroups } from '@/actions/device-groups';
+import { getDeviceAttributes } from '@/actions/device-attributes';
 
 export const metadata = {
   title: 'Groups | Device Management',
 };
 
-export default function GroupsPage() {
+export default async function GroupsPage() {
+  const [groups, attributes] = await Promise.all([
+    getDeviceGroups(),
+    getDeviceAttributes()
+  ]);
+
   return (
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
@@ -15,9 +23,7 @@ export default function GroupsPage() {
         </p>
         
         <DeviceTabsRoute />
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-12 text-center text-slate-500">
-          Groups management coming soon.
-        </div>
+        <GroupManager initialGroups={groups} allAttributes={attributes} />
       </div>
     </div>
   );
