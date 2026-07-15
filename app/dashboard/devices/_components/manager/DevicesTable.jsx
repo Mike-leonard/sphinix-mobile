@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { MoreHorizontal, Edit, Trash2, Eye, ArrowUpDown, Smartphone } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, generateBrandSlug } from '@/lib/utils';
 
 export default function DevicesTable({
   paginatedDevices,
@@ -115,7 +115,7 @@ export default function DevicesTable({
                         <>
                           {device.status === 'published' && (
                             <Link 
-                              href={`/devices/${device.id}`}
+                              href={`/devices/${generateBrandSlug(device.brand || 'unknown')}/${device.id}`}
                               target="_blank"
                               className="p-2 text-slate-400 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-colors"
                               title="View Public Page"

@@ -14,9 +14,9 @@ import DeviceQuickSpecs from './DeviceQuickSpecs';
 import DeviceDetailedSpecs from './DeviceDetailedSpecs';
 import DeviceEditorSidebar from './DeviceEditorSidebar';
 
-import DeviceHero from '@/app/(main)/devices/[deviceSlug]/_components/DeviceGallery';
-import DeviceQuickInfo from '@/app/(main)/devices/[deviceSlug]/_components/DeviceQuickInfo';
-import DeviceTabs from '@/app/(main)/devices/[deviceSlug]/_components/DeviceTabs';
+import DeviceHero from '@/app/(main)/devices/[brandSlug]/[deviceSlug]/_components/DeviceGallery';
+import DeviceQuickInfo from '@/app/(main)/devices/[brandSlug]/[deviceSlug]/_components/DeviceQuickInfo';
+import DeviceTabs from '@/app/(main)/devices/[brandSlug]/[deviceSlug]/_components/DeviceTabs';
 import { CompareProvider } from '@/context/CompareContext';
 
 const DEFAULT_DEVICE = {
