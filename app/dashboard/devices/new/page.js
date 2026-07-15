@@ -2,6 +2,7 @@ import React from 'react';
 import DeviceEditor from '../_components/editor/DeviceEditor';
 
 import { getDeviceBrands } from '@/actions/device-brands';
+import { getDeviceAttributes } from '@/actions/device-attributes';
 
 export const metadata = {
   title: 'Add New Device | Dashboard',
@@ -10,5 +11,7 @@ export const metadata = {
 
 export default async function NewDevicePage() {
   const brands = await getDeviceBrands();
-  return <DeviceEditor brands={brands} />;
+  const attributes = await getDeviceAttributes();
+
+  return <DeviceEditor brands={brands} allAttributes={attributes} />;
 }

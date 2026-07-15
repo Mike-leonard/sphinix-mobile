@@ -2,7 +2,14 @@
 
 import React, { useState, useTransition } from 'react';
 import { Tag, Edit2, Trash2, Check, X, Plus, ChevronDown, ChevronRight, GripVertical } from 'lucide-react';
-import { createDeviceAttribute, deleteDeviceAttribute, updateDeviceAttribute, addAttributeTerm, deleteAttributeTerm } from '@/actions/device-attributes';
+import {
+  createDeviceAttribute,
+  updateDeviceAttribute,
+  deleteDeviceAttribute,
+  addAttributeTerm,
+  deleteAttributeTerm,
+  reorderDeviceAttributes
+} from '@/actions/device-attributes';
 import { reorderDeviceGroups } from '@/actions/device-groups';
 import { Button } from '@/components/ui/button';
 
@@ -29,6 +36,7 @@ export default function AttributeManager({ initialAttributes, availableGroups = 
 
   // DnD State
   const [draggedGroup, setDraggedGroup] = useState(null);
+  const [draggedAttribute, setDraggedAttribute] = useState(null);
 
   // Sync orderedGroups if props change (e.g. from server action)
   React.useEffect(() => {
@@ -184,6 +192,49 @@ export default function AttributeManager({ initialAttributes, availableGroups = 
     setActiveGroupId(group);
   };
 
+  const handleAttributeDragStart = (e, attr) => {
+    setDraggedAttribute(attr);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleAttributeDragOver = (e, targetAttr) => {
+    e.preventDefault();
+  };
+
+  const handleAttributeDrop = (e, targetAttr) => {
+    e.preventDefault();
+    if (!draggedAttribute || draggedAttribute.id === targetAttr.id) {
+      setDraggedAttribute(null);
+      return;
+    }
+
+    // Get current global attributes order
+    const newAttributes = [...attributes];
+    const draggedIndex = newAttributes.findIndex(a => a.id === draggedAttribute.id);
+    const targetIndex = newAttributes.findIndex(a => a.id === targetAttr.id);
+
+    if (draggedIndex === -1 || targetIndex === -1) {
+      setDraggedAttribute(null);
+      return;
+    }
+
+    // Reorder in local state
+    const [removed] = newAttributes.splice(draggedIndex, 1);
+    newAttributes.splice(targetIndex, 0, removed);
+    
+    // Update local state immediately for snappy UI
+    setAttributes(newAttributes);
+    setDraggedAttribute(null);
+
+    // Save to backend
+    startTransition(async () => {
+      const res = await reorderDeviceAttributes(newAttributes.map(a => a.id));
+      if (!res.success) {
+        alert(res.error);
+      }
+    });
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex justify-between items-center">
@@ -194,7 +245,6 @@ export default function AttributeManager({ initialAttributes, availableGroups = 
         </Button>
       </div>
 
-      {/* Add New Attribute Form */}
       {showAddForm && (
         <div className="w-full">
         <form onSubmit={handleAddAttribute} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
@@ -262,17 +312,14 @@ export default function AttributeManager({ initialAttributes, availableGroups = 
       </div>
       )}
 
-      {/* Main Two-Column Layout */}
       <div className="flex flex-col lg:flex-row gap-8">
-        
-        {/* Left Sidebar (Group Selector) */}
         <div className="w-full lg:w-64 shrink-0 flex flex-col gap-4">
           <div className="bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800/50 p-4 rounded-2xl">
             <h4 className="text-sm font-semibold text-brand-800 dark:text-brand-300 mb-1 flex items-center gap-2">
               <GripVertical className="w-4 h-4" /> Global Layout Order
             </h4>
             <p className="text-xs text-brand-600/80 dark:text-brand-400/80 leading-relaxed">
-              Drag and drop these groups to reorder them. This exact order controls how they appear on the public device pages, and the edit/create views!
+              Drag and drop these groups to reorder them.
             </p>
           </div>
           
@@ -283,7 +330,7 @@ export default function AttributeManager({ initialAttributes, availableGroups = 
             return (
               <button 
                 key={`nav-${group}`}
-                draggable
+                draggable="true"
                 onDragStart={(e) => handleDragStart(e, group)}
                 onDragOver={(e) => handleDragOver(e, group)}
                 onDragEnd={() => setDraggedGroup(null)}
@@ -312,7 +359,6 @@ export default function AttributeManager({ initialAttributes, availableGroups = 
           </div>
         </div>
 
-        {/* Right Content Area (Active Group Attributes) */}
         <div className="flex-1 min-w-0 space-y-6">
           {attributes.length === 0 ? (
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-12 flex flex-col items-center justify-center text-center shadow-sm">
@@ -324,7 +370,6 @@ export default function AttributeManager({ initialAttributes, availableGroups = 
             </div>
           ) : (
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm transition-all duration-200">
-              {/* Group Header */}
               <div className="px-6 py-5 bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-brand-100 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 flex items-center justify-center shadow-inner">
@@ -339,7 +384,6 @@ export default function AttributeManager({ initialAttributes, availableGroups = 
                 </div>
               </div>
 
-              {/* Group Body */}
               <div className="divide-y divide-slate-100 dark:divide-slate-800/50 p-2 min-h-[300px]">
                 {!(groupedAttributes[activeGroupId] || []).length ? (
                   <div className="flex flex-col items-center justify-center h-full p-12 text-center text-slate-500">
@@ -349,11 +393,25 @@ export default function AttributeManager({ initialAttributes, availableGroups = 
                   </div>
                 ) : (
                   (groupedAttributes[activeGroupId] || []).map(attr => (
-                    <div key={attr.id} className="group/row flex flex-col p-2 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/25 transition-all">
+                    <div 
+                      key={attr.id} 
+                      draggable={!editingAttributeId}
+                      onDragStart={(e) => handleAttributeDragStart(e, attr)}
+                      onDragOver={(e) => handleAttributeDragOver(e, attr)}
+                      onDrop={(e) => handleAttributeDrop(e, attr)}
+                      onDragEnd={() => setDraggedAttribute(null)}
+                      className={`group/row flex flex-col p-2 rounded-2xl transition-all cursor-grab active:cursor-grabbing ${
+                        draggedAttribute?.id === attr.id ? 'opacity-50 border border-dashed border-brand-500 bg-brand-50/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/25 border border-transparent'
+                      }`}
+                    >
                       <div className="flex flex-wrap md:flex-nowrap items-center justify-between p-2 gap-4">
                         
-                        <div className="flex items-center gap-4 flex-1 cursor-pointer" onClick={() => toggleRow(attr.id)}>
-                          <div className={`p-2 rounded-xl transition-colors ${expandedRowId === attr.id ? 'bg-brand-100 text-brand-600 dark:bg-brand-900/40 dark:text-brand-400' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 group-hover/row:bg-white dark:group-hover/row:bg-slate-700 shadow-sm'}`}>
+                        <div className="flex items-center gap-4 flex-1">
+                          <GripVertical className="w-5 h-5 text-slate-300 dark:text-slate-600 hover:text-brand-500 transition-colors hidden md:block" />
+                          <div 
+                            className={`p-2 rounded-xl transition-colors cursor-pointer ${expandedRowId === attr.id ? 'bg-brand-100 text-brand-600 dark:bg-brand-900/40 dark:text-brand-400' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 group-hover/row:bg-white dark:group-hover/row:bg-slate-700 shadow-sm'}`}
+                            onClick={() => toggleRow(attr.id)}
+                          >
                             {expandedRowId === attr.id ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                           </div>
                           
@@ -366,10 +424,6 @@ export default function AttributeManager({ initialAttributes, availableGroups = 
                                 className="w-40 bg-white dark:bg-slate-950 border border-brand-500 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none shadow-sm"
                                 placeholder="Name"
                                 autoFocus
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') handleSaveEdit(attr.id);
-                                  if (e.key === 'Escape') setEditingAttributeId(null);
-                                }}
                               />
                               <input
                                 type="text"
@@ -384,7 +438,7 @@ export default function AttributeManager({ initialAttributes, availableGroups = 
                               />
                               <div className="flex flex-col gap-1.5 max-h-24 overflow-y-auto bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 min-w-[160px] shadow-inner">
                                 {availableGroups.map(g => (
-                                  <label key={`edit-group-${g}`} className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300 cursor-pointer hover:text-brand-600 transition-colors">
+                                  <label key={`edit-group-${g}`} className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
                                     <input 
                                       type="checkbox" 
                                       checked={editGroupIds.includes(g)}

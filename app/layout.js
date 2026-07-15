@@ -66,11 +66,11 @@ export default async function RootLayout({ children, modal }) {
           forcedTheme={settings.appearance?.theme && settings.appearance.theme !== "system" ? settings.appearance.theme : undefined}
         >
           <SettingsProvider settings={settings}>
-            {/* Renders either the (main) layout or the (auth) layout */}
-            {children} 
-            
-            {/* Renders the intercepting login/register modal if active */}
-            {modal}
+              {/* Renders either the (main) layout or the (auth) layout */}
+              {children} 
+              
+              {/* Renders the intercepting login/register modal if active */}
+              {modal}
           </SettingsProvider>
         </ThemeProvider>
       </body>
