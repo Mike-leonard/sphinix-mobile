@@ -1,8 +1,13 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getBlogs, createBlog, updateBlog, deleteBlog } from '../actions/blogs';
+import { getBlogs, createBlog, updateBlog, trashBlog, permanentlyDeleteBlog } from '../actions/blogs';
 import fs from 'fs/promises';
 import { join } from 'path';
+
+// Mock auth
+vi.mock('../actions/auth', () => ({
+  verifySession: vi.fn().mockResolvedValue({ id: 1, role: 'admin' })
+}));
 
 // Mock fs/promises
 vi.mock('fs/promises', () => ({
@@ -93,14 +98,31 @@ describe('Blogs Server Actions', () => {
     });
   });
 
-  describe('deleteBlog', () => {
-    it('deletes an existing blog', async () => {
+  describe('trashBlog', () => {
+    it('trashes an existing blog', async () => {
+      fs.readFile.mockResolvedValue(JSON.stringify([
+        { id: 1, title: 'Keep', status: 'draft' },
+        { id: 2, title: 'Trash Me', status: 'published' }
+      ]));
+      
+      const result = await trashBlog(2);
+      
+      expect(result.success).toBe(true);
+      expect(fs.writeFile).toHaveBeenCalledWith(
+        expect.stringContaining('blogs.json'),
+        expect.stringContaining('"status": "trash"')
+      );
+    });
+  });
+
+  describe('permanentlyDeleteBlog', () => {
+    it('permanently deletes an existing blog', async () => {
       fs.readFile.mockResolvedValue(JSON.stringify([
         { id: 1, title: 'Keep' },
         { id: 2, title: 'Delete Me' }
       ]));
       
-      const result = await deleteBlog(2);
+      const result = await permanentlyDeleteBlog(2);
       
       expect(result.success).toBe(true);
       expect(fs.writeFile).toHaveBeenCalledWith(

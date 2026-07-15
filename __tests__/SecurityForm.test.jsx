@@ -41,11 +41,10 @@ describe('SecurityForm Component', () => {
     vi.clearAllMocks();
   });
 
-  it('renders the 4 main security tabs', () => {
+  it('renders the 3 main security tabs', () => {
     render(<SecurityForm initialSettings={mockInitialSettings} />);
     
     expect(screen.getByText('Access & IPs')).toBeInTheDocument();
-    expect(screen.getByText('AI Configuration')).toBeInTheDocument();
     expect(screen.getByText('reCAPTCHA')).toBeInTheDocument();
     expect(screen.getByText('Backups')).toBeInTheDocument();
   });
@@ -56,14 +55,13 @@ describe('SecurityForm Component', () => {
     expect(screen.getByText('Enable API Rate Limiting')).toBeInTheDocument();
   });
 
-  it('switches to the AI Configuration tab when clicked', async () => {
+  it('switches to the reCAPTCHA tab when clicked', async () => {
     render(<SecurityForm initialSettings={mockInitialSettings} />);
     
-    const aiTab = screen.getByText('AI Configuration');
-    fireEvent.click(aiTab);
+    const recaptchaTab = screen.getByText('reCAPTCHA');
+    fireEvent.click(recaptchaTab);
     
-    expect(screen.getByText('Enable AI Features globally')).toBeInTheDocument();
-    expect(screen.getByText('AI Model')).toBeInTheDocument();
+    expect(screen.getByText('Enable reCAPTCHA on forms')).toBeInTheDocument();
   });
 
   it('calls updateSettings when Save Changes is clicked', async () => {

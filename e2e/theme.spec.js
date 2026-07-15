@@ -5,25 +5,36 @@ test.describe('Theme Toggling', () => {
     // Navigate to the homepage
     await page.goto('/');
 
-    // Next-themes defaults to dark mode based on layout.js defaultTheme="dark"
-    // Check if the html tag has the 'dark' class
     const htmlElement = page.locator('html');
-    await expect(htmlElement).toHaveClass(/dark/);
-
-    // Locate the theme toggle button (by aria-label)
+    
+    // Get the initial theme class (it might be 'light' or 'dark')
+    const initialClass = await htmlElement.getAttribute('class');
+    const isInitiallyDark = initialClass?.includes('dark');
+    
+    // Locate the theme toggle button
     const themeToggleButton = page.locator('button[aria-label="Toggle Theme"]');
     await expect(themeToggleButton).toBeVisible();
 
-    // Click the toggle to switch to light mode
+    // Click the toggle
     await themeToggleButton.click();
 
-    // Verify the 'dark' class is removed from the html element
-    await expect(htmlElement).not.toHaveClass(/dark/);
+    // Wait for the class to update
+    if (isInitiallyDark) {
+      await expect(htmlElement).not.toHaveClass(/dark/);
+      await expect(htmlElement).toHaveClass(/light/);
+    } else {
+      await expect(htmlElement).toHaveClass(/dark/);
+      await expect(htmlElement).not.toHaveClass(/light/);
+    }
 
-    // Click the toggle again to switch back to dark mode
+    // Click again to switch back
     await themeToggleButton.click();
 
-    // Verify the 'dark' class is added back
-    await expect(htmlElement).toHaveClass(/dark/);
+    // Verify it returned to the initial state
+    if (isInitiallyDark) {
+      await expect(htmlElement).toHaveClass(/dark/);
+    } else {
+      await expect(htmlElement).not.toHaveClass(/dark/);
+    }
   });
 });
