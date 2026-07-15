@@ -1,6 +1,6 @@
 'use server';
 
-import { promises as fs } from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
 import { revalidatePath } from 'next/cache';

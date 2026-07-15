@@ -3,6 +3,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { getCategories, createCategory, deleteCategory, updateCategory } from '../actions/categories';
 import fs from 'fs/promises';
 
+// Mock auth
+vi.mock('../actions/auth', () => ({
+  verifySession: vi.fn().mockResolvedValue({ id: 1, role: 'admin' })
+}));
+
 // Mock the blogs action module so we can test the reassignCategory call
 vi.mock('../actions/blogs.js', () => ({
   reassignCategory: vi.fn().mockResolvedValue({ success: true })
