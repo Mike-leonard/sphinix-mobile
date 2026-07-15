@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { generateBrandSlug } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import ProductCardImage from './ProductCardImage';
 import ProductCardSpecs from './ProductCardSpecs';
@@ -12,9 +13,10 @@ export default function ProductCard({ product, isComparing, onToggleCompare, isH
   const limit = isHomePage 
     ? (settings?.appearance?.home?.deviceCardSpecLimit || 3) 
     : (settings?.appearance?.devices?.deviceCardSpecLimit || 3);
+  const brandSlug = generateBrandSlug(product.brand || 'unknown');
   return (
     <Card className="group rounded-2xl border-slate-200 dark:border-slate-800/80 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/5 transition-all duration-300 flex flex-col justify-between bg-white dark:bg-slate-900 overflow-hidden">
-      <Link href={`/devices/${slug}`} style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="block flex-1">
+      <Link href={`/devices/${brandSlug}/${slug}`} style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="block flex-1">
         <CardContent className="p-5 pb-2 space-y-4">
           <ProductCardImage product={product} />
 

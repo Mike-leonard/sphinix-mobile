@@ -15,7 +15,7 @@ import AdBanner from '@/components/ads/AdBanner';
 
 export default function DeviceDetailsPage({ params }) {
   const resolvedParams = React.use(params);
-  const { deviceSlug } = resolvedParams;
+  const { brandSlug, deviceSlug } = resolvedParams;
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("All");

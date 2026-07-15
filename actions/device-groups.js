@@ -37,7 +37,6 @@ export async function createDeviceGroup(newGroup) {
     }
     
     groups.push(trimmedGroup);
-    groups.sort((a, b) => a.localeCompare(b));
     
     await fs.writeFile(getGroupsFilePath(), JSON.stringify(groups, null, 2));
     
@@ -75,8 +74,10 @@ export async function updateDeviceGroup(oldGroup, newGroup) {
     }
 
     const filteredGroups = groups.filter(g => g !== oldGroup);
-    filteredGroups.push(trimmedGroup);
-    filteredGroups.sort((a, b) => a.localeCompare(b));
+    
+    // Insert updated group in the same position it was before
+    const originalIndex = groups.indexOf(oldGroup);
+    filteredGroups.splice(originalIndex > -1 ? originalIndex : filteredGroups.length, 0, trimmedGroup);
     
     await fs.writeFile(getGroupsFilePath(), JSON.stringify(filteredGroups, null, 2));
     
@@ -121,5 +122,37 @@ export async function deleteDeviceGroup(groupToDelete) {
   } catch (error) {
     console.error('Error deleting group:', error);
     return { success: false, error: 'Failed to delete group' };
+  }
+}
+
+export async function reorderDeviceGroups(newGroupsOrder) {
+  try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+
+    if (!Array.isArray(newGroupsOrder)) {
+      return { success: false, error: 'Invalid groups order' };
+    }
+
+    const groups = await getDeviceGroups();
+    
+    // Validate that the new order contains exactly the same groups
+    const currentSorted = [...groups].sort();
+    const newSorted = [...newGroupsOrder].sort();
+    
+    if (JSON.stringify(currentSorted) !== JSON.stringify(newSorted)) {
+      return { success: false, error: 'New order does not match existing groups' };
+    }
+
+    await fs.writeFile(getGroupsFilePath(), JSON.stringify(newGroupsOrder, null, 2));
+    
+    revalidatePath('/dashboard/devices');
+    revalidatePath('/dashboard/devices/groups');
+    revalidatePath('/dashboard/devices/attributes');
+    
+    return { success: true, message: 'Groups reordered successfully' };
+  } catch (error) {
+    console.error('Error reordering groups:', error);
+    return { success: false, error: 'Failed to reorder groups' };
   }
 }
