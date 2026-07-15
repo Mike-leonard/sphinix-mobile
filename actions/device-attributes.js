@@ -51,9 +51,6 @@ export async function createDeviceAttribute(name, groupIds = ['General'], custom
 
     attributes.push(newAttribute);
     
-    // Sort attributes alphabetically
-    attributes.sort((a, b) => a.name.localeCompare(b.name));
-    
     await fs.writeFile(getAttributesFilePath(), JSON.stringify(attributes, null, 2));
     
     revalidatePath('/dashboard/devices/attributes');
@@ -93,8 +90,6 @@ export async function updateDeviceAttribute(id, newName, newGroupIds, customSlug
     if (newGroupIds && Array.isArray(newGroupIds) && newGroupIds.length > 0) {
       attributes[index].groupIds = newGroupIds;
     }
-    
-    attributes.sort((a, b) => a.name.localeCompare(b.name));
     
     await fs.writeFile(getAttributesFilePath(), JSON.stringify(attributes, null, 2));
     revalidatePath('/dashboard/devices/attributes');
@@ -230,5 +225,45 @@ export async function reassignAttributeGroup(oldGroup, newGroup) {
   } catch (error) {
     console.error('Error reassinging attribute group:', error);
     return { success: false, error: 'Failed to reassign attribute group' };
+  }
+}
+
+export async function reorderDeviceAttributes(orderedIds) {
+  try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+    
+    if (!Array.isArray(orderedIds)) {
+      throw new Error('orderedIds must be an array');
+    }
+
+    const attributes = await getDeviceAttributes();
+    
+    // Create a map for quick lookup
+    const attributeMap = new Map(attributes.map(attr => [attr.id, attr]));
+    
+    // Build the new ordered array
+    const newOrderedAttributes = [];
+    
+    // First push items in the specified order
+    orderedIds.forEach(id => {
+      if (attributeMap.has(id)) {
+        newOrderedAttributes.push(attributeMap.get(id));
+        attributeMap.delete(id);
+      }
+    });
+    
+    // Then append any remaining items that weren't in the orderedIds list
+    for (const attr of attributeMap.values()) {
+      newOrderedAttributes.push(attr);
+    }
+    
+    await fs.writeFile(getAttributesFilePath(), JSON.stringify(newOrderedAttributes, null, 2));
+    
+    revalidatePath('/dashboard/devices/attributes');
+    return { success: true };
+  } catch (error) {
+    console.error('Error reordering device attributes:', error);
+    return { success: false, error: error.message };
   }
 }

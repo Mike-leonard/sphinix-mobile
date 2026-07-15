@@ -1,19 +1,40 @@
-import React from 'react';
-import { Cpu, Server, HardDrive, Monitor, Camera, Settings } from 'lucide-react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import * as Icons from 'lucide-react';
 import { useCompare } from '@/context/CompareContext';
+import { getDeviceAttributes } from '@/actions/device-attributes';
 import DeviceQuickInfoHeader from './quick-info/DeviceQuickInfoHeader';
 import AffiliateLinks from './quick-info/AffiliateLinks';
 import DeviceSpecBlock from './quick-info/DeviceSpecBlock';
 
 export default function DeviceQuickInfo({ device }) {
   const { compareList, handleToggleCompare } = useCompare();
+  const [quickSpecs, setQuickSpecs] = useState([]);
+  useEffect(() => {
+    getDeviceAttributes().then(attrs => {
+      const filtered = attrs.filter(a => a.groupIds?.includes('Quick Specifications') || a.groupId === 'Quick Specifications');
+      setQuickSpecs(filtered);
+    });
+  }, []);
+
   const isComparing = compareList.some(item => item.id === device.id);
+
+  const ICON_MAP = {
+    chipset: 'Cpu',
+    camera: 'Camera',
+    screen: 'Monitor',
+    ram: 'MemoryStick',
+    storage: 'HardDrive',
+    os: 'Settings',
+    battery: 'BatteryMedium'
+  };
 
   return (
     <div className="flex flex-col h-full">
       <div className="mb-6">
         <DeviceQuickInfoHeader device={device} />
-        <AffiliateLinks />
+        <AffiliateLinks affiliates={device.affiliates} />
         
         {/* Compare Checkbox */}
         <label className="inline-flex items-center gap-2 cursor-pointer group">
@@ -31,12 +52,18 @@ export default function DeviceQuickInfo({ device }) {
 
       {/* Specs Stacked Blocks */}
       <div className="space-y-2 flex-1">
-        <DeviceSpecBlock icon={Cpu} label="CPU" value={device.specs.chipset} />
-        <DeviceSpecBlock icon={Server} label="RAM" value={device.specs.ram} />
-        <DeviceSpecBlock icon={HardDrive} label="Storage" value={device.specs.storage} />
-        <DeviceSpecBlock icon={Monitor} label="Display" value={device.specs.screen} />
-        <DeviceSpecBlock icon={Camera} label="Camera" value={device.specs.camera} />
-        <DeviceSpecBlock icon={Settings} label="OS" value="Latest Version" />
+        {quickSpecs.map((spec) => {
+          const iconName = ICON_MAP[spec.slug] || 'Zap';
+          const IconComponent = Icons[iconName] || Icons.Zap;
+          return (
+            <DeviceSpecBlock 
+              key={spec.slug} 
+              icon={IconComponent} 
+              label={spec.name} 
+              value={device.specs?.[spec.slug] || "Not specified"} 
+            />
+          );
+        })}
       </div>
     </div>
   );

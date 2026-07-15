@@ -23,14 +23,22 @@ export default function MainImageView({ device, activeIndex, handlePrevious, han
         <ChevronRight className="w-6 h-6" />
       </Button>
       
-      {/* SVG-based SmartPhone illustration (Simulated) */}
-      <div className={`relative w-48 h-[22rem] rounded-[2.5rem] bg-white dark:bg-slate-900 border-[6px] border-slate-300 dark:border-slate-800 shadow-2xl p-2 flex flex-col transition-all duration-500 ${ANGLES[activeIndex].scale}`}>
-        <div className="w-16 h-2 bg-slate-200 dark:bg-slate-950 rounded-full mx-auto mb-3"></div>
-        <div className={`flex-1 rounded-3xl bg-gradient-to-br ${device.imageColor} p-6 flex flex-col justify-end text-sm font-bold text-white/90`}>
-          <div>{device.brand}</div>
-          <div className="text-xl text-white font-extrabold leading-tight">{ANGLES[activeIndex].label}</div>
+      {/* Device Image or Simulated SVG */}
+      {device.images && device.images[activeIndex] ? (
+        <img 
+          src={device.images[activeIndex]} 
+          alt={`${device.brand} ${device.name} - ${ANGLES[activeIndex].label}`}
+          className={`relative z-10 w-auto h-auto max-w-[80%] max-h-[85%] object-contain drop-shadow-2xl transition-all duration-500 ${ANGLES[activeIndex].scale}`}
+        />
+      ) : (
+        <div className={`relative w-48 h-[22rem] rounded-[2.5rem] bg-white dark:bg-slate-900 border-[6px] border-slate-300 dark:border-slate-800 shadow-2xl p-2 flex flex-col transition-all duration-500 ${ANGLES[activeIndex].scale}`}>
+          <div className="w-16 h-2 bg-slate-200 dark:bg-slate-950 rounded-full mx-auto mb-3"></div>
+          <div className={`flex-1 rounded-3xl bg-gradient-to-br ${device.imageColor} p-6 flex flex-col justify-end text-sm font-bold text-white/90`}>
+            <div>{device.brand}</div>
+            <div className="text-xl text-white font-extrabold leading-tight">{ANGLES[activeIndex].label}</div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

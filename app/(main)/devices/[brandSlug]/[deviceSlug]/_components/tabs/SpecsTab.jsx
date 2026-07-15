@@ -7,7 +7,7 @@ import {
 import AdBanner from '@/components/ads/AdBanner';
 import InFeedAd from '@/components/ads/InFeedAd';
 
-export default function SpecsTab({ device }) {
+export default function SpecsTab({ device, hideAds = false }) {
   const {
     generalSpecs = [],
     designSpecs = [],
@@ -31,13 +31,13 @@ export default function SpecsTab({ device }) {
       {generalSpecs.length > 0 && <SpecCard title="General" icon={Smartphone} specs={generalSpecs} />}
       {designSpecs.length > 0 && <SpecCard title="Design" icon={Palette} specs={designSpecs} />}
       {networkSpecs.length > 0 && <SpecCard title="Network" icon={Antenna} specs={networkSpecs} />}
-      <InFeedAd />
+      {!hideAds && <InFeedAd />}
       {dataSpecs.length > 0 && <SpecCard title="Data" icon={Globe} specs={dataSpecs} />}
       {messagingSpecs.length > 0 && <SpecCard title="Messaging" icon={Mail} specs={messagingSpecs} />}
       {batterySpecs.length > 0 && <SpecCard title="Battery" icon={Battery} specs={batterySpecs} />}
       {softwareSpecs.length > 0 && <SpecCard title="Software" icon={LayoutTemplate} specs={softwareSpecs} />}
       {hardwareSpecs.length > 0 && <SpecCard title="Hardware" icon={Cpu} specs={hardwareSpecs} />}
-      <InFeedAd />
+      {!hideAds && <InFeedAd />}
       {displaySpecs.length > 0 && <SpecCard title="Display" icon={Monitor} specs={displaySpecs} />}
       {mediaSpecs.length > 0 && <SpecCard title="Media" icon={Film} specs={mediaSpecs} />}
       {cameraSpecs.length > 0 && <SpecCard title="Camera" icon={Camera} specs={cameraSpecs} />}

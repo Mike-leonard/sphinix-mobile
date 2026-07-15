@@ -27,6 +27,13 @@ const DEFAULT_DEVICE = {
   isNew: true,
   isTopRated: false,
   status: 'draft',
+  images: ['', '', '', ''],
+  affiliates: {
+    amazon: { url: '', price: '' },
+    bestbuy: { url: '', price: '' },
+    walmart: { url: '', price: '' },
+    ebay: { url: '', price: '' }
+  },
   specs: {
     screen: '',
     chipset: '',
@@ -34,6 +41,7 @@ const DEFAULT_DEVICE = {
     battery: '',
     ram: '',
     storage: '',
+    os: '',
     generalSpecs: [],
     designSpecs: [],
     networkSpecs: [],
@@ -48,7 +56,7 @@ const DEFAULT_DEVICE = {
   }
 };
 
-export default function DeviceEditor({ initialDevice = null, brands = [] }) {
+export default function DeviceEditor({ initialDevice = null, brands = [], allAttributes = [] }) {
   const router = useRouter();
   const isEditMode = !!initialDevice;
   
@@ -147,7 +155,7 @@ export default function DeviceEditor({ initialDevice = null, brands = [] }) {
                 <DeviceHero device={formData} />
                 <DeviceQuickInfo device={formData} />
               </div>
-              <DeviceTabs device={formData} />
+              <DeviceTabs device={formData} hideAds={true} />
             </div>
           </CompareProvider>
         ) : (
@@ -157,10 +165,18 @@ export default function DeviceEditor({ initialDevice = null, brands = [] }) {
               
               <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden p-6 relative">
                 <div className="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-800 pb-4">
-                  <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <Smartphone className="h-6 w-6 text-brand-500" />
-                    {isEditMode ? 'Edit Device' : 'Add New Device'}
-                  </h2>
+                  <div className="flex items-center gap-3 w-full mr-4">
+                    <Smartphone className="h-6 w-6 text-brand-500 shrink-0" />
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="Enter Device Name..."
+                      className="w-full bg-transparent text-xl sm:text-2xl font-bold text-slate-900 dark:text-white border-none focus:outline-none focus:ring-0 placeholder:text-slate-400 p-0"
+                      required
+                    />
+                  </div>
                   <Button className="bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-lg shadow-purple-500/25 gap-2">
                     <Sparkles className="w-4 h-4" /> AI Generate
                   </Button>
@@ -175,12 +191,11 @@ export default function DeviceEditor({ initialDevice = null, brands = [] }) {
 
               <DeviceQuickSpecs 
                 specs={formData.specs} 
-                onChange={(field, value) => {
-                  setFormData({
-                    ...formData,
-                    specs: { ...formData.specs, [field]: value }
-                  });
-                }} 
+                allAttributes={allAttributes}
+                onChange={(key, value) => setFormData(prev => ({ 
+                  ...prev, 
+                  specs: { ...prev.specs, [key]: value } 
+                }))} 
               />
               <DeviceDetailedSpecs 
                 specs={formData.specs} 

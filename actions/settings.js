@@ -198,6 +198,11 @@ export async function getSettings() {
     // specifically handle nested objects to prevent missing keys on old data
     for (const key of Object.keys(defaultSettings)) {
       if (typeof defaultSettings[key] === 'object' && defaultSettings[key] !== null) {
+        if (Array.isArray(defaultSettings[key])) {
+          mergedSettings[key] = parsedData[key] || defaultSettings[key];
+          continue;
+        }
+
         mergedSettings[key] = {
           ...defaultSettings[key],
           ...(parsedData[key] || {})
@@ -206,10 +211,14 @@ export async function getSettings() {
         // Go one level deeper for seo.home, typography.h1Size, etc.
         for (const subKey of Object.keys(defaultSettings[key])) {
           if (typeof defaultSettings[key][subKey] === 'object' && defaultSettings[key][subKey] !== null) {
-            mergedSettings[key][subKey] = {
-              ...defaultSettings[key][subKey],
-              ...((parsedData[key] && parsedData[key][subKey]) || {})
-            };
+            if (Array.isArray(defaultSettings[key][subKey])) {
+              mergedSettings[key][subKey] = (parsedData[key] && parsedData[key][subKey]) || defaultSettings[key][subKey];
+            } else {
+              mergedSettings[key][subKey] = {
+                ...defaultSettings[key][subKey],
+                ...((parsedData[key] && parsedData[key][subKey]) || {})
+              };
+            }
           }
         }
       }
@@ -235,11 +244,20 @@ export async function updateSettings(newSettings) {
     
     for (const key of Object.keys(newSettings)) {
       if (typeof newSettings[key] === 'object' && newSettings[key] !== null) {
+         if (Array.isArray(newSettings[key])) {
+           mergedSettings[key] = newSettings[key];
+           continue;
+         }
+
          mergedSettings[key] = { ...mergedSettings[key], ...newSettings[key] };
          // Merge sub objects
          for (const subKey of Object.keys(newSettings[key])) {
            if (typeof newSettings[key][subKey] === 'object' && newSettings[key][subKey] !== null) {
-             mergedSettings[key][subKey] = { ...mergedSettings[key]?.[subKey], ...newSettings[key][subKey] };
+             if (Array.isArray(newSettings[key][subKey])) {
+               mergedSettings[key][subKey] = newSettings[key][subKey];
+             } else {
+               mergedSettings[key][subKey] = { ...mergedSettings[key]?.[subKey], ...newSettings[key][subKey] };
+             }
            }
          }
       } else {
