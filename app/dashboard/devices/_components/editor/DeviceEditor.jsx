@@ -12,6 +12,8 @@ import LeaveConfirmationModal from '@/app/dashboard/blogs/_components/editor/Lea
 import DeviceBasicInfo from './DeviceBasicInfo';
 import DeviceQuickSpecs from './DeviceQuickSpecs';
 import DeviceDetailedSpecs from './DeviceDetailedSpecs';
+import DeviceOverviewEditor from './DeviceOverviewEditor';
+import DeviceExpertRatings from './DeviceExpertRatings';
 import DeviceEditorSidebar from './DeviceEditorSidebar';
 
 import DeviceHero from '@/app/(main)/devices/[brandSlug]/[deviceSlug]/_components/DeviceGallery';
@@ -27,6 +29,9 @@ const DEFAULT_DEVICE = {
   isNew: true,
   isTopRated: false,
   status: 'draft',
+  allowReviews: true,
+  description: '',
+  expertRatings: {},
   images: ['', '', '', ''],
   affiliates: {
     amazon: { url: '', price: '' },
@@ -56,7 +61,7 @@ const DEFAULT_DEVICE = {
   }
 };
 
-export default function DeviceEditor({ initialDevice = null, brands = [], allAttributes = [] }) {
+export default function DeviceEditor({ initialDevice = null, brands = [], allAttributes = [], ratingBars = [] }) {
   const router = useRouter();
   const isEditMode = !!initialDevice;
   
@@ -206,10 +211,19 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
                   });
                 }}
               />
+              <DeviceOverviewEditor 
+                description={formData.description} 
+                onChange={(html) => setFormData(prev => ({ ...prev, description: html }))} 
+              />
+              <DeviceExpertRatings 
+                expertRatings={formData.expertRatings || {}}
+                ratingBars={ratingBars}
+                onChange={(ratings) => setFormData(prev => ({ ...prev, expertRatings: ratings }))}
+              />
             </div>
 
             {/* Sidebar */}
-            <DeviceEditorSidebar />
+            <DeviceEditorSidebar formData={formData} setFormData={setFormData} />
           </>
         )}
       </div>

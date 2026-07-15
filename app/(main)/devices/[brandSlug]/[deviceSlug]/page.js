@@ -5,6 +5,7 @@ import RightSidebar from '@/components/sidebar/RightSidebar';
 import MOCK_PRODUCTS from '@/data/products.json';
 import MOCK_BLOGS from '@/data/blogs.json';
 import CompareDrawer from '@/components/CompareDrawer';
+import { getRatingBars } from '@/actions/rating-bars';
 
 import DeviceBreadcrumb from './_components/DeviceBreadcrumb';
 import DeviceGallery from './_components/DeviceGallery';
@@ -23,6 +24,11 @@ export default function DeviceDetailsPage({ params }) {
   const device = useMemo(() => {
     return MOCK_PRODUCTS.find(p => p.id === deviceSlug);
   }, [deviceSlug]);
+
+  const [ratingBars, setRatingBars] = useState([]);
+  React.useEffect(() => {
+    getRatingBars().then(setRatingBars);
+  }, []);
 
   const newArrivals = useMemo(() => MOCK_PRODUCTS.filter(p => p.isNew), []);
   const topRated = useMemo(() => MOCK_PRODUCTS.filter(p => p.isTopRated), []);
@@ -49,7 +55,7 @@ export default function DeviceDetailsPage({ params }) {
           </div>
 
           {/* Tabbed Content: Specs, Overview, Reviews */}
-          <DeviceTabs device={device} />
+          <DeviceTabs device={device} ratingBars={ratingBars} />
 
           <AdBanner placement="deviceDetailsBanner" className='mt-10'/>
           {/* Related Devices */}

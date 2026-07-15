@@ -3,6 +3,7 @@ import DeviceEditor from '../_components/editor/DeviceEditor';
 
 import { getDeviceBrands } from '@/actions/device-brands';
 import { getDeviceAttributes } from '@/actions/device-attributes';
+import { getRatingBars } from '@/actions/rating-bars';
 
 export const metadata = {
   title: 'Add New Device | Dashboard',
@@ -12,6 +13,7 @@ export const metadata = {
 export default async function NewDevicePage() {
   const brands = await getDeviceBrands();
   const attributes = await getDeviceAttributes();
+  const ratingBars = await getRatingBars();
 
-  return <DeviceEditor brands={brands} allAttributes={attributes} />;
+  return <DeviceEditor brands={brands} allAttributes={attributes} ratingBars={ratingBars} />;
 }
