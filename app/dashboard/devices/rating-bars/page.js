@@ -1,11 +1,15 @@
 import React from 'react';
 import DeviceTabsRoute from '../_components/manager/DeviceTabsRoute';
+import RatingBarManager from './_components/RatingBarManager';
+import { getRatingBars } from '@/actions/rating-bars';
 
 export const metadata = {
   title: 'Rating Bars | Device Management',
 };
 
-export default function RatingBarsPage() {
+export default async function RatingBarsPage() {
+  const ratingBars = await getRatingBars();
+
   return (
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
@@ -15,8 +19,8 @@ export default function RatingBarsPage() {
         </p>
         
         <DeviceTabsRoute />
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-12 text-center text-slate-500">
-          Rating Bars management coming soon.
+        <div className="mt-8">
+          <RatingBarManager initialBars={ratingBars} />
         </div>
       </div>
     </div>
