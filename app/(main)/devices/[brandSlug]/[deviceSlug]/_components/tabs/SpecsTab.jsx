@@ -3,7 +3,7 @@ import SpecCard from './SpecCard';
 import {
   Smartphone, Palette, Antenna, Globe, Mail,
   Battery, LayoutTemplate, Cpu, Monitor, Film, Camera,
-  List
+  List, Wifi, ScanFace, Headphones, Package, Sparkles
 } from 'lucide-react';
 import AdBanner from '@/components/ads/AdBanner';
 import InFeedAd from '@/components/ads/InFeedAd';
@@ -13,7 +13,14 @@ export default function SpecsTab({ device, hideAds = false }) {
 
   // Find all keys that have arrays (which means they are detailed spec groups)
   const specGroups = Object.entries(specs)
-    .filter(([_, value]) => Array.isArray(value) && value.length > 0);
+    .filter(([_, value]) => Array.isArray(value) && value.length > 0)
+    .sort((a, b) => {
+      const isABox = a[0].toLowerCase().includes('box');
+      const isBBox = b[0].toLowerCase().includes('box');
+      if (isABox && !isBBox) return 1;
+      if (!isABox && isBBox) return -1;
+      return 0;
+    });
 
   // Map known groups to icons, with a fallback
   const getIconForGroup = (groupName) => {
@@ -29,6 +36,11 @@ export default function SpecsTab({ device, hideAds = false }) {
     if (nameLower.includes('display')) return Monitor;
     if (nameLower.includes('media')) return Film;
     if (nameLower.includes('camera')) return Camera;
+    if (nameLower.includes('connect')) return Wifi;
+    if (nameLower.includes('sensor')) return ScanFace;
+    if (nameLower.includes('audio')) return Headphones;
+    if (nameLower.includes('box')) return Package;
+    if (nameLower.includes('ai')) return Sparkles;
     return List;
   };
 
