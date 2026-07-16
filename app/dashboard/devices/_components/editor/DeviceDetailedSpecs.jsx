@@ -1,49 +1,46 @@
 'use client';
 
-import React, { useState } from 'react';
-import { List, Plus, Trash2, GripVertical } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { List, ChevronDown } from 'lucide-react';
 
-const SPEC_CATEGORIES = [
-  { id: 'generalSpecs', label: 'General' },
-  { id: 'designSpecs', label: 'Design' },
-  { id: 'networkSpecs', label: 'Network' },
-  { id: 'dataSpecs', label: 'Data' },
-  { id: 'messagingSpecs', label: 'Messaging' },
-  { id: 'batterySpecs', label: 'Battery' },
-  { id: 'softwareSpecs', label: 'Software' },
-  { id: 'hardwareSpecs', label: 'Hardware' },
-  { id: 'displaySpecs', label: 'Display' },
-  { id: 'mediaSpecs', label: 'Media' },
-  { id: 'cameraSpecs', label: 'Camera Detailed' }
-];
+export default function DeviceDetailedSpecs({ specs, onChange, deviceGroups = [], allAttributes = [] }) {
+  // Filter out 'Quick Specifications' as it is handled by DeviceQuickSpecs
+  const detailedGroups = deviceGroups.filter(g => g !== 'Quick Specifications');
+  
+  const [activeCategory, setActiveCategory] = useState(detailedGroups[0] || '');
 
-export default function DeviceDetailedSpecs({ specs, onChange }) {
-  const [activeCategory, setActiveCategory] = useState('generalSpecs');
+  useEffect(() => {
+    if (detailedGroups.length > 0 && !activeCategory) {
+      setActiveCategory(detailedGroups[0]);
+    }
+  }, [detailedGroups, activeCategory]);
+
+  const activeGroupAttributes = allAttributes.filter(attr => 
+    attr.groupIds?.includes(activeCategory) || attr.groupId === activeCategory
+  );
 
   const activeSpecsList = specs?.[activeCategory] || [];
 
-  const handleAddSpec = () => {
+  const handleUpdateSpec = (attrSlug, attrName, newValue) => {
+    const currentList = [...(specs?.[activeCategory] || [])];
+    const existingIndex = currentList.findIndex(s => s.label === attrName || s.slug === attrSlug);
+    
+    if (existingIndex >= 0) {
+      currentList[existingIndex] = { ...currentList[existingIndex], value: newValue };
+    } else {
+      currentList.push({ label: attrName, slug: attrSlug, value: newValue });
+    }
+
     onChange({
       ...specs,
-      [activeCategory]: [...activeSpecsList, { label: '', value: '' }]
+      [activeCategory]: currentList
     });
   };
 
-  const handleUpdateSpec = (index, field, newValue) => {
-    const updatedList = [...activeSpecsList];
-    updatedList[index] = { ...updatedList[index], [field]: newValue };
-    onChange({
-      ...specs,
-      [activeCategory]: updatedList
-    });
-  };
-
-  const handleRemoveSpec = (index) => {
-    const updatedList = activeSpecsList.filter((_, i) => i !== index);
-    onChange({
-      ...specs,
-      [activeCategory]: updatedList
-    });
+  const getSpecValue = (attrSlug, attrName) => {
+    // Also try to find it by name for backwards compatibility
+    const spec = activeSpecsList.find(s => s.slug === attrSlug || s.label === attrName);
+    return spec ? spec.value : '';
   };
 
   return (
@@ -59,79 +56,82 @@ export default function DeviceDetailedSpecs({ specs, onChange }) {
       <div className="flex flex-col md:flex-row h-full">
         {/* Categories Sidebar */}
         <div className="w-full md:w-48 lg:w-56 border-r border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 p-4 shrink-0 flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto gap-1">
-          {SPEC_CATEGORIES.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={`text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
-                activeCategory === cat.id
-                  ? 'bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300'
-                  : 'text-slate-600 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-800'
-              }`}
-            >
-              {cat.label}
-              {specs?.[cat.id]?.length > 0 && (
-                <span className="ml-2 text-xs opacity-60">({specs[cat.id].length})</span>
-              )}
-            </button>
-          ))}
+          {detailedGroups.map((cat) => {
+            const specCount = specs?.[cat]?.filter(s => !!s.value)?.length || 0;
+            return (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+                  activeCategory === cat
+                    ? 'bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300'
+                    : 'text-slate-600 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-800'
+                }`}
+              >
+                {cat}
+                {specCount > 0 && (
+                  <span className="ml-2 text-xs opacity-60">({specCount})</span>
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {/* Specs Editor */}
         <div className="flex-1 p-6">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-semibold text-slate-800 dark:text-slate-200">
-              {SPEC_CATEGORIES.find(c => c.id === activeCategory)?.label} Specifications
+              {activeCategory} Specifications
             </h3>
-            <button
-              onClick={handleAddSpec}
-              className="flex items-center gap-1.5 text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
-            >
-              <Plus className="h-4 w-4" />
-              Add Row
-            </button>
           </div>
 
-          <div className="space-y-3">
-            {activeSpecsList.length === 0 ? (
+          <div className="space-y-4">
+            {activeGroupAttributes.length === 0 ? (
               <div className="text-center py-8 text-slate-500 text-sm border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
-                No specifications in this category yet.
+                No attributes configured for this group in the Attribute Manager.
               </div>
             ) : (
-              activeSpecsList.map((spec, index) => (
-                <div key={index} className="flex items-start gap-3 group">
-                  <div className="mt-2.5 text-slate-300 dark:text-slate-600 cursor-move">
-                    <GripVertical className="h-4 w-4" />
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 flex-1">
-                    <input
-                      type="text"
-                      placeholder="Label (e.g. Dimensions)"
-                      value={spec.label}
-                      onChange={(e) => handleUpdateSpec(index, 'label', e.target.value)}
-                      className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
-                    />
-                    <div className="sm:col-span-2">
-                      <textarea
-                        rows={1}
-                        placeholder="Value (e.g. 163 x 73.9 x 8.6 mm)"
-                        value={String(spec.value)}
-                        onChange={(e) => handleUpdateSpec(index, 'value', e.target.value)}
-                        className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 resize-y min-h-[38px]"
-                      />
+              activeGroupAttributes.map((attr) => {
+                const currentValue = getSpecValue(attr.slug, attr.name);
+                const hasTerms = attr.terms && attr.terms.length > 0;
+                
+                return (
+                  <div key={attr.id} className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-start border-b border-slate-100 dark:border-slate-800 pb-4 last:border-0 last:pb-0">
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300 pt-2 sm:text-right px-2">
+                      {attr.name}
+                    </label>
+                    
+                    <div className="sm:col-span-2 relative">
+                      {hasTerms ? (
+                        <div className="relative">
+                          <input
+                            type="text"
+                            list={`list-${attr.id}`}
+                            value={String(currentValue)}
+                            onChange={(e) => handleUpdateSpec(attr.slug, attr.name, e.target.value)}
+                            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 pr-8 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+                            placeholder="Select or enter value..."
+                          />
+                          <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
+                          <datalist id={`list-${attr.id}`}>
+                            {attr.terms.map((term, i) => (
+                              <option key={i} value={term} />
+                            ))}
+                          </datalist>
+                        </div>
+                      ) : (
+                        <textarea
+                          rows={1}
+                          value={String(currentValue)}
+                          onChange={(e) => handleUpdateSpec(attr.slug, attr.name, e.target.value)}
+                          className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 resize-y min-h-[38px]"
+                          placeholder="Enter value..."
+                        />
+                      )}
                     </div>
                   </div>
-
-                  <button
-                    onClick={() => handleRemoveSpec(index)}
-                    className="mt-2 text-slate-400 hover:text-red-500 transition-colors p-1"
-                    title="Remove Spec"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>

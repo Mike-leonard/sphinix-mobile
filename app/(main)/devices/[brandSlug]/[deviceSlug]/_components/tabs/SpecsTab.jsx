@@ -2,25 +2,44 @@ import React from 'react';
 import SpecCard from './SpecCard';
 import {
   Smartphone, Palette, Antenna, Globe, Mail,
-  Battery, LayoutTemplate, Cpu, Monitor, Film, Camera
+  Battery, LayoutTemplate, Cpu, Monitor, Film, Camera,
+  List
 } from 'lucide-react';
 import AdBanner from '@/components/ads/AdBanner';
 import InFeedAd from '@/components/ads/InFeedAd';
 
 export default function SpecsTab({ device, hideAds = false }) {
-  const {
-    generalSpecs = [],
-    designSpecs = [],
-    networkSpecs = [],
-    dataSpecs = [],
-    messagingSpecs = [],
-    batterySpecs = [],
-    softwareSpecs = [],
-    hardwareSpecs = [],
-    displaySpecs = [],
-    mediaSpecs = [],
-    cameraSpecs = []
-  } = device.specs || {};
+  const specs = device?.specs || {};
+
+  // Find all keys that have arrays (which means they are detailed spec groups)
+  const specGroups = Object.entries(specs)
+    .filter(([_, value]) => Array.isArray(value) && value.length > 0);
+
+  // Map known groups to icons, with a fallback
+  const getIconForGroup = (groupName) => {
+    const nameLower = groupName.toLowerCase();
+    if (nameLower.includes('general')) return Smartphone;
+    if (nameLower.includes('design')) return Palette;
+    if (nameLower.includes('network')) return Antenna;
+    if (nameLower.includes('data')) return Globe;
+    if (nameLower.includes('messag')) return Mail;
+    if (nameLower.includes('battery')) return Battery;
+    if (nameLower.includes('software')) return LayoutTemplate;
+    if (nameLower.includes('hardware')) return Cpu;
+    if (nameLower.includes('display')) return Monitor;
+    if (nameLower.includes('media')) return Film;
+    if (nameLower.includes('camera')) return Camera;
+    return List;
+  };
+
+  // Format the title if it's an old camelCase key (e.g., generalSpecs -> General)
+  const formatTitle = (key) => {
+    if (key.endsWith('Specs')) {
+      const base = key.replace('Specs', '');
+      return base.charAt(0).toUpperCase() + base.slice(1);
+    }
+    return key;
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
@@ -28,19 +47,18 @@ export default function SpecsTab({ device, hideAds = false }) {
         {device.name} - Specs
       </h2>
 
-      {generalSpecs.length > 0 && <SpecCard title="General" icon={Smartphone} specs={generalSpecs} />}
-      {designSpecs.length > 0 && <SpecCard title="Design" icon={Palette} specs={designSpecs} />}
-      {networkSpecs.length > 0 && <SpecCard title="Network" icon={Antenna} specs={networkSpecs} />}
-      {!hideAds && <InFeedAd />}
-      {dataSpecs.length > 0 && <SpecCard title="Data" icon={Globe} specs={dataSpecs} />}
-      {messagingSpecs.length > 0 && <SpecCard title="Messaging" icon={Mail} specs={messagingSpecs} />}
-      {batterySpecs.length > 0 && <SpecCard title="Battery" icon={Battery} specs={batterySpecs} />}
-      {softwareSpecs.length > 0 && <SpecCard title="Software" icon={LayoutTemplate} specs={softwareSpecs} />}
-      {hardwareSpecs.length > 0 && <SpecCard title="Hardware" icon={Cpu} specs={hardwareSpecs} />}
-      {!hideAds && <InFeedAd />}
-      {displaySpecs.length > 0 && <SpecCard title="Display" icon={Monitor} specs={displaySpecs} />}
-      {mediaSpecs.length > 0 && <SpecCard title="Media" icon={Film} specs={mediaSpecs} />}
-      {cameraSpecs.length > 0 && <SpecCard title="Camera" icon={Camera} specs={cameraSpecs} />}
+      {specGroups.map(([key, specArray], index) => {
+        const title = formatTitle(key);
+        const Icon = getIconForGroup(title);
+
+        return (
+          <React.Fragment key={key}>
+            <SpecCard title={title} icon={Icon} specs={specArray} />
+            {/* Insert ads periodically, similar to old layout */}
+            {!hideAds && (index === 2 || index === 7) && <InFeedAd />}
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 }
