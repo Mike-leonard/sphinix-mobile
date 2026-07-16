@@ -61,7 +61,7 @@ const DEFAULT_DEVICE = {
   }
 };
 
-export default function DeviceEditor({ initialDevice = null, brands = [], allAttributes = [], ratingBars = [] }) {
+export default function DeviceEditor({ initialDevice = null, brands = [], allAttributes = [], ratingBars = [], deviceGroups = [] }) {
   const router = useRouter();
   const isEditMode = !!initialDevice;
   
@@ -203,7 +203,9 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
                 }))} 
               />
               <DeviceDetailedSpecs 
-                specs={formData.specs} 
+                specs={formData.specs}
+                deviceGroups={deviceGroups}
+                allAttributes={allAttributes}
                 onChange={(newSpecs) => {
                   setFormData({
                     ...formData,

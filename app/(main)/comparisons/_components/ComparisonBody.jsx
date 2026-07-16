@@ -1,9 +1,8 @@
-
 import React from 'react';
 import {
   CheckCircle2, XCircle,
   Smartphone, Palette, Antenna, Globe, Mail,
-  Battery, LayoutTemplate, Cpu, Monitor, Film, Camera
+  Battery, LayoutTemplate, Cpu, Monitor, Film, Camera, List
 } from 'lucide-react';
 import AdBanner from '@/components/ads/AdBanner';
 import { useSettings } from '@/context/SettingsContext';
@@ -12,32 +11,55 @@ const BoolIcon = ({ value }) => value
   ? <CheckCircle2 className="w-5 h-5 fill-green-500 text-white border-none mx-auto" />
   : <XCircle className="w-5 h-5 fill-red-500 text-white border-none mx-auto" />;
 
-// Categories mapped to their icons and keys
-const categories = [
-  { key: 'generalSpecs', title: 'General', icon: Smartphone },
-  { key: 'designSpecs', title: 'Design', icon: Palette },
-  { key: 'networkSpecs', title: 'Network', icon: Antenna },
-  { key: 'dataSpecs', title: 'Data', icon: Globe },
-  { key: 'messagingSpecs', title: 'Messaging', icon: Mail },
-  { key: 'batterySpecs', title: 'Battery', icon: Battery },
-  { key: 'softwareSpecs', title: 'Software', icon: LayoutTemplate },
-  { key: 'hardwareSpecs', title: 'Hardware', icon: Cpu },
-  { key: 'displaySpecs', title: 'Display', icon: Monitor },
-  { key: 'mediaSpecs', title: 'Media', icon: Film },
-  { key: 'cameraSpecs', title: 'Camera', icon: Camera },
-];
+const getIconForGroup = (groupName) => {
+  const nameLower = groupName.toLowerCase();
+  if (nameLower.includes('general')) return Smartphone;
+  if (nameLower.includes('design')) return Palette;
+  if (nameLower.includes('network')) return Antenna;
+  if (nameLower.includes('data')) return Globe;
+  if (nameLower.includes('messag')) return Mail;
+  if (nameLower.includes('battery')) return Battery;
+  if (nameLower.includes('software')) return LayoutTemplate;
+  if (nameLower.includes('hardware')) return Cpu;
+  if (nameLower.includes('display')) return Monitor;
+  if (nameLower.includes('media')) return Film;
+  if (nameLower.includes('camera')) return Camera;
+  return List;
+};
+
+const formatTitle = (key) => {
+  if (key.endsWith('Specs')) {
+    const base = key.replace('Specs', '');
+    return base.charAt(0).toUpperCase() + base.slice(1);
+  }
+  return key;
+};
 
 export default function ComparisonBody({ compareList, gridColsClass }) {
   const settings = useSettings();
   const freq = settings?.advertisements?.injectionFrequency?.comparisons || 3;
 
+  // Get unique dynamic spec groups from all devices
+  const specGroupsSet = new Set();
+  compareList.forEach(device => {
+    Object.entries(device.specs || {}).forEach(([key, value]) => {
+      if (Array.isArray(value) && value.length > 0) {
+        specGroupsSet.add(key);
+      }
+    });
+  });
+  const specGroups = Array.from(specGroupsSet);
+
   return (
     <div className="flex flex-col gap-6">
-      {categories.map((category, index) => {
+      {specGroups.map((groupKey, index) => {
+        const title = formatTitle(groupKey);
+        const Icon = getIconForGroup(title);
+
         // Get all unique labels for this category across all devices in compareList
         const labelsMap = new Map();
         compareList.forEach(device => {
-          const specArray = device.specs?.[category.key] || [];
+          const specArray = device.specs?.[groupKey] || [];
           specArray.forEach(s => {
             labelsMap.set(s.label, true);
           });
@@ -46,15 +68,13 @@ export default function ComparisonBody({ compareList, gridColsClass }) {
 
         if (labels.length === 0) return null;
 
-        const Icon = category.icon;
-
         return (
-          <React.Fragment key={category.key}>
+          <React.Fragment key={groupKey}>
             <div className="flex flex-col bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
               {/* Category Header */}
               <div className="bg-slate-50 dark:bg-slate-800/40 px-4 md:px-6 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2">
                 <Icon className="w-5 h-5 text-brand-500" />
-                <h4 className="font-bold text-slate-900 dark:text-white uppercase tracking-wider text-sm">{category.title}</h4>
+                <h4 className="font-bold text-slate-900 dark:text-white uppercase tracking-wider text-sm">{title}</h4>
               </div>
 
               {/* Rows for each label */}
@@ -68,12 +88,12 @@ export default function ComparisonBody({ compareList, gridColsClass }) {
 
                     {/* Values Columns */}
                     {compareList.map((device) => {
-                      const specArray = device.specs?.[category.key] || [];
+                      const specArray = device.specs?.[groupKey] || [];
                       const specItem = specArray.find(s => s.label === label);
                       const val = specItem?.value;
 
                       let displayVal = val;
-                      if (val === undefined || val === null) {
+                      if (val === undefined || val === null || val === '') {
                         displayVal = <span className="text-slate-300 dark:text-slate-600">-</span>;
                       } else if (typeof val === 'boolean') {
                         displayVal = <BoolIcon value={val} />;
