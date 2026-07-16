@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ChevronLeft, Save, Loader2, Smartphone, ArrowLeft, Send, Sparkles, Wand2, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { createDevice, updateDevice } from '@/actions/devices';
+import { generateDeviceData } from '@/actions/ai';
 
 import { Button } from '@/components/ui/button';
 import LeaveConfirmationModal from '@/app/dashboard/blogs/_components/editor/LeaveConfirmationModal';
@@ -62,6 +63,7 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
   const [formData, setFormData] = useState(initialDevice || DEFAULT_DEVICE);
   const [initialFormState] = useState(formData);
   const [isPending, startTransition] = useTransition();
+  const [isGenerating, setIsGenerating] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
@@ -112,6 +114,39 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
         alert(res.error || 'Failed to save device');
       }
     });
+  };
+
+  const handleGenerateDevice = async () => {
+    if (!formData.name || !formData.brand) {
+      alert("Please enter the device Brand and Name first (in the dropdown below).");
+      return;
+    }
+    
+    setIsGenerating(true);
+    const res = await generateDeviceData(formData.name, formData.brand);
+    setIsGenerating(false);
+    
+    if (res.success && res.data) {
+      const mergedSpecs = {
+        ...formData.specs,
+        ...res.data.quickSpecs
+      };
+      
+      if (res.data.detailedSpecs) {
+        Object.entries(res.data.detailedSpecs).forEach(([groupName, specsList]) => {
+          mergedSpecs[groupName] = specsList;
+        });
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        price: res.data.price || prev.price,
+        description: res.data.description || prev.description,
+        specs: mergedSpecs
+      }));
+    } else {
+      alert(res.error || "Failed to generate device data");
+    }
   };
 
   return (
@@ -176,8 +211,14 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
                       required
                     />
                   </div>
-                  <Button className="bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-lg shadow-purple-500/25 gap-2">
-                    <Sparkles className="w-4 h-4" /> AI Generate
+                  <Button 
+                    type="button"
+                    onClick={handleGenerateDevice}
+                    disabled={isGenerating}
+                    className="bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-lg shadow-purple-500/25 gap-2"
+                  >
+                    <Sparkles className="w-4 h-4" /> 
+                    {isGenerating ? 'Generating...' : 'AI Generate'}
                   </Button>
                 </div>
                 

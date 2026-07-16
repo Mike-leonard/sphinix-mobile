@@ -2,6 +2,8 @@
 
 import { GoogleGenAI } from '@google/genai';
 import * as cheerio from 'cheerio';
+import fs from 'fs';
+import path from 'path';
 import { getSettings } from './settings';
 import { verifySession } from './auth';
 
@@ -311,6 +313,227 @@ export async function generateDeviceSEO(deviceName, brand, description) {
     return { success: true, data: seoData };
   } catch (error) {
     console.error('Error generating device SEO:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Generate full device data (Price, Quick Specs, Detailed Specs, Description)
+ */
+export async function generateDeviceData(deviceName, brand) {
+  try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+    if (!deviceName) throw new Error('Device name is required');
+
+    // Read attributes dynamically
+    const attributesPath = path.join(process.cwd(), 'data', 'device-attributes.json');
+    const attributesStr = await fs.promises.readFile(attributesPath, 'utf8');
+    const allAttributes = JSON.parse(attributesStr);
+
+    // Exclude attributes that ONLY belong to Quick Specifications
+    const detailedAttributes = allAttributes.filter(a => 
+      a.groupIds.some(g => g !== 'Quick Specifications')
+    );
+    
+    // Create a compact schema map for the AI to understand what keys it can fill
+    const schemaMap = {};
+    detailedAttributes.forEach(a => {
+      const mainGroup = a.groupIds.find(g => g !== 'Quick Specifications') || 'General';
+      schemaMap[a.slug] = `${a.name} (Group: ${mainGroup})`;
+    });
+
+    const system = `You are a highly authoritative tech expert and database scraper for Sphinix Mobile.`;
+    const prompt = `
+      I am adding a new smartphone/device to our database: "${brand} ${deviceName}".
+      
+      Generate comprehensive specifications, an estimated launch price, and an HTML overview description for this exact device. If this device has not been officially released, provide the most accurate leaked or rumored specs.
+
+      REQUIREMENTS:
+      Return the output as a strict JSON object with EXACTLY these four root keys:
+      {
+        "price": "Estimated launch price in USD, e.g. '$999' or 'N/A'",
+        "description": "A well-written, engaging HTML overview (using <p>, <h3>, <ul>). Do not wrap in markdown.",
+        "quickSpecs": {
+          "screen": "e.g. 6.8 inches, AMOLED",
+          "chipset": "e.g. Snapdragon 8 Gen 3",
+          "camera": "e.g. 200MP + 50MP + 12MP",
+          "battery": "e.g. 5000 mAh, 45W",
+          "ram": "e.g. 12GB",
+          "storage": "e.g. 256GB / 512GB",
+          "os": "e.g. Android 14"
+        },
+        "detailedSpecs": {
+          // Fill out as many of the following keys as you know with accurate data for this device.
+          // Omit the key entirely if you have absolutely no data for it.
+          // Keys MUST be chosen ONLY from this specific schema:
+          ${JSON.stringify(schemaMap, null, 2).replace(/^/gm, '          ')}
+        }
+      }
+      
+      Do NOT wrap the JSON in markdown code blocks (\`\`\`json). Output ONLY valid JSON.
+    `;
+
+    let rawJson = await generateText(prompt, system, true);
+    
+    if (rawJson.startsWith('\`\`\`json')) {
+      rawJson = rawJson.replace(/^\`\`\`json\n?/, '').replace(/\n?\`\`\`$/, '');
+    }
+
+    const aiData = JSON.parse(rawJson);
+    
+    // Post-process detailed specs into frontend expected shape: { "Group Name": [ { label, slug, value } ] }
+    const formattedDetailedSpecs = {};
+    
+    if (aiData.detailedSpecs) {
+      for (const [slug, value] of Object.entries(aiData.detailedSpecs)) {
+        const attr = detailedAttributes.find(a => a.slug === slug);
+        if (attr && value && typeof value === 'string') {
+          const group = attr.groupIds.find(g => g !== 'Quick Specifications') || 'General';
+          if (!formattedDetailedSpecs[group]) {
+            formattedDetailedSpecs[group] = [];
+          }
+          formattedDetailedSpecs[group].push({
+            label: attr.name,
+            slug: attr.slug,
+            value: value.trim()
+          });
+        }
+      }
+    }
+
+    return { 
+      success: true, 
+      data: {
+        price: aiData.price,
+        description: aiData.description,
+        quickSpecs: aiData.quickSpecs || {},
+        detailedSpecs: formattedDetailedSpecs
+      }
+    };
+  } catch (error) {
+    console.error('Error generating device data:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Generate full device data (Price, Quick Specs, Detailed Specs, Description) from an external URL
+ */
+export async function generateDeviceDataFromUrl(url) {
+  try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+    if (!url || url.length > 2000) throw new Error('Invalid URL length');
+
+    // Use Jina Reader API to bypass bot protections (Cloudflare) and get clean markdown
+    const fetchRes = await fetch(`https://r.jina.ai/${url}`);
+    if (!fetchRes.ok) throw new Error(`Failed to fetch the URL (Status: ${fetchRes.status})`);
+    
+    let cleanText = await fetchRes.text();
+    
+    // Extract title (Brand + Name)
+    let pageTitle = "New Device";
+    const titleMatch = cleanText.match(/^Title:\s+(.+)/im);
+    if (titleMatch) {
+      pageTitle = titleMatch[1].trim();
+    }
+    
+    // Limit text to avoid blowing up context window
+    if (cleanText.length > 30000) {
+      cleanText = cleanText.substring(0, 30000);
+    }
+
+    // Read attributes dynamically
+    const attributesPath = path.join(process.cwd(), 'data', 'device-attributes.json');
+    const attributesStr = await fs.promises.readFile(attributesPath, 'utf8');
+    const allAttributes = JSON.parse(attributesStr);
+
+    // Exclude attributes that ONLY belong to Quick Specifications
+    const detailedAttributes = allAttributes.filter(a => 
+      a.groupIds.some(g => g !== 'Quick Specifications')
+    );
+    
+    // Create a compact schema map for the AI to understand what keys it can fill
+    const schemaMap = {};
+    detailedAttributes.forEach(a => {
+      const mainGroup = a.groupIds.find(g => g !== 'Quick Specifications') || 'General';
+      schemaMap[a.slug] = `${a.name} (Group: ${mainGroup})`;
+    });
+
+    const system = `You are a highly authoritative tech expert and database scraper for Sphinix Mobile.`;
+    const prompt = `
+      Extract device specifications, estimated launch price, and write an HTML overview description based entirely on the following raw webpage content.
+      
+      Original Source Title: "${pageTitle}"
+      
+      Raw Content:
+      ${cleanText}
+
+      REQUIREMENTS:
+      Return the output as a strict JSON object with EXACTLY these four root keys:
+      {
+        "price": "Estimated launch price in USD, e.g. '$999' or 'N/A'",
+        "description": "A well-written, engaging HTML overview (using <p>, <h3>, <ul>). Do not wrap in markdown.",
+        "quickSpecs": {
+          "screen": "e.g. 6.8 inches, AMOLED",
+          "chipset": "e.g. Snapdragon 8 Gen 3",
+          "camera": "e.g. 200MP + 50MP + 12MP",
+          "battery": "e.g. 5000 mAh, 45W",
+          "ram": "e.g. 12GB",
+          "storage": "e.g. 256GB / 512GB",
+          "os": "e.g. Android 14"
+        },
+        "detailedSpecs": {
+          // Fill out as many of the following keys as you can extract from the provided content.
+          // Omit the key entirely if there is absolutely no data for it in the content.
+          // Keys MUST be chosen ONLY from this specific schema:
+          ${JSON.stringify(schemaMap, null, 2).replace(/^/gm, '          ')}
+        }
+      }
+      
+      Do NOT wrap the JSON in markdown code blocks (\`\`\`json). Output ONLY valid JSON.
+    `;
+
+    let rawJson = await generateText(prompt, system, true);
+    
+    if (rawJson.startsWith('\`\`\`json')) {
+      rawJson = rawJson.replace(/^\`\`\`json\n?/, '').replace(/\n?\`\`\`$/, '');
+    }
+
+    const aiData = JSON.parse(rawJson);
+    
+    // Post-process detailed specs into frontend expected shape
+    const formattedDetailedSpecs = {};
+    if (aiData.detailedSpecs) {
+      for (const [slug, value] of Object.entries(aiData.detailedSpecs)) {
+        const attr = detailedAttributes.find(a => a.slug === slug);
+        if (attr && value && typeof value === 'string') {
+          const group = attr.groupIds.find(g => g !== 'Quick Specifications') || 'General';
+          if (!formattedDetailedSpecs[group]) {
+            formattedDetailedSpecs[group] = [];
+          }
+          formattedDetailedSpecs[group].push({
+            label: attr.name,
+            slug: attr.slug,
+            value: value.trim()
+          });
+        }
+      }
+    }
+
+    return { 
+      success: true, 
+      data: {
+        extractedName: pageTitle,
+        price: aiData.price,
+        description: aiData.description,
+        quickSpecs: aiData.quickSpecs || {},
+        detailedSpecs: formattedDetailedSpecs
+      }
+    };
+  } catch (error) {
+    console.error('Error generating device data from URL:', error);
     return { success: false, error: error.message };
   }
 }

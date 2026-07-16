@@ -44,6 +44,11 @@ const formatTitle = (key) => {
 export default function ComparisonBody({ compareList, gridColsClass }) {
   const settings = useSettings();
   const freq = settings?.advertisements?.injectionFrequency?.comparisons || 3;
+  const [deviceGroups, setDeviceGroups] = React.useState([]);
+
+  React.useEffect(() => {
+    import('@/actions/device-groups').then(m => m.getDeviceGroups().then(setDeviceGroups));
+  }, []);
 
   // Get unique dynamic spec groups from all devices
   const specGroupsSet = new Set();
@@ -55,6 +60,14 @@ export default function ComparisonBody({ compareList, gridColsClass }) {
     });
   });
   const specGroups = Array.from(specGroupsSet).sort((a, b) => {
+    if (deviceGroups && deviceGroups.length > 0) {
+      const indexA = deviceGroups.indexOf(a);
+      const indexB = deviceGroups.indexOf(b);
+      const valA = indexA === -1 ? 999 : indexA;
+      const valB = indexB === -1 ? 999 : indexB;
+      if (valA !== valB) return valA - valB;
+    }
+
     const isABox = a.toLowerCase().includes('box');
     const isBBox = b.toLowerCase().includes('box');
     if (isABox && !isBBox) return 1;

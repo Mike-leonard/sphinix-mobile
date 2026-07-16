@@ -3,10 +3,49 @@
 import React, { useState } from 'react';
 import { Sparkles, Wand2, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { generateDeviceSEO } from '@/actions/ai';
+import { generateDeviceSEO, generateDeviceDataFromUrl } from '@/actions/ai';
 
 export default function DeviceEditorSidebar({ formData, setFormData }) {
   const [isGeneratingSEO, setIsGeneratingSEO] = useState(false);
+  const [url, setUrl] = useState('');
+  const [isGeneratingUrl, setIsGeneratingUrl] = useState(false);
+
+  const handleGenerateFromUrl = async () => {
+    if (!url) {
+      alert("Please enter a URL first.");
+      return;
+    }
+    
+    setIsGeneratingUrl(true);
+    const res = await generateDeviceDataFromUrl(url);
+    setIsGeneratingUrl(false);
+    
+    if (res.success && res.data) {
+      const mergedSpecs = {
+        ...formData.specs,
+        ...res.data.quickSpecs
+      };
+      
+      if (res.data.detailedSpecs) {
+        Object.entries(res.data.detailedSpecs).forEach(([groupName, specsList]) => {
+          mergedSpecs[groupName] = specsList;
+        });
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        // Optional: you can auto-fill the name if the AI extracted a title, but be careful not to overwrite user input
+        // name: prev.name || res.data.extractedName,
+        price: res.data.price || prev.price,
+        description: res.data.description || prev.description,
+        specs: mergedSpecs
+      }));
+      
+      setUrl(''); // Clear the URL input after success
+    } else {
+      alert(res.error || "Failed to extract device data from URL");
+    }
+  };
 
   const handleGenerateSEO = async () => {
     if (!formData.name) {
@@ -44,11 +83,18 @@ export default function DeviceEditorSidebar({ formData, setFormData }) {
               <div className="flex gap-2">
                 <input 
                   type="text"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://example.com/specs"
                   className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
                 />
-                <Button className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl">
-                  <Wand2 className="w-4 h-4" />
+                <Button 
+                  type="button"
+                  onClick={handleGenerateFromUrl}
+                  disabled={isGeneratingUrl}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-xl"
+                >
+                  <Wand2 className={`w-4 h-4 ${isGeneratingUrl ? 'animate-spin' : ''}`} />
                 </Button>
               </div>
               <p className="text-xs text-slate-500 mt-2">Paste a link to any device specs page and AI will auto-fill the fields.</p>
