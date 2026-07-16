@@ -9,12 +9,26 @@ import AdBanner from '@/components/ads/AdBanner';
 import InFeedAd from '@/components/ads/InFeedAd';
 
 export default function SpecsTab({ device, hideAds = false }) {
+  const [deviceGroups, setDeviceGroups] = React.useState([]);
+
+  React.useEffect(() => {
+    import('@/actions/device-groups').then(m => m.getDeviceGroups().then(setDeviceGroups));
+  }, []);
+
   const specs = device?.specs || {};
 
   // Find all keys that have arrays (which means they are detailed spec groups)
   const specGroups = Object.entries(specs)
     .filter(([_, value]) => Array.isArray(value) && value.length > 0)
     .sort((a, b) => {
+      if (deviceGroups && deviceGroups.length > 0) {
+        const indexA = deviceGroups.indexOf(a[0]);
+        const indexB = deviceGroups.indexOf(b[0]);
+        const valA = indexA === -1 ? 999 : indexA;
+        const valB = indexB === -1 ? 999 : indexB;
+        if (valA !== valB) return valA - valB;
+      }
+      
       const isABox = a[0].toLowerCase().includes('box');
       const isBBox = b[0].toLowerCase().includes('box');
       if (isABox && !isBBox) return 1;
