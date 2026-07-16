@@ -46,18 +46,12 @@ const DEFAULT_DEVICE = {
     battery: '',
     ram: '',
     storage: '',
-    os: '',
-    generalSpecs: [],
-    designSpecs: [],
-    networkSpecs: [],
-    dataSpecs: [],
-    messagingSpecs: [],
-    batterySpecs: [],
-    softwareSpecs: [],
-    hardwareSpecs: [],
-    displaySpecs: [],
-    mediaSpecs: [],
-    cameraSpecs: []
+    os: ''
+  },
+  seo: {
+    metaTitle: '',
+    metaDescription: '',
+    keywords: ''
   }
 };
 

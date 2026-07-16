@@ -2,7 +2,8 @@ import React from 'react';
 import {
   CheckCircle2, XCircle,
   Smartphone, Palette, Antenna, Globe, Mail,
-  Battery, LayoutTemplate, Cpu, Monitor, Film, Camera, List
+  Battery, LayoutTemplate, Cpu, Monitor, Film, Camera, List,
+  Wifi, ScanFace, Headphones, Package, Sparkles
 } from 'lucide-react';
 import AdBanner from '@/components/ads/AdBanner';
 import { useSettings } from '@/context/SettingsContext';
@@ -24,6 +25,11 @@ const getIconForGroup = (groupName) => {
   if (nameLower.includes('display')) return Monitor;
   if (nameLower.includes('media')) return Film;
   if (nameLower.includes('camera')) return Camera;
+  if (nameLower.includes('connect')) return Wifi;
+  if (nameLower.includes('sensor')) return ScanFace;
+  if (nameLower.includes('audio')) return Headphones;
+  if (nameLower.includes('box')) return Package;
+  if (nameLower.includes('ai')) return Sparkles;
   return List;
 };
 
@@ -48,7 +54,13 @@ export default function ComparisonBody({ compareList, gridColsClass }) {
       }
     });
   });
-  const specGroups = Array.from(specGroupsSet);
+  const specGroups = Array.from(specGroupsSet).sort((a, b) => {
+    const isABox = a.toLowerCase().includes('box');
+    const isBBox = b.toLowerCase().includes('box');
+    if (isABox && !isBBox) return 1;
+    if (!isABox && isBBox) return -1;
+    return 0;
+  });
 
   return (
     <div className="flex flex-col gap-6">
@@ -97,6 +109,13 @@ export default function ComparisonBody({ compareList, gridColsClass }) {
                         displayVal = <span className="text-slate-300 dark:text-slate-600">-</span>;
                       } else if (typeof val === 'boolean') {
                         displayVal = <BoolIcon value={val} />;
+                      } else if (typeof val === 'string') {
+                        const lowerVal = val.toLowerCase().trim();
+                        if (lowerVal === 'yes') {
+                          displayVal = <BoolIcon value={true} />;
+                        } else if (lowerVal === 'no') {
+                          displayVal = <BoolIcon value={false} />;
+                        }
                       }
 
                       return (

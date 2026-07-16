@@ -11,6 +11,13 @@ export function SpecRow({ label, value }) {
   let displayValue = value;
   if (typeof value === 'boolean') {
     displayValue = <BoolIcon value={value} />;
+  } else if (typeof value === 'string') {
+    const lowerVal = value.toLowerCase().trim();
+    if (lowerVal === 'yes') {
+      displayValue = <BoolIcon value={true} />;
+    } else if (lowerVal === 'no') {
+      displayValue = <BoolIcon value={false} />;
+    }
   }
 
   return (

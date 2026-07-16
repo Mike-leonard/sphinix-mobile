@@ -110,7 +110,7 @@ export default function DeviceDetailedSpecs({ specs, onChange, deviceGroups = []
                             value={String(currentValue)}
                             onChange={(e) => handleUpdateSpec(attr.slug, attr.name, e.target.value)}
                             className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 pr-8 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
-                            placeholder="Select or enter value..."
+                            placeholder={attr.placeholder || "Select or enter value..."}
                           />
                           <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
                           <datalist id={`list-${attr.id}`}>
@@ -125,7 +125,7 @@ export default function DeviceDetailedSpecs({ specs, onChange, deviceGroups = []
                           value={String(currentValue)}
                           onChange={(e) => handleUpdateSpec(attr.slug, attr.name, e.target.value)}
                           className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 resize-y min-h-[38px]"
-                          placeholder="Enter value..."
+                          placeholder={attr.placeholder || "Enter value..."}
                         />
                       )}
                     </div>
