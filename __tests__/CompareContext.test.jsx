@@ -73,7 +73,7 @@ describe('CompareContext', () => {
     // Try to add a 4th
     fireEvent.click(screen.getByTestId('add-4'));
     
-    expect(alertMock).toHaveBeenCalledWith('You can only compare up to 3 devices at a time.');
+    expect(alertMock).toHaveBeenCalledWith('You can only compare up to 3 phones at a time.');
     expect(screen.getByTestId('count').textContent).toBe('3'); // Still 3
     
     alertMock.mockRestore();

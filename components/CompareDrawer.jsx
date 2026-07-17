@@ -27,7 +27,7 @@ export default function CompareDrawer() {
       <Sheet open={isDrawerOpen} onOpenChange={(open) => setIsCompareOpen(open)}>
         <SheetContent side="right" className="w-[95vw] sm:max-w-[800px] lg:max-w-[1000px] overflow-y-auto border-l-slate-200 dark:border-l-slate-800 bg-white dark:bg-slate-900 p-0 flex flex-col">
           <SheetHeader className="px-6 pt-6 mb-4">
-            <SheetTitle className="font-extrabold text-slate-900 dark:text-white text-xl">Compare Devices</SheetTitle>
+            <SheetTitle className="font-extrabold text-slate-900 dark:text-white text-xl">Compare Phones</SheetTitle>
             <SheetDescription className="text-sm">
               Comparing {compareList.length} of max 3
             </SheetDescription>
@@ -108,7 +108,7 @@ export default function CompareDrawer() {
           <Button
             onClick={() => {
               if (compareList.length < 2) {
-                alert("Please select at least 2 devices to compare.");
+                alert("Please select at least 2 phones to compare.");
               } else {
                 setIsCompareOpen(true);
               }

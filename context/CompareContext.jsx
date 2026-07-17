@@ -18,7 +18,7 @@ export function CompareProvider({ children }) {
       } else {
         // Enforce max 3 limit
         if (prev.length >= 3) {
-          alert("You can only compare up to 3 devices at a time.");
+          alert("You can only compare up to 3 phones at a time.");
           return prev;
         }
         return [...prev, product];

@@ -18,7 +18,7 @@ export default function SidebarNav({ isCollapsed }) {
   const pathname = usePathname();
 
   return (
-    <div className="flex-1 py-6 overflow-y-auto overflow-x-hidden">
+    <div className="flex-1 py-6 overflow-y-auto overflow-x-hidden hide-scrollbar">
       {!isCollapsed && (
         <h2  className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4 px-7">
           Admin Panel

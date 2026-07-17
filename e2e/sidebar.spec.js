@@ -10,8 +10,7 @@ test.describe('Right Sidebar Dynamic Logic', () => {
     // Trending Articles should be visible
     await expect(page.locator('h3:has-text("Trending Articles")')).toBeVisible();
 
-    // Categories and Top Rated should also be visible
-    await expect(page.locator('h3:has-text("Categories")')).toBeVisible();
+    // Categories were removed from sidebar
     await expect(page.locator('h3:has-text("Top Rated")')).toBeVisible();
   });
 
@@ -35,7 +34,6 @@ test.describe('Right Sidebar Dynamic Logic', () => {
     // Home page shows almost everything
     await expect(page.locator('h3:has-text("New Arrivals")').first()).toBeVisible();
     await expect(page.locator('h3:has-text("Trending Articles")').first()).toBeVisible();
-    // In our logic, Categories is actually shown on the Home Route!
-    await expect(page.locator('h3:has-text("Categories")').first()).toBeVisible();
+    // Categories removed
   });
 });

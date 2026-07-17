@@ -15,7 +15,7 @@ export default function SidebarFooter({ isCollapsed, user }) {
       {user && (
         <UserProfileDropdown
           user={user}
-          dropdownClasses={`bottom-14 slide-in-from-bottom-2 ${isCollapsed ? 'left-full ml-4' : 'left-0'}`}
+          dropdownClasses={`bottom-full mb-2 ${isCollapsed ? 'left-0 ml-2' : 'left-0'}`}
           buttonClasses={`flex items-center gap-3 h-12 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors w-full ${isCollapsed ? 'justify-center px-0' : 'px-3'}`}
           showUserDetails={!isCollapsed}
         />

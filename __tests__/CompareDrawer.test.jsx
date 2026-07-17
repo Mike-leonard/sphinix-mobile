@@ -73,7 +73,7 @@ describe('CompareDrawer', () => {
     fireEvent.click(compareBtn);
 
     // Because only 1 item is added, it triggers alert
-    expect(alertMock).toHaveBeenCalledWith('Please select at least 2 devices to compare.');
+    expect(alertMock).toHaveBeenCalledWith('Please select at least 2 phones to compare.');
     alertMock.mockRestore();
   });
 

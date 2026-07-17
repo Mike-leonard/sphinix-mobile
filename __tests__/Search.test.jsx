@@ -32,8 +32,8 @@ describe('Search Component', () => {
   test('changes active scope when scope buttons are clicked', async () => {
     render(<Search searchQuery="Galaxy" setSearchQuery={() => {}} selectedCategory="All Types" setSelectedCategory={() => {}} />);
     
-    // Ensure "Devices" scope button exists
-    const devicesBtn = screen.getByText('Devices');
+    // Ensure "Phones" scope button exists
+    const devicesBtn = screen.getByText('Phones');
     expect(devicesBtn).toBeInTheDocument();
     
     fireEvent.click(devicesBtn);
