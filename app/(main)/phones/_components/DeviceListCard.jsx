@@ -46,7 +46,7 @@ export default function DeviceListCard({ product, isComparing, onToggleCompare }
         </div>
 
         <div className="mt-6 flex items-center justify-between">
-          <Link href={`/devices/${brandSlug}/${slug}`} style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 text-sm font-semibold flex items-center gap-1 group/link">
+          <Link href={`/phones/${brandSlug}/${slug}`} style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 text-sm font-semibold flex items-center gap-1 group/link">
             View Details <span className="group-hover/link:translate-x-1 transition-transform">→</span>
           </Link>
           

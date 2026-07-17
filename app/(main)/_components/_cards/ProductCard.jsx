@@ -16,7 +16,7 @@ export default function ProductCard({ product, isComparing, onToggleCompare, isH
   const brandSlug = generateBrandSlug(product.brand || 'unknown');
   return (
     <Card className="group rounded-2xl border-slate-200 dark:border-slate-800/80 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/5 transition-all duration-300 flex flex-col justify-between bg-white dark:bg-slate-900 overflow-hidden">
-      <Link href={`/devices/${brandSlug}/${slug}`} style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="block flex-1">
+      <Link href={`/phones/${brandSlug}/${slug}`} style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="block flex-1">
         <CardContent className="p-5 pb-2 space-y-4">
           <ProductCardImage product={product} />
 

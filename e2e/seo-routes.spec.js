@@ -36,7 +36,7 @@ test.describe('SEO Routes Verification', () => {
     expect(content).toContain('<loc>https://sphinix-mobile.com</loc>');
     
     // Check for nested core routes
-    expect(content).toContain('<loc>https://sphinix-mobile.com/devices</loc>');
+    expect(content).toContain('<loc>https://sphinix-mobile.com/phones</loc>');
     expect(content).toContain('<loc>https://sphinix-mobile.com/blogs</loc>');
   });
 });

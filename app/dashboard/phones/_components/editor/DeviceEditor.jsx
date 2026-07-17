@@ -17,9 +17,9 @@ import DeviceOverviewEditor from './DeviceOverviewEditor';
 import DeviceExpertRatings from './DeviceExpertRatings';
 import DeviceEditorSidebar from './DeviceEditorSidebar';
 
-import DeviceHero from '@/app/(main)/devices/[brandSlug]/[deviceSlug]/_components/DeviceGallery';
-import DeviceQuickInfo from '@/app/(main)/devices/[brandSlug]/[deviceSlug]/_components/DeviceQuickInfo';
-import DeviceTabs from '@/app/(main)/devices/[brandSlug]/[deviceSlug]/_components/DeviceTabs';
+import DeviceHero from '@/app/(main)/phones/[brandSlug]/[deviceSlug]/_components/DeviceGallery';
+import DeviceQuickInfo from '@/app/(main)/phones/[brandSlug]/[deviceSlug]/_components/DeviceQuickInfo';
+import DeviceTabs from '@/app/(main)/phones/[brandSlug]/[deviceSlug]/_components/DeviceTabs';
 import { CompareProvider } from '@/context/CompareContext';
 
 const DEFAULT_DEVICE = {
@@ -108,7 +108,7 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
 
       if (res.success) {
         setIsDirty(false);
-        router.push('/dashboard/devices');
+        router.push('/dashboard/phones');
         router.refresh();
       } else {
         alert(res.error || 'Failed to save device');
@@ -160,7 +160,7 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
               e.preventDefault();
               setShowLeaveModal(true);
             } else {
-              router.push('/dashboard/devices');
+              router.push('/dashboard/phones');
             }
           }}
           className="flex items-center gap-2 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
@@ -270,7 +270,7 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
         setShowLeaveModal={setShowLeaveModal}
         handleDiscard={() => {
           setIsDirty(false);
-          router.push('/dashboard/devices');
+          router.push('/dashboard/phones');
         }}
       />
     </div>

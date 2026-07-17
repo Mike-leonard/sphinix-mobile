@@ -58,7 +58,7 @@ export function Search({ searchQuery, setSearchQuery }) {
     const results = [];
 
     // Filter Devices
-    if (activeScope === "All" || activeScope === "Devices") {
+    if (activeScope === "All" || activeScope === "Phones") {
       const matchedDevices = MOCK_PRODUCTS.filter(p => 
         p.name.toLowerCase().includes(query) || 
         p.brand.toLowerCase().includes(query)
@@ -160,11 +160,11 @@ export function Search({ searchQuery, setSearchQuery }) {
             All Types
           </Badge>
           <Badge 
-            variant={activeScope === "Devices" ? "default" : "outline"}
-            onClick={() => { setActiveScope("Devices"); if(searchQuery) setIsDropdownOpen(true); }}
-            className={`cursor-pointer px-3 py-1 text-xs font-semibold transition-colors ${activeScope === "Devices" ? "bg-brand-600 hover:bg-brand-700 text-white" : "text-slate-600 dark:text-slate-400"}`}
+            variant={activeScope === "Phones" ? "default" : "outline"}
+            onClick={() => { setActiveScope("Phones"); if(searchQuery) setIsDropdownOpen(true); }}
+            className={`cursor-pointer px-3 py-1 text-xs font-semibold transition-colors ${activeScope === "Phones" ? "bg-brand-600 hover:bg-brand-700 text-white" : "text-slate-600 dark:text-slate-400"}`}
           >
-            Devices
+            Phones
           </Badge>
           <Badge 
             variant={activeScope === "Blogs" ? "default" : "outline"}

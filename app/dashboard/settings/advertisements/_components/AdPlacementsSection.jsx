@@ -18,8 +18,8 @@ export default function AdPlacementsSection({ settings, handleNestedChange }) {
         </label>
 
         <label className="flex items-center gap-3 p-3 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-          <input type="checkbox" checked={settings.advertisements?.placements?.devicesPageSidebar ?? true} onChange={(e) => handleNestedChange('placements', 'devicesPageSidebar', e.target.checked)} className="w-4 h-4 rounded text-brand-600 focus:ring-brand-500" />
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Devices Page Sidebar</span>
+          <input type="checkbox" checked={settings.advertisements?.placements?.phonesPageSidebar ?? true} onChange={(e) => handleNestedChange('placements', 'phonesPageSidebar', e.target.checked)} className="w-4 h-4 rounded text-brand-600 focus:ring-brand-500" />
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Phones Page Sidebar</span>
         </label>
         
         <label className="flex items-center gap-3 p-3 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">

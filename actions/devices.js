@@ -81,7 +81,7 @@ export async function createDevice(formData) {
     devices.unshift(newDevice);
     
     await fs.writeFile(getDevicesFilePath(), JSON.stringify(devices, null, 2));
-    revalidatePath('/dashboard/devices');
+    revalidatePath('/dashboard/phones');
     
     return { success: true, message: 'Device created successfully' };
   } catch (error) {
@@ -108,8 +108,8 @@ export async function updateDevice(id, formData) {
     };
     
     await fs.writeFile(getDevicesFilePath(), JSON.stringify(devices, null, 2));
-    revalidatePath('/dashboard/devices');
-    revalidatePath(`/devices/${id}`);
+    revalidatePath('/dashboard/phones');
+    revalidatePath(`/phones/${id}`);
     
     return { success: true, message: 'Device updated successfully' };
   } catch (error) {
@@ -131,8 +131,8 @@ export async function deleteDevice(id) {
     }
 
     await fs.writeFile(getDevicesFilePath(), JSON.stringify(filteredDevices, null, 2));
-    revalidatePath('/dashboard/devices');
-    revalidatePath('/devices');
+    revalidatePath('/dashboard/phones');
+    revalidatePath('/phones');
     
     return { success: true, message: 'Device permanently deleted' };
   } catch (error) {
@@ -152,7 +152,7 @@ export async function trashDevice(id) {
     
     devices[index].status = 'trash';
     await fs.writeFile(getDevicesFilePath(), JSON.stringify(devices, null, 2));
-    revalidatePath('/dashboard/devices');
+    revalidatePath('/dashboard/phones');
     
     return { success: true, message: 'Device moved to trash' };
   } catch (error) {
@@ -172,7 +172,7 @@ export async function restoreDevice(id) {
     
     devices[index].status = 'draft';
     await fs.writeFile(getDevicesFilePath(), JSON.stringify(devices, null, 2));
-    revalidatePath('/dashboard/devices');
+    revalidatePath('/dashboard/phones');
     
     return { success: true, message: 'Device restored as draft' };
   } catch (error) {
@@ -198,8 +198,8 @@ export async function reassignDeviceBrand(oldBrand, newBrand) {
     
     if (updated) {
       await fs.writeFile(getDevicesFilePath(), JSON.stringify(devices, null, 2));
-      revalidatePath('/dashboard/devices');
-      revalidatePath('/devices');
+      revalidatePath('/dashboard/phones');
+      revalidatePath('/phones');
     }
     
     return { success: true };

@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 
 test.describe('Right Sidebar Dynamic Logic', () => {
   test('should hide NewArrivals on devices route and show LatestBlogs', async ({ page }) => {
-    await page.goto('/devices');
+    await page.goto('/phones');
 
     // On devices route, NewArrivals should be hidden
     await expect(page.locator('h3:has-text("New Arrivals")')).not.toBeVisible();

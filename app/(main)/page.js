@@ -11,18 +11,9 @@ import BlogSection from './_components/_sections/BlogSection';
 import { useCompare } from '@/context/CompareContext';
 import { useSettings } from '@/context/SettingsContext';
 const BRANDS = ["All", "Apple", "Samsung", "OnePlus", "Google", "LG", "Nokia", "HTC", "Sony", "Motorola", "Huawei", "Oppo"];
-const CATEGORIES = [
-  { name: "Devices", count: 95 },
-  { name: "Laptops", count: 4 },
-  { name: "Digital Cameras", count: 2 },
-  { name: "Cameras", count: 0 },
-  { name: "DSLR Cameras", count: 0 },
-  { name: "Gadgets", count: 0 }
-];
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("All");
-  const [selectedCategory, setSelectedCategory] = useState("Devices");
 
   const { compareList, isCompareOpen, setIsCompareOpen, handleToggleCompare, clearCompare } = useCompare();
   const settings = useSettings();
@@ -36,13 +27,31 @@ export default function Home() {
         product.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.specs.chipset.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesBrand = selectedBrand === "All" || product.brand === selectedBrand;
-      const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
-      return matchesStatus && matchesSearch && matchesBrand && matchesCategory;
+      return matchesStatus && matchesSearch && matchesBrand;
     }).slice(0, homeLimits.deviceLimit);
-  }, [searchQuery, selectedBrand, selectedCategory, homeLimits.deviceLimit]);
+  }, [searchQuery, selectedBrand, homeLimits.deviceLimit]);
 
+  // Derived Sidebar Data
   const newArrivals = useMemo(() => MOCK_PRODUCTS.filter(p => p.isNew && p.status === 'published'), []);
   const topRated = useMemo(() => MOCK_PRODUCTS.filter(p => p.isTopRated && p.status === 'published'), []);
+
+  // Compute dynamic brands with counts
+  const dynamicBrands = useMemo(() => {
+    const published = MOCK_PRODUCTS.filter(p => p.status === 'published');
+    const counts = { "All": published.length };
+    
+    published.forEach(p => {
+      if (p.brand) {
+        counts[p.brand] = (counts[p.brand] || 0) + 1;
+      }
+    });
+
+    return BRANDS.map(name => ({
+      name,
+      count: counts[name] || 0
+    })).filter(brand => brand.count > 0 || brand.name === "All");
+  }, []);
+
   return (
     <div className="text-slate-800 dark:text-slate-100">
 
@@ -62,8 +71,6 @@ export default function Home() {
               filteredProducts={filteredProducts}
               selectedBrand={selectedBrand}
               setSearchQuery={setSearchQuery}
-              selectedCategory={selectedCategory}
-              setSelectedCategory={setSelectedCategory}
               compareList={compareList}
               handleToggleCompare={handleToggleCompare}
               isHomePage={true}
@@ -83,12 +90,9 @@ export default function Home() {
             setSearchQuery={setSearchQuery}
             selectedBrand={selectedBrand}
             setSelectedBrand={setSelectedBrand}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
             newArrivals={newArrivals}
             topRated={topRated}
-            categories={CATEGORIES}
-            brands={BRANDS}
+            brands={dynamicBrands}
           />
 
         </div>

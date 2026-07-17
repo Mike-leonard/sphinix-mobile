@@ -12,7 +12,7 @@ test.describe('Rating Bars Manager Layout and Features', () => {
 
   test('should display Rating Bars UI and allow interaction', async ({ page }) => {
     // Navigate to rating bars page
-    await page.goto('/dashboard/devices/rating-bars');
+    await page.goto('/dashboard/phones/rating-bars');
 
     // Verify adding new bar section is visible
     await expect(page.locator('h2:has-text("Add New Rating Bar")')).toBeVisible();

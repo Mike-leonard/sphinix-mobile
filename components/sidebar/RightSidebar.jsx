@@ -3,7 +3,6 @@ import { usePathname } from 'next/navigation';
 import { Search } from '../Search';
 import NewArrivals from './NewArrivals';
 import TopRated from './TopRated';
-import Categories from './Categories';
 import BrandList from './BrandList';
 import AdBanner from '../ads/AdBanner';
 import MOCK_BLOGS from '@/data/blogs.json';
@@ -25,7 +24,7 @@ export default function RightSidebar({
   const pathname = usePathname();
 
   // Define visibility rules based on routes
-  const isDevicesRoute = pathname === '/devices';
+  const isDevicesRoute = pathname === '/phones';
   const isBlogsRoute = pathname === '/blogs';
   const isHomeRoute = pathname === '/';
 
@@ -69,13 +68,6 @@ export default function RightSidebar({
         setSearchQuery={setSearchQuery}
       />
 
-      {/* CATEGORIES - Important for filtering on both devices and blogs */}
-      <Categories
-        categories={categories}
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
-      />
-
       {/* BRANDS LIST CHIPS - Reduce on Blogs to save space, useful on Devices/Home */}
       {!isBlogsRoute && (
         <BrandList
@@ -89,7 +81,7 @@ export default function RightSidebar({
       <div className="sticky top-24">
         <AdBanner 
           type="vertical" 
-          placement={isBlogsRoute ? "blogsPageSidebar" : "devicesPageSidebar"} 
+          placement={isBlogsRoute ? "blogsPageSidebar" : "phonesPageSidebar"} 
         />
       </div>
     </div>

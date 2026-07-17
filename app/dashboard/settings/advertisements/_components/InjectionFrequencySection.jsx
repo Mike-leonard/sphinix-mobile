@@ -12,8 +12,8 @@ export default function InjectionFrequencySection({ settings, handleNestedChange
           <input
             type="number"
             min="1"
-            value={settings.advertisements?.injectionFrequency?.homePageDevices || 6}
-            onChange={(e) => handleNestedChange('injectionFrequency', 'homePageDevices', parseInt(e.target.value))}
+            value={settings.advertisements?.injectionFrequency?.homePagePhones || 6}
+            onChange={(e) => handleNestedChange('injectionFrequency', 'homePagePhones', parseInt(e.target.value))}
             className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none"
           />
         </div>
@@ -28,12 +28,12 @@ export default function InjectionFrequencySection({ settings, handleNestedChange
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Devices Page Freq.</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Phones Page Freq.</label>
           <input
             type="number"
             min="1"
-            value={settings.advertisements?.injectionFrequency?.devicesPageGrid || 6}
-            onChange={(e) => handleNestedChange('injectionFrequency', 'devicesPageGrid', parseInt(e.target.value))}
+            value={settings.advertisements?.injectionFrequency?.phonesPageGrid || 6}
+            onChange={(e) => handleNestedChange('injectionFrequency', 'phonesPageGrid', parseInt(e.target.value))}
             className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 outline-none"
           />
         </div>

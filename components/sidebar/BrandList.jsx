@@ -17,15 +17,18 @@ export default function BrandList({ brands, selectedBrand, setSelectedBrand }) {
         )}
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         {brands.map(brand => (
           <Button
-            key={brand}
-            variant={selectedBrand === brand ? "default" : "ghost"}
-            onClick={() => setSelectedBrand(brand)}
-            className={`cursor-pointer text-xs py-2.5 px-1 h-auto text-center rounded-xl font-bold truncate transition-all active:scale-95 border ${selectedBrand === brand ? "bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-600/10 border-brand-500" : "bg-slate-50 border-slate-300 hover:bg-slate-100 text-slate-600 hover:text-slate-900 dark:bg-slate-800/80 dark:border-slate-700/60 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-white"}`}
+            key={brand.name}
+            variant={selectedBrand === brand.name ? "default" : "ghost"}
+            onClick={() => setSelectedBrand(brand.name)}
+            className={`cursor-pointer text-xs py-2 px-3 h-auto flex items-center justify-between rounded-xl font-bold transition-all active:scale-95 border ${selectedBrand === brand.name ? "bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-600/10 border-brand-500" : "bg-slate-50 border-slate-300 hover:bg-slate-100 text-slate-600 hover:text-slate-900 dark:bg-slate-800/80 dark:border-slate-700/60 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-white"}`}
           >
-            {brand}
+            <span className="truncate">{brand.name}</span>
+            <span className={`text-[10px] ml-1.5 px-1.5 py-0.5 rounded-md ${selectedBrand === brand.name ? "bg-white/20 text-white" : "bg-slate-200 text-slate-500 dark:bg-slate-700 dark:text-slate-400"}`}>
+              {brand.count}
+            </span>
           </Button>
         ))}
       </div>

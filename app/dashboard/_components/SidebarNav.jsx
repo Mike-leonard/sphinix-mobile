@@ -7,7 +7,7 @@ import { LayoutDashboard, Users, FileText, Star, Settings, Smartphone } from 'lu
 
 const navItems = [
   { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Devices', href: '/dashboard/devices', icon: Smartphone },
+  { name: 'Phones', href: '/dashboard/phones', icon: Smartphone },
   { name: 'Blogs', href: '/dashboard/blogs', icon: FileText },
   { name: 'Reviews', href: '/dashboard/reviews', icon: Star },
   { name: 'Users', href: '/dashboard/users', icon: Users },

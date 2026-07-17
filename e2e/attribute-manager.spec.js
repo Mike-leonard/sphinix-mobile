@@ -12,7 +12,7 @@ test.describe('Attribute Manager Layout and Features', () => {
 
   test('should display the Global Layout Order hint and allow dragging groups', async ({ page }) => {
     // Navigate to attributes page
-    await page.goto('/dashboard/devices/attributes');
+    await page.goto('/dashboard/phones/attributes');
 
     // Verify layout hint is visible
     await expect(page.locator('h4:has-text("Global Layout Order")')).toBeVisible();
@@ -30,7 +30,7 @@ test.describe('Attribute Manager Layout and Features', () => {
   });
 
   test('should toggle active group and display corresponding attributes', async ({ page }) => {
-    await page.goto('/dashboard/devices/attributes');
+    await page.goto('/dashboard/phones/attributes');
 
     // Get the first group name (usually General)
     const sidebarGroups = page.locator('button', { has: page.locator('.lucide-grip-vertical') });

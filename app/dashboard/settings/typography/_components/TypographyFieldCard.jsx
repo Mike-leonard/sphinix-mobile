@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { POSITIONS } from './constants';
 
 export default function TypographyFieldCard({ settingKey, label, settings, selectedPosition, onPositionChange, onValueChange, onReset }) {
-  const currentValue = settings.typography[settingKey][selectedPosition] || '';
+  const currentValue = settings.typography?.[settingKey]?.[selectedPosition] || '';
 
   return (
     <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
