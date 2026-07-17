@@ -22,8 +22,8 @@ test.describe('Search Autocomplete Flow', () => {
     const searchInput = page.getByPlaceholder(/Search model, brand/i).last();
     await searchInput.fill('Galaxy');
 
-    // Click the "Devices" scope pill
-    const devicesPill = page.locator('[data-slot="badge"]', { hasText: /^Devices$/ }).last();
+    // Click the "Phones" scope pill
+    const devicesPill = page.locator('[data-slot="badge"]', { hasText: /^Phones$/ }).last();
     await devicesPill.click({ force: true });
 
     // Now it should ONLY show devices, so "Blogs" header in results shouldn't be there

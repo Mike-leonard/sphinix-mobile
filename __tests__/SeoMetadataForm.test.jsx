@@ -21,7 +21,7 @@ const mockInitialSettings = {
       keywords: "test, keywords",
       structuredData: ""
     },
-    devices: {},
+    phones: {},
     blogs: {},
     comparisons: {}
   }

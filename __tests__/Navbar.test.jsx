@@ -25,7 +25,7 @@ describe('Navbar Component', () => {
 
     render(<Navbar />);
     expect(screen.getAllByText('Home')[0]).toBeInTheDocument();
-    expect(screen.getAllByText('Devices')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('Phones')[0]).toBeInTheDocument();
     expect(screen.getAllByText('Comparisons')[0]).toBeInTheDocument();
   });
 

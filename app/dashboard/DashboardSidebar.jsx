@@ -10,7 +10,7 @@ export default function DashboardSidebar({ user }) {
 
   return (
     <div
-      className={`bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 min-h-screen shrink-0 flex flex-col transition-all duration-300 z-40 ${
+      className={`bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 h-full shrink-0 flex flex-col transition-all duration-300 z-40 ${
         isCollapsed ? 'w-16' : 'w-64'
       }`}
     >

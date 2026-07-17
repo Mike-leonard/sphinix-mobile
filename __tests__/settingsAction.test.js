@@ -26,7 +26,7 @@ describe('Settings Actions', () => {
     const olderSettingsData = {
       seo: {
         home: { title: "Old Title" },
-        devices: {},
+        phones: {},
       }
     };
 

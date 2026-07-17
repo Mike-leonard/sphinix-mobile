@@ -23,7 +23,7 @@ test.describe('Compare Flow', () => {
     await compareFloatingBtn.click();
 
     // Drawer should open and display 'Compare Devices'
-    const drawerTitle = page.locator('text="Compare Devices"');
+    const drawerTitle = page.locator('text="Compare Phones"');
     await expect(drawerTitle).toBeVisible();
 
     // Verify it says "Comparing 2 of max 3"
