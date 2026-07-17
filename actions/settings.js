@@ -24,7 +24,7 @@ const defaultSettings = {
       ogImage: "",
       favicon: ""
     },
-    devices: { title: "", description: "", keywords: "", structuredData: "", ogTitle: "", ogDescription: "", ogImage: "" },
+    phones: { title: "", description: "", keywords: "", structuredData: "", ogTitle: "", ogDescription: "", ogImage: "" },
     blogs: { title: "", description: "", keywords: "", structuredData: "", ogTitle: "", ogDescription: "", ogImage: "" },
     comparisons: { title: "", description: "", keywords: "", structuredData: "", ogTitle: "", ogDescription: "", ogImage: "" }
   },
@@ -75,7 +75,7 @@ const defaultSettings = {
       blogLimit: 3,
       deviceCardSpecLimit: 3
     },
-    devices: {
+    phones: {
       deviceLimit: 12,
       deviceCardSpecLimit: 3
     },
@@ -106,16 +106,16 @@ const defaultSettings = {
     placements: {
       homePageBanner: true,
       homePageInFeed: true,
-      devicesPageSidebar: true,
+      phonesPageSidebar: true,
       blogsPageSidebar: true,
       blogDetailsInFeed: true,
       deviceDetailsBanner: true,
       comparisonsBanner: true
     },
     injectionFrequency: {
-      homePageDevices: 6,
+      homePagePhones: 6,
       homePageBlogs: 4,
-      devicesPageGrid: 6,
+      phonesPageGrid: 6,
       blogsPageGrid: 4,
       comparisons: 3
     }

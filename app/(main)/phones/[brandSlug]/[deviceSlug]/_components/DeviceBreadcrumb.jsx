@@ -8,7 +8,7 @@ export default function DeviceBreadcrumb({ device }) {
       <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 flex-wrap">
         <Link href="/" style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="hover:text-brand-500 transition-colors">Home</Link>
         <ChevronRight className="w-3 h-3 flex-shrink-0" />
-        <Link href="/devices" style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="hover:text-brand-500 transition-colors">Devices</Link>
+        <Link href="/phones" style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="hover:text-brand-500 transition-colors">Phones</Link>
         <ChevronRight className="w-3 h-3 flex-shrink-0" />
         <span className="text-slate-900 dark:text-white line-clamp-1 break-all sm:break-normal">{device.name}</span>
       </div>

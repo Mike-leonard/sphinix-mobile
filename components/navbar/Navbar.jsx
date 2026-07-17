@@ -14,7 +14,7 @@ export default function Navbar({ user, searchQuery, setSearchQuery, selectedCate
 
   const navLinks = [
     { name: 'Home', href: '/' },
-    { name: 'Devices', href: '/devices' },
+    { name: 'Phones', href: '/phones' },
     { name: 'Comparisons', href: '/comparisons' },
     { name: 'Blogs', href: '/blogs' },
   ];

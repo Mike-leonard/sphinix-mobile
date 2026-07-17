@@ -8,12 +8,12 @@ export default function DeviceTabsRoute() {
   const pathname = usePathname();
 
   const tabs = [
-    { name: 'Devices', href: '/dashboard/devices' },
-    { name: 'Brands', href: '/dashboard/devices/brands' },
-    { name: 'Groups', href: '/dashboard/devices/groups' },
-    { name: 'Attributes', href: '/dashboard/devices/attributes' },
-    { name: 'Filters', href: '/dashboard/devices/filters' },
-    { name: 'Rating Bars', href: '/dashboard/devices/rating-bars' },
+    { name: 'Devices', href: '/dashboard/phones' },
+    { name: 'Brands', href: '/dashboard/phones/brands' },
+    { name: 'Groups', href: '/dashboard/phones/groups' },
+    { name: 'Attributes', href: '/dashboard/phones/attributes' },
+    { name: 'Filters', href: '/dashboard/phones/filters' },
+    { name: 'Rating Bars', href: '/dashboard/phones/rating-bars' },
   ];
 
   return (

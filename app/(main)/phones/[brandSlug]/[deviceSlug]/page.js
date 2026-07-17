@@ -1,11 +1,10 @@
-'use client';
-import React, { useState, useMemo } from 'react';
+import React from 'react';
 import { notFound } from 'next/navigation';
-import RightSidebar from '@/components/sidebar/RightSidebar';
 import MOCK_PRODUCTS from '@/data/products.json';
 import MOCK_BLOGS from '@/data/blogs.json';
 import CompareDrawer from '@/components/CompareDrawer';
 import { getRatingBars } from '@/actions/rating-bars';
+import { getDeviceAttributes } from '@/actions/device-attributes';
 
 import DeviceBreadcrumb from './_components/DeviceBreadcrumb';
 import DeviceGallery from './_components/DeviceGallery';
@@ -13,25 +12,23 @@ import DeviceQuickInfo from './_components/DeviceQuickInfo';
 import DeviceTabs from './_components/DeviceTabs';
 import RelatedDevices from './_components/RelatedDevices';
 import AdBanner from '@/components/ads/AdBanner';
+import DevicePageSidebar from './_components/DevicePageSidebar';
 
-export default function DeviceDetailsPage({ params }) {
-  const resolvedParams = React.use(params);
+export default async function DeviceDetailsPage({ params }) {
+  const resolvedParams = await params;
   const { brandSlug, deviceSlug } = resolvedParams;
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedBrand, setSelectedBrand] = useState("All");
+  const device = MOCK_PRODUCTS.find(p => p.id === deviceSlug);
 
-  const device = useMemo(() => {
-    return MOCK_PRODUCTS.find(p => p.id === deviceSlug);
-  }, [deviceSlug]);
+  const [ratingBars, attrs] = await Promise.all([
+    getRatingBars(),
+    getDeviceAttributes()
+  ]);
 
-  const [ratingBars, setRatingBars] = useState([]);
-  React.useEffect(() => {
-    getRatingBars().then(setRatingBars);
-  }, []);
+  const quickSpecs = attrs.filter(a => a.groupIds?.includes('Quick Specifications') || a.groupId === 'Quick Specifications');
 
-  const newArrivals = useMemo(() => MOCK_PRODUCTS.filter(p => p.isNew), []);
-  const topRated = useMemo(() => MOCK_PRODUCTS.filter(p => p.isTopRated), []);
+  const newArrivals = MOCK_PRODUCTS.filter(p => p.isNew);
+  const topRated = MOCK_PRODUCTS.filter(p => p.isTopRated);
 
   if (!device || device.status !== 'published') {
     return notFound();
@@ -50,7 +47,7 @@ export default function DeviceDetailsPage({ params }) {
           <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm mb-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
               <DeviceGallery device={device} />
-              <DeviceQuickInfo device={device} />
+              <DeviceQuickInfo device={device} quickSpecs={quickSpecs} />
             </div>
           </div>
 
@@ -64,17 +61,9 @@ export default function DeviceDetailsPage({ params }) {
         </div>
 
         {/* Right Sidebar */}
-        <RightSidebar
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          selectedBrand={selectedBrand}
-          setSelectedBrand={setSelectedBrand}
-          selectedCategory="All"
-          setSelectedCategory={() => {}}
+        <DevicePageSidebar 
           newArrivals={newArrivals}
           topRated={topRated}
-          categories={[]} 
-          brands={[]}
         />
 
       </div>

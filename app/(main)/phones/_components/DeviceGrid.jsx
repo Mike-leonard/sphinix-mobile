@@ -1,12 +1,12 @@
 import React from 'react';
 import InFeedAd from '@/components/ads/InFeedAd';
 import ProductCard from '@/app/(main)/_components/_cards/ProductCard';
-import DeviceListCard from '@/app/(main)/devices/_components/DeviceListCard';
+import DeviceListCard from '@/app/(main)/phones/_components/DeviceListCard';
 import { useSettings } from '@/context/SettingsContext';
 
 export default function DeviceGrid({ currentProducts, viewMode, compareList, handleToggleCompare }) {
   const settings = useSettings();
-  const freq = settings?.advertisements?.injectionFrequency?.devicesPageGrid || 6;
+  const freq = settings?.advertisements?.injectionFrequency?.phonesPageGrid || 6;
   if (currentProducts.length === 0) {
     return (
       <div className="py-20 text-center text-slate-500 dark:text-slate-400">

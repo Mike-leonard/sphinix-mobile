@@ -13,7 +13,7 @@ export default function EmptyState() {
         You haven't added any devices to compare yet. Browse our selection and click "Compare" to see them side-by-side.
       </p>
       <Link 
-        href="/devices" style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 px-6 rounded-md transition-colors shadow-lg"
+        href="/phones" style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 px-6 rounded-md transition-colors shadow-lg"
       >
         Browse Devices
       </Link>

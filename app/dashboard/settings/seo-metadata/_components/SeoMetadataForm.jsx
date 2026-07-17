@@ -18,7 +18,7 @@ export default function SeoMetadataForm({ initialSettings }) {
 
   const tabs = [
     { id: 'home', label: 'Home' },
-    { id: 'devices', label: 'Devices' },
+    { id: 'phones', label: 'Phones' },
     { id: 'blogs', label: 'Blogs' },
     { id: 'comparisons', label: 'Comparisons' },
     { id: 'advanced', label: 'Advanced SEO' },

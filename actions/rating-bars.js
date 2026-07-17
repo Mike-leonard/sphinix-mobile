@@ -61,7 +61,7 @@ export async function createRatingBar(data) {
     bars.push(newBar);
     await fs.writeFile(RATING_BARS_FILE, JSON.stringify(bars, null, 2));
     
-    revalidatePath('/dashboard/devices/rating-bars');
+    revalidatePath('/dashboard/phones/rating-bars');
     return { success: true, data: newBar };
   } catch (error) {
     console.error('Error creating rating bar:', error);
@@ -94,7 +94,7 @@ export async function updateRatingBar(id, data) {
 
     await fs.writeFile(RATING_BARS_FILE, JSON.stringify(bars, null, 2));
     
-    revalidatePath('/dashboard/devices/rating-bars');
+    revalidatePath('/dashboard/phones/rating-bars');
     return { success: true, data: bars[index] };
   } catch (error) {
     console.error('Error updating rating bar:', error);
@@ -112,7 +112,7 @@ export async function deleteRatingBar(id) {
 
     await fs.writeFile(RATING_BARS_FILE, JSON.stringify(newBars, null, 2));
     
-    revalidatePath('/dashboard/devices/rating-bars');
+    revalidatePath('/dashboard/phones/rating-bars');
     return { success: true };
   } catch (error) {
     console.error('Error deleting rating bar:', error);
@@ -138,7 +138,7 @@ export async function reorderRatingBars(orderedIds) {
 
     await fs.writeFile(RATING_BARS_FILE, JSON.stringify(bars, null, 2));
     
-    revalidatePath('/dashboard/devices/rating-bars');
+    revalidatePath('/dashboard/phones/rating-bars');
     return { success: true };
   } catch (error) {
     console.error('Error reordering rating bars:', error);

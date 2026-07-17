@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 
 test.describe('Compare Flow', () => {
   test('should allow selecting multiple devices and opening the compare drawer', async ({ page }) => {
-    await page.goto('/devices');
+    await page.goto('/phones');
 
     // Find all the compare checkboxes
     const checkboxes = page.locator('input[type="checkbox"]');
@@ -37,7 +37,7 @@ test.describe('Compare Flow', () => {
   });
 
   test('should clear compare list using the X button on the floating widget', async ({ page }) => {
-    await page.goto('/devices');
+    await page.goto('/phones');
 
     const checkboxes = page.locator('input[type="checkbox"]');
     await checkboxes.nth(0).click();

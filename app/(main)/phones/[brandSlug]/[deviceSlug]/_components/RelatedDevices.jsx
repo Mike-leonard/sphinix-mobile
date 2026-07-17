@@ -1,3 +1,4 @@
+'use client';
 import React, { useMemo } from 'react';
 import ProductCard from '@/app/(main)/_components/_cards/ProductCard';
 import MOCK_PRODUCTS from '@/data/products.json';

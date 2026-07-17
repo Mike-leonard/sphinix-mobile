@@ -53,7 +53,7 @@ export async function createDeviceAttribute(name, groupIds = ['General'], custom
     
     await fs.writeFile(getAttributesFilePath(), JSON.stringify(attributes, null, 2));
     
-    revalidatePath('/dashboard/devices/attributes');
+    revalidatePath('/dashboard/phones/attributes');
     
     return { success: true, message: 'Attribute created successfully', attribute: newAttribute };
   } catch (error) {
@@ -92,8 +92,8 @@ export async function updateDeviceAttribute(id, newName, newGroupIds, customSlug
     }
     
     await fs.writeFile(getAttributesFilePath(), JSON.stringify(attributes, null, 2));
-    revalidatePath('/dashboard/devices/attributes');
-    revalidatePath('/dashboard/devices/groups');
+    revalidatePath('/dashboard/phones/attributes');
+    revalidatePath('/dashboard/phones/groups');
     
     return { success: true, message: 'Attribute updated successfully' };
   } catch (error) {
@@ -112,7 +112,7 @@ export async function deleteDeviceAttribute(id) {
     
     await fs.writeFile(getAttributesFilePath(), JSON.stringify(filteredAttributes, null, 2));
     
-    revalidatePath('/dashboard/devices/attributes');
+    revalidatePath('/dashboard/phones/attributes');
     
     return { success: true, message: 'Attribute deleted successfully' };
   } catch (error) {
@@ -150,7 +150,7 @@ export async function addAttributeTerm(attributeId, term) {
     attributes[index].terms.push(trimmedTerm);
     
     await fs.writeFile(getAttributesFilePath(), JSON.stringify(attributes, null, 2));
-    revalidatePath('/dashboard/devices/attributes');
+    revalidatePath('/dashboard/phones/attributes');
     
     return { success: true, message: 'Term added successfully' };
   } catch (error) {
@@ -178,7 +178,7 @@ export async function deleteAttributeTerm(attributeId, term) {
     attributes[index].terms = attributes[index].terms.filter(t => t !== term);
     
     await fs.writeFile(getAttributesFilePath(), JSON.stringify(attributes, null, 2));
-    revalidatePath('/dashboard/devices/attributes');
+    revalidatePath('/dashboard/phones/attributes');
     
     return { success: true, message: 'Term deleted successfully' };
   } catch (error) {
@@ -218,7 +218,7 @@ export async function reassignAttributeGroup(oldGroup, newGroup) {
     
     if (updated) {
       await fs.writeFile(getAttributesFilePath(), JSON.stringify(attributes, null, 2));
-      revalidatePath('/dashboard/devices/attributes');
+      revalidatePath('/dashboard/phones/attributes');
     }
     
     return { success: true };
@@ -260,7 +260,7 @@ export async function reorderDeviceAttributes(orderedIds) {
     
     await fs.writeFile(getAttributesFilePath(), JSON.stringify(newOrderedAttributes, null, 2));
     
-    revalidatePath('/dashboard/devices/attributes');
+    revalidatePath('/dashboard/phones/attributes');
     return { success: true };
   } catch (error) {
     console.error('Error reordering device attributes:', error);

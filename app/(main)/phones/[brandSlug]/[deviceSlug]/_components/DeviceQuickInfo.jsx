@@ -8,15 +8,8 @@ import DeviceQuickInfoHeader from './quick-info/DeviceQuickInfoHeader';
 import AffiliateLinks from './quick-info/AffiliateLinks';
 import DeviceSpecBlock from './quick-info/DeviceSpecBlock';
 
-export default function DeviceQuickInfo({ device }) {
+export default function DeviceQuickInfo({ device, quickSpecs = [] }) {
   const { compareList, handleToggleCompare } = useCompare();
-  const [quickSpecs, setQuickSpecs] = useState([]);
-  useEffect(() => {
-    getDeviceAttributes().then(attrs => {
-      const filtered = attrs.filter(a => a.groupIds?.includes('Quick Specifications') || a.groupId === 'Quick Specifications');
-      setQuickSpecs(filtered);
-    });
-  }, []);
 
   const isComparing = compareList.some(item => item.id === device.id);
 

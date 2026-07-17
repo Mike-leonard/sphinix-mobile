@@ -43,11 +43,11 @@ export async function createDeviceBrand(newBrand) {
     
     await fs.writeFile(getBrandsFilePath(), JSON.stringify(brands, null, 2));
     
-    revalidatePath('/dashboard/devices');
-    revalidatePath('/dashboard/devices/brands');
-    revalidatePath('/dashboard/devices/new');
-    revalidatePath('/dashboard/devices/[id]/edit');
-    revalidatePath('/devices');
+    revalidatePath('/dashboard/phones');
+    revalidatePath('/dashboard/phones/brands');
+    revalidatePath('/dashboard/phones/new');
+    revalidatePath('/dashboard/phones/[id]/edit');
+    revalidatePath('/phones');
     
     return { success: true, message: 'Brand created successfully' };
   } catch (error) {
@@ -88,11 +88,11 @@ export async function updateDeviceBrand(oldBrand, newBrand) {
     const { reassignDeviceBrand } = await import('./devices.js');
     await reassignDeviceBrand(oldBrand, trimmedBrand);
     
-    revalidatePath('/dashboard/devices');
-    revalidatePath('/dashboard/devices/brands');
-    revalidatePath('/dashboard/devices/new');
-    revalidatePath('/dashboard/devices/[id]/edit');
-    revalidatePath('/devices');
+    revalidatePath('/dashboard/phones');
+    revalidatePath('/dashboard/phones/brands');
+    revalidatePath('/dashboard/phones/new');
+    revalidatePath('/dashboard/phones/[id]/edit');
+    revalidatePath('/phones');
     
     return { success: true, message: 'Brand updated successfully' };
   } catch (error) {
@@ -119,11 +119,11 @@ export async function deleteDeviceBrand(brandToDelete) {
     const { reassignDeviceBrand } = await import('./devices.js');
     await reassignDeviceBrand(brandToDelete, 'Other');
 
-    revalidatePath('/dashboard/devices');
-    revalidatePath('/dashboard/devices/brands');
-    revalidatePath('/dashboard/devices/new');
-    revalidatePath('/dashboard/devices/[id]/edit');
-    revalidatePath('/devices');
+    revalidatePath('/dashboard/phones');
+    revalidatePath('/dashboard/phones/brands');
+    revalidatePath('/dashboard/phones/new');
+    revalidatePath('/dashboard/phones/[id]/edit');
+    revalidatePath('/phones');
     
     return { success: true, message: 'Brand deleted successfully' };
   } catch (error) {

@@ -72,7 +72,7 @@ export default function DevicesTable({
                   <td className="px-6 py-4">
                     <div className="flex flex-col">
                       <Link 
-                        href={`/dashboard/devices/${device.id}/edit`} 
+                        href={`/dashboard/phones/${device.id}/edit`} 
                         className={`font-medium transition-colors ${
                           device.status === 'draft'
                             ? 'text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300'
@@ -115,7 +115,7 @@ export default function DevicesTable({
                         <>
                           {device.status === 'published' && (
                             <Link 
-                              href={`/devices/${generateBrandSlug(device.brand || 'unknown')}/${device.id}`}
+                              href={`/phones/${generateBrandSlug(device.brand || 'unknown')}/${device.id}`}
                               target="_blank"
                               className="p-2 text-slate-400 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-colors"
                               title="View Public Page"
@@ -125,7 +125,7 @@ export default function DevicesTable({
                           )}
                           
                           <Link 
-                            href={`/dashboard/devices/${device.id}/edit`}
+                            href={`/dashboard/phones/${device.id}/edit`}
                             className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                             title="Edit Device"
                           >

@@ -1,8 +1,8 @@
 'use client';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { LayoutGrid, List } from 'lucide-react';
 import ProductCard from '@/app/(main)/_components/_cards/ProductCard';
-import DeviceListCard from '@/app/(main)/devices/_components/DeviceListCard';
+import DeviceListCard from '@/app/(main)/phones/_components/DeviceListCard';
 import AdvancedFilters from '@/components/AdvancedFilters';
 import Pagination from '@/components/Pagination';
 import RightSidebar from '@/components/sidebar/RightSidebar';
@@ -13,16 +13,9 @@ import { useCompare } from '@/context/CompareContext';
 import MobileFiltersSheet from './_components/MobileFiltersSheet';
 import DeviceGrid from './_components/DeviceGrid';
 import { useSettings } from '@/context/SettingsContext';
+import { getDeviceFilters } from '@/actions/device-filters';
 
 const BRANDS = ["All", "Apple", "Samsung", "OnePlus", "Google", "LG", "Nokia", "HTC", "Sony", "Motorola", "Huawei", "Oppo"];
-const CATEGORIES = [
-  { name: "Devices", count: 95 },
-  { name: "Laptops", count: 4 },
-  { name: "Digital Cameras", count: 2 },
-  { name: "Cameras", count: 0 },
-  { name: "DSLR Cameras", count: 0 },
-  { name: "Gadgets", count: 0 }
-];
 
 export default function DevicesPage() {
   const settings = useSettings();
@@ -31,7 +24,6 @@ export default function DevicesPage() {
   // Global Sidebar States
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("All");
-  const [selectedCategory, setSelectedCategory] = useState("Devices");
 
   // Page Specific States
   const [viewMode, setViewMode] = useState("grid"); // 'grid' | 'list'
@@ -39,6 +31,15 @@ export default function DevicesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [advancedFilters, setAdvancedFilters] = useState({});
   const [sortOption, setSortOption] = useState("Date (default)");
+  const [filtersData, setFiltersData] = useState([]);
+
+  useEffect(() => {
+    async function fetchFilters() {
+      const data = await getDeviceFilters();
+      setFiltersData(data);
+    }
+    fetchFilters();
+  }, []);
 
   // Compare State
   const { compareList, isCompareOpen, setIsCompareOpen, handleToggleCompare, clearCompare } = useCompare();
@@ -46,6 +47,23 @@ export default function DevicesPage() {
   // Derived Sidebar Data
   const newArrivals = useMemo(() => MOCK_PRODUCTS.filter(p => p.isNew && p.status === 'published'), []);
   const topRated = useMemo(() => MOCK_PRODUCTS.filter(p => p.isTopRated && p.status === 'published'), []);
+
+  // Compute dynamic brands with counts
+  const dynamicBrands = useMemo(() => {
+    const published = MOCK_PRODUCTS.filter(p => p.status === 'published');
+    const counts = { "All": published.length };
+    
+    published.forEach(p => {
+      if (p.brand) {
+        counts[p.brand] = (counts[p.brand] || 0) + 1;
+      }
+    });
+
+    return BRANDS.map(name => ({
+      name,
+      count: counts[name] || 0
+    })).filter(brand => brand.count > 0 || brand.name === "All");
+  }, []);
 
   // Filter Products
   const filteredProducts = useMemo(() => {
@@ -55,21 +73,70 @@ export default function DevicesPage() {
         product.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.specs.chipset.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesBrand = selectedBrand === "All" || product.brand === selectedBrand;
-      const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
 
-      // Advanced Filters logic (Simulated for UI demonstration)
       let matchesAdvanced = true;
       if (Object.keys(advancedFilters).length > 0) {
-        // Example checking RAM (Since our mock data isn't perfectly mapped to all granular filters, 
-        // this is simplified to ensure the UI works without filtering out everything initially)
-        if (advancedFilters['RAM'] && advancedFilters['RAM'].length > 0) {
-          matchesAdvanced = advancedFilters['RAM'].some(ram => product.specs.ram.includes(ram.split(' ')[0]));
+        // Evaluate dynamic filters
+        for (const filterId of Object.keys(advancedFilters)) {
+          const selectedOptions = advancedFilters[filterId];
+          if (!selectedOptions || selectedOptions.length === 0) continue;
+          
+          const filterDef = filtersData.find(f => f.id === filterId);
+          if (!filterDef || !filterDef.attributeSlug) continue;
+          
+          const productSpecVal = product.specs[filterDef.attributeSlug];
+          if (!productSpecVal) {
+            matchesAdvanced = false;
+            break;
+          }
+
+          // Helper to extract first number from a string (e.g. "5000 mAh" -> 5000)
+          const extractNum = (str) => {
+            const match = String(str).match(/[\d.]+/);
+            return match ? parseFloat(match[0]) : null;
+          };
+
+          const productNum = extractNum(productSpecVal);
+
+          // Advanced check
+          const hasMatch = selectedOptions.some(opt => {
+             const optStr = opt.toLowerCase();
+             const valStr = String(productSpecVal).toLowerCase();
+             
+             // 1. Direct Substring Check (normalizes spaces e.g. "12 GB" vs "12GB")
+             if (valStr.replace(/\s/g, '').includes(optStr.replace(/\s/g, ''))) return true;
+
+             // 2. Range Check (if we successfully extracted a number from the product's spec)
+             if (productNum !== null) {
+                if (optStr.includes('under') || optStr.includes('<')) {
+                  const limit = extractNum(optStr);
+                  if (limit && productNum < limit) return true;
+                }
+                if (optStr.includes('above') || optStr.includes('>')) {
+                  const limit = extractNum(optStr);
+                  if (limit && productNum > limit) return true;
+                }
+                if (optStr.includes('-')) {
+                  const parts = optStr.split('-');
+                  const min = extractNum(parts[0]);
+                  const max = extractNum(parts[1]);
+                  if (min !== null && max !== null && productNum >= min && productNum <= max) return true;
+                }
+             }
+             
+             return false;
+          });
+
+          if (!hasMatch) {
+            matchesAdvanced = false;
+            break;
+          }
         }
       }
 
-      return matchesStatus && matchesSearch && matchesBrand && matchesCategory && matchesAdvanced;
+      return matchesStatus && matchesSearch && matchesBrand && matchesAdvanced;
     });
-  }, [searchQuery, selectedBrand, selectedCategory, advancedFilters]);
+  }, [searchQuery, selectedBrand, advancedFilters, filtersData]);
 
   // Pagination
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
@@ -78,13 +145,13 @@ export default function DevicesPage() {
     currentPage * ITEMS_PER_PAGE
   );
 
-  const handleToggleAdvancedFilter = (category, option) => {
+  const handleToggleAdvancedFilter = (filterId, option) => {
     setAdvancedFilters(prev => {
-      const categoryFilters = prev[category] || [];
+      const categoryFilters = prev[filterId] || [];
       if (categoryFilters.includes(option)) {
-        return { ...prev, [category]: categoryFilters.filter(o => o !== option) };
+        return { ...prev, [filterId]: categoryFilters.filter(o => o !== option) };
       } else {
-        return { ...prev, [category]: [...categoryFilters, option] };
+        return { ...prev, [filterId]: [...categoryFilters, option] };
       }
     });
     setCurrentPage(1); // Reset to page 1 on filter
@@ -114,6 +181,7 @@ export default function DevicesPage() {
 
           {/* Mobile Advanced Filters Sheet */}
           <MobileFiltersSheet 
+            filters={filtersData}
             showFilters={showFilters} 
             setShowFilters={setShowFilters} 
             advancedFilters={advancedFilters} 
@@ -143,14 +211,12 @@ export default function DevicesPage() {
           setSearchQuery={setSearchQuery}
           selectedBrand={selectedBrand}
           setSelectedBrand={setSelectedBrand}
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
           newArrivals={newArrivals}
           topRated={topRated}
-          categories={CATEGORIES}
-          brands={BRANDS}
+          brands={dynamicBrands}
           advancedFiltersComponent={
             <AdvancedFilters
+              filters={filtersData}
               isOpen={true}
               selectedFilters={advancedFilters}
               onToggleFilter={handleToggleAdvancedFilter}

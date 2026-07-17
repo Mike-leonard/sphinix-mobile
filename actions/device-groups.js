@@ -40,9 +40,9 @@ export async function createDeviceGroup(newGroup) {
     
     await fs.writeFile(getGroupsFilePath(), JSON.stringify(groups, null, 2));
     
-    revalidatePath('/dashboard/devices');
-    revalidatePath('/dashboard/devices/groups');
-    revalidatePath('/dashboard/devices/attributes');
+    revalidatePath('/dashboard/phones');
+    revalidatePath('/dashboard/phones/groups');
+    revalidatePath('/dashboard/phones/attributes');
     
     return { success: true, message: 'Group created successfully' };
   } catch (error) {
@@ -85,9 +85,9 @@ export async function updateDeviceGroup(oldGroup, newGroup) {
     const { reassignAttributeGroup } = await import('./device-attributes.js');
     await reassignAttributeGroup(oldGroup, trimmedGroup);
     
-    revalidatePath('/dashboard/devices');
-    revalidatePath('/dashboard/devices/groups');
-    revalidatePath('/dashboard/devices/attributes');
+    revalidatePath('/dashboard/phones');
+    revalidatePath('/dashboard/phones/groups');
+    revalidatePath('/dashboard/phones/attributes');
     
     return { success: true, message: 'Group updated successfully' };
   } catch (error) {
@@ -114,9 +114,9 @@ export async function deleteDeviceGroup(groupToDelete) {
     const { reassignAttributeGroup } = await import('./device-attributes.js');
     await reassignAttributeGroup(groupToDelete, 'General');
 
-    revalidatePath('/dashboard/devices');
-    revalidatePath('/dashboard/devices/groups');
-    revalidatePath('/dashboard/devices/attributes');
+    revalidatePath('/dashboard/phones');
+    revalidatePath('/dashboard/phones/groups');
+    revalidatePath('/dashboard/phones/attributes');
     
     return { success: true, message: 'Group deleted successfully' };
   } catch (error) {
@@ -146,9 +146,9 @@ export async function reorderDeviceGroups(newGroupsOrder) {
 
     await fs.writeFile(getGroupsFilePath(), JSON.stringify(newGroupsOrder, null, 2));
     
-    revalidatePath('/dashboard/devices');
-    revalidatePath('/dashboard/devices/groups');
-    revalidatePath('/dashboard/devices/attributes');
+    revalidatePath('/dashboard/phones');
+    revalidatePath('/dashboard/phones/groups');
+    revalidatePath('/dashboard/phones/attributes');
     
     return { success: true, message: 'Groups reordered successfully' };
   } catch (error) {

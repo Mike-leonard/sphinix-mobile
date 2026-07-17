@@ -17,7 +17,7 @@ export default async function sitemap() {
       priority: 1,
     },
     {
-      url: `${baseUrl}/devices`,
+      url: `${baseUrl}/phones`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.8,

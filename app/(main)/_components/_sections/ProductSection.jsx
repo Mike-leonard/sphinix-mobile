@@ -10,16 +10,14 @@ export default function ProductSection({
   filteredProducts,
   selectedBrand,
   setSearchQuery,
-  selectedCategory,
-  setSelectedCategory,
   compareList,
   handleToggleCompare,
   isHomePage = false
 }) {
   const settings = useSettings();
   const freq = isHomePage 
-    ? (settings?.advertisements?.injectionFrequency?.homePageDevices || 6)
-    : (settings?.advertisements?.injectionFrequency?.devicesPageGrid || 6);
+    ? (settings?.advertisements?.injectionFrequency?.homePagePhones || 6)
+    : (settings?.advertisements?.injectionFrequency?.phonesPageGrid || 6);
 
   return (
     <section className="space-y-6">
@@ -72,7 +70,7 @@ export default function ProductSection({
       {/* View More button */}
       <div className="text-center pt-2">
         <Link
-          href="/devices" style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 font-bold hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-colors border border-brand-200 dark:border-brand-500/30"
+          href="/phones" style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 font-bold hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-colors border border-brand-200 dark:border-brand-500/30"
         >
           View More Devices
           <ChevronDown className="w-4 h-4" />
