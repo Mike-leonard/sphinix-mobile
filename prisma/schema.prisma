@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password      String
+  name          String
+  role          String
+  emailVerified Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  modifiedAt    DateTime @updatedAt
+}
+
+model Device {
+  id         String   @id
+  name       String
+  brand      String
+  category   String
+  price      String
+  rating     Float    @default(0)
+  imageColor String
+  isNew      Boolean  @default(false)
+  isTopRated Boolean  @default(false)
+  status     String
+  specs      Json
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Blog {
+  id        Int      @id @default(autoincrement())
+  title     String
+  excerpt   String?
+  date      String
+  readTime  String?
+  author    String
+  category  String
+  color     String?
+  image     String?
+  content   String
+  status    String   @default("published")
+  seo       Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

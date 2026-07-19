@@ -15,6 +15,10 @@
     "@google-analytics/data": "^6.1.0",
     "@google/genai": "^2.11.0",
     "@next/third-parties": "^16.2.10",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "@supabase/ssr": "^0.12.3",
+    "@supabase/supabase-js": "^2.110.7",
     "@teispace/next-themes": "^2.0.4",
     "@tiptap/extension-heading": "^3.27.3",
     "@tiptap/extension-image": "^3.27.3",
@@ -29,6 +33,7 @@
     "isomorphic-dompurify": "^3.18.0",
     "lucide-react": "^1.22.0",
     "next": "16.2.9",
+    "pg": "^8.22.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "recharts": "^3.9.2",
@@ -46,6 +51,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "jsdom": "^29.1.1",
+    "prisma": "^7.8.0",
     "tailwindcss": "^4",
     "vitest": "^4.1.9"
   }
