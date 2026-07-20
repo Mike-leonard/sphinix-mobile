@@ -1,39 +1,41 @@
 'use server';
 
-import { promises as fs } from 'fs';
-import path from 'path';
+import { PrismaClient } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { verifySession } from './auth';
 
-const dataFilePath = path.join(process.cwd(), 'data', 'users.json');
+import { Pool } from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
 
-async function readUsers() {
-  try {
-    const data = await fs.readFile(dataFilePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading users file:', error);
-    return [];
+let prisma;
+if (process.env.NODE_ENV === 'production') {
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const adapter = new PrismaPg(pool);
+  prisma = new PrismaClient({ adapter });
+} else {
+  if (!globalThis.prisma) {
+    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    const adapter = new PrismaPg(pool);
+    globalThis.prisma = new PrismaClient({ adapter });
   }
-}
-
-async function writeUsers(users) {
-  try {
-    await fs.writeFile(dataFilePath, JSON.stringify(users, null, 2), 'utf8');
-  } catch (error) {
-    console.error('Error writing users file:', error);
-    throw new Error('Failed to save user data');
-  }
+  prisma = globalThis.prisma;
 }
 
 export async function getUsers(currentUserId = null) {
-  const users = await readUsers();
-  
-  // Return all users except the current user
-  if (currentUserId) {
-    return users.filter(u => u.id !== currentUserId);
+  try {
+    const users = await prisma.user.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    
+    // Return all users except the current user
+    if (currentUserId) {
+      return users.filter(u => u.id !== currentUserId);
+    }
+    return users;
+  } catch (error) {
+    console.error('Error fetching users from database:', error);
+    return [];
   }
-  return users;
 }
 
 export async function deleteUser(userId) {
@@ -42,16 +44,17 @@ export async function deleteUser(userId) {
     return { success: false, message: 'Unauthorized. Admin access required.' };
   }
 
-  const users = await readUsers();
-  const updatedUsers = users.filter(u => u.id !== userId);
-  
-  if (users.length === updatedUsers.length) {
-    return { success: false, message: 'User not found' };
+  try {
+    await prisma.user.delete({
+      where: { id: userId }
+    });
+    
+    revalidatePath('/dashboard/users');
+    return { success: true, message: 'User deleted successfully' };
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    return { success: false, message: 'Failed to delete user' };
   }
-  
-  await writeUsers(updatedUsers);
-  revalidatePath('/dashboard/users');
-  return { success: true, message: 'User deleted successfully' };
 }
 
 export async function updateUserRole(userId, newRole) {
@@ -60,41 +63,42 @@ export async function updateUserRole(userId, newRole) {
     return { success: false, message: 'Unauthorized. Admin access required.' };
   }
 
-  const users = await readUsers();
-  let found = false;
-  
-  const updatedUsers = users.map(user => {
-    if (user.id === userId) {
-      found = true;
-      return {
-        ...user,
-        role: newRole,
-        modifiedAt: new Date().toISOString()
-      };
-    }
-    return user;
-  });
-  
-  if (!found) {
-    return { success: false, message: 'User not found' };
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { role: newRole }
+    });
+    
+    revalidatePath('/dashboard/users');
+    return { success: true, message: 'User role updated successfully' };
+  } catch (error) {
+    console.error('Error updating user role:', error);
+    return { success: false, message: 'Failed to update user role' };
   }
-  
-  await writeUsers(updatedUsers);
-  revalidatePath('/dashboard/users');
-  return { success: true, message: 'User role updated successfully' };
 }
 
 export async function sendForgetPassword(userId) {
-  // In a real app, you would generate a token and send an email here.
-  // We simulate a short delay to mimic an API call.
-  await new Promise(resolve => setTimeout(resolve, 800));
-  
-  const users = await readUsers();
-  const user = users.find(u => u.id === userId);
-  
-  if (!user) {
-    return { success: false, message: 'User not found' };
+  const session = await verifySession();
+  if (!session || session.role !== 'Admin') {
+    return { success: false, message: 'Unauthorized. Admin access required.' };
   }
-  
-  return { success: true, message: `Password reset link sent to ${user.email}` };
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!user) {
+      return { success: false, message: 'User not found' };
+    }
+
+    // Since Supabase Auth handles password resets, as an admin, 
+    // we would use the supabase-admin client to generate a link,
+    // but here we can just return success as a placeholder for the mock.
+    
+    return { success: true, message: `Password reset instructions sent to ${user.email}` };
+  } catch (error) {
+    console.error('Error sending forget password:', error);
+    return { success: false, message: 'Failed to send password reset' };
+  }
 }

@@ -49,15 +49,19 @@ export default function AuthModal({ children }) {
         ref={wrapper}
         className="fixed inset-0 flex items-center justify-center p-4 sm:p-6"
       >
+        <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-secondary, var(--font-size-button-default))"}} 
+          onClick={onDismiss}
+          className="fixed top-4 right-4 sm:top-6 sm:right-6 z-[60] flex h-10 w-10 items-center justify-center rounded-full bg-slate-200/50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 hover:bg-slate-300/50 dark:hover:bg-slate-700/50 backdrop-blur-md transition-colors"
+        >
+          <X className="h-5 w-5" />
+          <span className="sr-only">Close</span>
+        </Button>
+
         <div className="relative w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
-          <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-secondary, var(--font-size-button-default))"}} 
-            onClick={onDismiss}
-            className="absolute -top-3 -right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 shadow-sm border border-slate-200 dark:border-slate-700 transition-colors"
-          >
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </Button>
-          {children}
+          <div className="relative w-full max-w-md animate-in fade-in zoom-in-95 duration-300">
+            {/* The modal card content is injected here */}
+            {children}
+          </div>
         </div>
       </div>
     </div>

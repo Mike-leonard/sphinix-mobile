@@ -6,7 +6,8 @@ import { verifySession } from '@/actions/auth';
 export default async function DashboardLayout({ children }) {
   const user = await verifySession();
 
-  if (!user || user.role !== 'Admin') {
+  const allowedRoles = ['Admin', 'Moderator', 'ContentWriter'];
+  if (!user || !allowedRoles.includes(user.role)) {
     redirect('/login');
   }
 
