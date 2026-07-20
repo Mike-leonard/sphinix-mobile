@@ -10,7 +10,10 @@ import { Button } from "@/components/ui/button";
 export default function UserProfileDropdown({ 
   user, 
   dropdownClasses = "right-0 mt-2 slide-in-from-top-2", 
-  buttonClasses = "flex items-center gap-2 h-10 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors",
+
+  buttonClasses = "cursor-pointer flex items-center gap-2 h-10 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors",
+
+  linkClasses = "flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800",
   showUserDetails = true
 }) {
   const router = useRouter();
@@ -65,7 +68,7 @@ export default function UserProfileDropdown({
           <Link
             href="/profile"
             onClick={() => setIsOpen(false)}
-            className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+            className={linkClasses}
           >
             <User className="w-4 h-4" />
             Profile
@@ -75,7 +78,7 @@ export default function UserProfileDropdown({
             <Link
               href="/dashboard"
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+              className={linkClasses}
             >
               <LayoutDashboard className="w-4 h-4" />
               Dashboard
@@ -84,7 +87,7 @@ export default function UserProfileDropdown({
             <Link
               href="/activities"
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+              className={linkClasses}
             >
               <Activity className="w-4 h-4" />
               Activities
@@ -94,7 +97,7 @@ export default function UserProfileDropdown({
           <div className="h-px bg-slate-200 dark:bg-slate-800 my-1"></div>
           <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-default, var(--font-size-button-default))"}} 
             onClick={handleLogout}
-            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+            className="cursor-pointer w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
           >
             <LogOut className="w-4 h-4" />
             Logout

@@ -1,4 +1,4 @@
-import AuthModal from '@/components/AuthModal';
+import AuthModal from '@/components/auth/AuthModal';
 
 export default function AuthModalLayout({ children }) {
   return (

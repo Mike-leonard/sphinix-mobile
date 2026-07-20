@@ -1,88 +1,166 @@
 'use server';
 
-import { cookies } from 'next/headers';
-import crypto from 'crypto';
-import users from '../data/users.json';
+import { createClient } from '@/lib/supabase/server';
+import { PrismaClient } from '@prisma/client';
 
-const SECRET = process.env.SESSION_SECRET || 'fallback_secret_do_not_use_in_prod';
+import { Pool } from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
+
+let prisma;
+if (process.env.NODE_ENV === 'production') {
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const adapter = new PrismaPg(pool);
+  prisma = new PrismaClient({ adapter });
+} else {
+  if (!globalThis.prisma) {
+    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    const adapter = new PrismaPg(pool);
+    globalThis.prisma = new PrismaClient({ adapter });
+  }
+  prisma = globalThis.prisma;
+}
 
 export async function verifySession() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('session');
-  
-  if (!sessionCookie || !sessionCookie.value) {
-    return null;
-  }
-  
   try {
-    const sessionData = JSON.parse(sessionCookie.value);
-    const { signature, ...payload } = sessionData;
+    const supabase = await createClient();
+    const { data: { user }, error } = await supabase.auth.getUser();
     
-    // Verify signature
-    const expectedSignature = crypto
-      .createHmac('sha256', SECRET)
-      .update(JSON.stringify(payload))
-      .digest('hex');
-      
-    if (signature !== expectedSignature) {
-      console.warn("Session signature mismatch! Possible cookie tampering.");
+    if (error) {
+      return null;
+    }
+    if (!user) {
       return null;
     }
     
-    return payload;
+    console.log(`[AUTH DEBUG] verifySession: Supabase user found (${user.email}). Fetching Prisma user...`);
+    
+    // Fetch the extended user profile from our Prisma database
+    let dbUser = await prisma.user.findUnique({
+      where: { id: user.id }
+    });
+    
+    if (!dbUser) {
+      // Auto-sync Supabase user to Prisma if they don't exist yet (handles email & OAuth signups)
+      dbUser = await prisma.user.create({
+        data: {
+          id: user.id,
+          email: user.email,
+          name: user.user_metadata?.full_name || 'User',
+          role: 'Normal',
+          password: 'SUPABASE_MANAGED', // Password is managed by Supabase Auth
+          emailVerified: !!user.email_confirmed_at,
+        }
+      });
+    } else {
+      // Auto-sync email verification status if it changed (e.g. verified on different browser)
+      if (!dbUser.emailVerified && user.email_confirmed_at) {
+        dbUser = await prisma.user.update({
+          where: { id: user.id },
+          data: { emailVerified: true }
+        });
+      }
+    }
+    
+    return {
+      id: dbUser.id,
+      email: dbUser.email,
+      name: dbUser.name,
+      role: dbUser.role,
+    };
   } catch (error) {
-    console.error("Session parse error:", error);
+    console.error("Session verification error:", error);
     return null;
   }
 }
 
-export async function loginAction(email, password) {
+export async function loginAction(email, password, turnstileToken) {
   try {
-    // Find user in the mock JSON file
-    const user = users.find((u) => u.email === email && u.password === password);
-
-    if (!user) {
-      return { success: false, message: 'Invalid email or password' };
+    if (!turnstileToken) {
+      return { success: false, message: 'Please complete the captcha verification' };
     }
 
-    // For a real app, you would encrypt this object into a secure JWT or session token.
-    // Here we use a plain JSON string for simplicity of the mock, but mark it HttpOnly.
-    const payload = {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-    };
+    const supabase = await createClient();
     
-    // Sign the payload
-    const signature = crypto
-      .createHmac('sha256', SECRET)
-      .update(JSON.stringify(payload))
-      .digest('hex');
-
-    const sessionData = {
-      ...payload,
-      signature
-    };
-
-    const cookieStore = await cookies();
-    cookieStore.set('session', JSON.stringify(sessionData), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 60 * 60 * 24 * 7, // 1 week
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+      options: {
+        captchaToken: turnstileToken,
+      }
     });
 
-    return { success: true, role: user.role };
+    if (error) {
+      return { success: false, message: error.message };
+    }
+
+    // Verify session to get the role
+    const sessionUser = await verifySession();
+    
+    const role = sessionUser?.role || 'Normal';
+
+    return { success: true, role };
   } catch (error) {
     console.error('Login error:', error);
     return { success: false, message: 'An error occurred during login' };
   }
 }
 
+export async function registerAction(email, password, name, turnstileToken) {
+  try {
+    if (!turnstileToken) {
+      return { success: false, message: 'Please complete the captcha verification' };
+    }
+
+    const supabase = await createClient();
+    
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: name,
+        },
+        captchaToken: turnstileToken,
+      }
+    });
+
+    if (error) {
+      return { success: false, message: error.message };
+    }
+
+    // Immediately create the user in Prisma so they exist before email verification
+    if (data?.user) {
+      try {
+        await prisma.user.create({
+          data: {
+            id: data.user.id,
+            email: email,
+            name: name,
+            role: 'Normal',
+            password: 'SUPABASE_MANAGED',
+            emailVerified: false,
+          }
+        });
+      } catch (prismaError) {
+        console.error('Error syncing new user to Prisma:', prismaError);
+        // We don't fail the registration if Prisma sync fails, as verifySession will try again later
+      }
+    }
+
+    // If confirmation is required, Supabase returns user but no session
+    if (data?.user && !data?.session) {
+      return { success: true, message: 'Registration successful! Please check your email to verify your account.', requireVerification: true };
+    }
+
+    return { success: true, message: 'Registration successful!' };
+  } catch (error) {
+    console.error('Registration error:', error);
+    return { success: false, message: 'An error occurred during registration' };
+  }
+}
+
 export async function logoutAction() {
-  const cookieStore = await cookies();
-  cookieStore.delete('session');
+  const supabase = await createClient();
+  await supabase.auth.signOut();
   return { success: true };
 }
