@@ -78,9 +78,10 @@ export default function ForgotPasswordForm() {
             </div>
 
             <AuthSubmitButton 
-              loading={loading}
-              defaultText="Send Reset Link"
-              loadingText="Sending..."
+              loading={loading} 
+              defaultText="Send reset link" 
+              loadingText="Sending..." 
+              disabled={!turnstileToken}
             />
           </form>
         )}

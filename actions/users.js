@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { verifySession } from './auth';
-import { getAllUsers, deleteUserById, updateUserRoleById, getUserById } from '@/queries/users';
+import { getAllUsers, deleteUserById, updateUserRoleById, getUserById, updateUserNameById } from '@/queries/users';
 
 export async function getUsers(currentUserId = null) {
   try {
@@ -68,5 +68,21 @@ export async function sendForgetPassword(userId) {
   } catch (error) {
     console.error('Error sending forget password:', error);
     return { success: false, message: 'Failed to send password reset' };
+  }
+}
+
+export async function updateProfileName(newName) {
+  const session = await verifySession();
+  if (!session) {
+    return { success: false, message: 'Unauthorized.' };
+  }
+
+  try {
+    await updateUserNameById(session.id, newName);
+    revalidatePath('/profile');
+    return { success: true, message: 'Profile updated successfully' };
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    return { success: false, message: 'Failed to update profile' };
   }
 }

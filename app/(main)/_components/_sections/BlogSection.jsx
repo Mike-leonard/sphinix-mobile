@@ -2,13 +2,20 @@ import React from 'react';
 import Link from 'next/link';
 import BlogCard from '../_cards/BlogCard';
 import InFeedAd from '@/components/ads/InFeedAd';
-import MOCK_BLOGS from '@/data/blogs.json';
+import { getBlogs } from '@/actions/blogs';
 import { ArrowRight } from 'lucide-react';
 import { useSettings } from '@/context/SettingsContext';
 
 export default function BlogSection({ limit = 8 }) {
   const settings = useSettings();
   const freq = settings?.advertisements?.injectionFrequency?.homePageBlogs || 4;
+  
+  const [MOCK_BLOGS, setMockBlogs] = React.useState([]);
+  
+  React.useEffect(() => {
+    getBlogs().then(blogs => setMockBlogs(blogs || []));
+  }, []);
+
   const displayedBlogs = MOCK_BLOGS.filter(b => b.status === 'published').slice(0, limit);
 
   return (

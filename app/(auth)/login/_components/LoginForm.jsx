@@ -99,6 +99,7 @@ export default function LoginForm() {
             loading={loading} 
             defaultText="Sign In" 
             loadingText="Signing in..." 
+            disabled={!turnstileToken}
           />
         </form>
 

@@ -110,8 +110,9 @@ export default function RegisterForm() {
 
           <AuthSubmitButton 
             loading={loading} 
-            defaultText="Register" 
-            loadingText="Registering..." 
+            defaultText="Sign Up" 
+            loadingText="Signing up..." 
+            disabled={!turnstileToken}
           />
         </form>
 

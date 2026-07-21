@@ -1,7 +1,6 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
 import MOCK_PRODUCTS from '@/data/products.json';
-import MOCK_BLOGS from '@/data/blogs.json';
 import CompareDrawer from '@/components/CompareDrawer';
 import { getRatingBars } from '@/actions/rating-bars';
 import { getDeviceAttributes } from '@/actions/device-attributes';

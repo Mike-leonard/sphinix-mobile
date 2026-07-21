@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { SearchIcon, X, Smartphone, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import MOCK_PRODUCTS from '@/data/products.json';
-import MOCK_BLOGS from '@/data/blogs.json';
+import { getBlogs } from '@/actions/blogs';
 
 export function Search({ searchQuery, setSearchQuery }) {
   const router = useRouter();
@@ -24,6 +24,12 @@ export function Search({ searchQuery, setSearchQuery }) {
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const [MOCK_BLOGS, setMockBlogs] = useState([]);
+  
+  useEffect(() => {
+    getBlogs().then(blogs => setMockBlogs(blogs || []));
   }, []);
 
   const handleInputChange = (e) => {

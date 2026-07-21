@@ -54,8 +54,9 @@ export async function upsertUserEmailVerified(user) {
       emailVerified: true,
     }
   });
+}export async function updateUserNameById(id, name) {
+  return await prisma.user.update({
+    where: { id },
+    data: { name }
+  });
 }
-
-
-
-
