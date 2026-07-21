@@ -5,7 +5,7 @@ import NewArrivals from './NewArrivals';
 import TopRated from './TopRated';
 import BrandList from './BrandList';
 import AdBanner from '../ads/AdBanner';
-import MOCK_BLOGS from '@/data/blogs.json';
+import { getBlogs } from '@/actions/blogs';
 import TrendingBlogsSidebar from './TrendingBlogsSidebar';
 
 export default function RightSidebar({
@@ -22,6 +22,12 @@ export default function RightSidebar({
   advancedFiltersComponent,
 }) {
   const pathname = usePathname();
+
+  const [MOCK_BLOGS, setMockBlogs] = React.useState([]);
+  
+  React.useEffect(() => {
+    getBlogs().then(blogs => setMockBlogs(blogs || []));
+  }, []);
 
   // Define visibility rules based on routes
   const isDevicesRoute = pathname === '/phones';

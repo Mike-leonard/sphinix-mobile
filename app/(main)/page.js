@@ -3,7 +3,6 @@ import React, { useState, useMemo } from 'react';
 import HeroCarousel from '@/app/(main)/_components/HeroCarousel';
 import CompareDrawer from '@/components/CompareDrawer';
 import MOCK_PRODUCTS from '@/data/products.json';
-import MOCK_BLOGS from '@/data/blogs.json';
 import RightSidebar from '@/components/sidebar/RightSidebar';
 import AdBanner from '@/components/ads/AdBanner';
 import ProductSection from './_components/_sections/ProductSection';

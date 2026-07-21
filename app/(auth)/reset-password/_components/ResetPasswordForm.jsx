@@ -92,7 +92,7 @@ export default function ResetPasswordForm() {
               loading={loading}
               defaultText="Update Password"
               loadingText="Updating..."
-              disabled={!!success}
+              disabled={!!success || !turnstileToken}
             />
           </div>
         </form>

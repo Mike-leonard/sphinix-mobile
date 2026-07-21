@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import Pagination from '@/components/Pagination';
 import RightSidebar from '@/components/sidebar/RightSidebar';
-import MOCK_BLOGS from '@/data/blogs.json';
+import { getBlogs } from '@/actions/blogs';
 import MOCK_PRODUCTS from '@/data/products.json';
 import BlogPageHeader from './_components/BlogPageHeader';
 import BlogList from './_components/BlogList';
@@ -16,6 +16,16 @@ export default function BlogsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
+  const [MOCK_BLOGS, setMockBlogs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  React.useEffect(() => {
+    getBlogs().then(blogs => {
+      setMockBlogs(blogs || []);
+      setIsLoading(false);
+    });
+  }, []);
+
   // Since we only have a few categories in the mock, we can hardcode or dynamically generate them.
   const categories = useMemo(() => {
     const publishedBlogs = MOCK_BLOGS.filter(blog => blog.status === 'published');
@@ -24,7 +34,7 @@ export default function BlogsPage() {
       counts[blog.category] = (counts[blog.category] || 0) + 1;
     });
     return Object.entries(counts).map(([name, count]) => ({ name, count }));
-  }, []);
+  }, [MOCK_BLOGS]);
 
   const newArrivals = useMemo(() => MOCK_PRODUCTS.filter(p => p.isNew), []);
   const topRated = useMemo(() => MOCK_PRODUCTS.filter(p => p.isTopRated), []);
@@ -37,7 +47,7 @@ export default function BlogsPage() {
       const matchesCategory = selectedCategory === "All" || blog.category === selectedCategory;
       return isPublished && matchesSearch && matchesCategory;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, MOCK_BLOGS]);
 
   const totalPages = Math.ceil(filteredBlogs.length / ITEMS_PER_PAGE);
 
@@ -48,6 +58,17 @@ export default function BlogsPage() {
 
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const currentBlogs = filteredBlogs.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  if (isLoading) {
+    return (
+      <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex items-center justify-center min-h-[50vh]">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="mt-4 text-slate-500">Loading blogs...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">

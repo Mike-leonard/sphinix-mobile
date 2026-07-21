@@ -1,20 +1,26 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { getBlogs, createBlog, updateBlog, trashBlog, permanentlyDeleteBlog } from '../actions/blogs';
-import fs from 'fs/promises';
-import { join } from 'path';
+import { 
+  getAllBlogs, 
+  createBlogQuery, 
+  updateBlogById, 
+  deleteBlogById 
+} from '@/queries/blogs';
 
 // Mock auth
 vi.mock('../actions/auth', () => ({
   verifySession: vi.fn().mockResolvedValue({ id: 1, role: 'admin' })
 }));
 
-// Mock fs/promises
-vi.mock('fs/promises', () => ({
-  default: {
-    readFile: vi.fn(),
-    writeFile: vi.fn()
-  }
+// Mock queries
+vi.mock('@/queries/blogs', () => ({
+  getAllBlogs: vi.fn(),
+  getBlogById: vi.fn(),
+  createBlogQuery: vi.fn(),
+  updateBlogById: vi.fn(),
+  deleteBlogById: vi.fn(),
+  updateBlogCategory: vi.fn()
 }));
 
 // Mock revalidatePath
@@ -28,18 +34,18 @@ describe('Blogs Server Actions', () => {
   });
 
   describe('getBlogs', () => {
-    it('returns parsed blogs from file', async () => {
+    it('returns blogs from DB', async () => {
       const mockBlogs = [{ id: 1, title: 'Test Blog' }];
-      fs.readFile.mockResolvedValue(JSON.stringify(mockBlogs));
+      getAllBlogs.mockResolvedValue(mockBlogs);
       
       const result = await getBlogs();
       
       expect(result).toEqual(mockBlogs);
-      expect(fs.readFile).toHaveBeenCalledTimes(1);
+      expect(getAllBlogs).toHaveBeenCalledTimes(1);
     });
 
-    it('returns empty array on read error', async () => {
-      fs.readFile.mockRejectedValue(new Error('File not found'));
+    it('returns empty array on error', async () => {
+      getAllBlogs.mockRejectedValue(new Error('DB error'));
       
       const result = await getBlogs();
       
@@ -49,7 +55,7 @@ describe('Blogs Server Actions', () => {
 
   describe('createBlog', () => {
     it('creates a new blog successfully', async () => {
-      fs.readFile.mockResolvedValue(JSON.stringify([{ id: 1, title: 'Old Blog' }]));
+      createBlogQuery.mockResolvedValue({ id: 1 });
       
       const newBlogData = {
         title: 'New Blog',
@@ -60,75 +66,42 @@ describe('Blogs Server Actions', () => {
       const result = await createBlog(newBlogData);
       
       expect(result.success).toBe(true);
-      expect(fs.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('blogs.json'),
-        expect.stringContaining('"title": "New Blog"')
-      );
-      // New ID should be 2
-      expect(fs.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('blogs.json'),
-        expect.stringContaining('"id": 2')
+      expect(createBlogQuery).toHaveBeenCalledWith(
+        expect.objectContaining({ title: 'New Blog' })
       );
     });
   });
 
   describe('updateBlog', () => {
     it('updates an existing blog', async () => {
-      fs.readFile.mockResolvedValue(JSON.stringify([
-        { id: 1, title: 'Old Title', category: 'Tech' }
-      ]));
+      updateBlogById.mockResolvedValue({ id: 1 });
       
       const result = await updateBlog(1, { title: 'Updated Title' });
       
       expect(result.success).toBe(true);
-      expect(fs.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('blogs.json'),
-        expect.stringContaining('"title": "Updated Title"')
-      );
-    });
-
-    it('returns error if blog not found', async () => {
-      fs.readFile.mockResolvedValue(JSON.stringify([]));
-      
-      const result = await updateBlog(99, { title: 'Updated Title' });
-      
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Blog not found');
-      expect(fs.writeFile).not.toHaveBeenCalled();
+      expect(updateBlogById).toHaveBeenCalledWith(1, { title: 'Updated Title' });
     });
   });
 
   describe('trashBlog', () => {
-    it('trashes an existing blog', async () => {
-      fs.readFile.mockResolvedValue(JSON.stringify([
-        { id: 1, title: 'Keep', status: 'draft' },
-        { id: 2, title: 'Trash Me', status: 'published' }
-      ]));
+    it('updates status to trash', async () => {
+      updateBlogById.mockResolvedValue({ id: 1 });
       
-      const result = await trashBlog(2);
+      const result = await trashBlog(1);
       
       expect(result.success).toBe(true);
-      expect(fs.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('blogs.json'),
-        expect.stringContaining('"status": "trash"')
-      );
+      expect(updateBlogById).toHaveBeenCalledWith(1, { status: 'trash' });
     });
   });
 
   describe('permanentlyDeleteBlog', () => {
-    it('permanently deletes an existing blog', async () => {
-      fs.readFile.mockResolvedValue(JSON.stringify([
-        { id: 1, title: 'Keep' },
-        { id: 2, title: 'Delete Me' }
-      ]));
+    it('deletes from DB', async () => {
+      deleteBlogById.mockResolvedValue({ id: 1 });
       
-      const result = await permanentlyDeleteBlog(2);
+      const result = await permanentlyDeleteBlog(1);
       
       expect(result.success).toBe(true);
-      expect(fs.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('blogs.json'),
-        expect.not.stringContaining('Delete Me')
-      );
+      expect(deleteBlogById).toHaveBeenCalledWith(1);
     });
   });
 });

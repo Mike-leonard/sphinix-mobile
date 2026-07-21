@@ -2,11 +2,33 @@ const { test, expect } = require('@playwright/test');
 
 test.describe('Attribute Manager Layout and Features', () => {
   test.beforeEach(async ({ page }) => {
+    // Mock Turnstile script to auto-pass instantly in tests
+    await page.route('https://challenges.cloudflare.com/turnstile/v0/api.js*', async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/javascript',
+        body: `
+          window.turnstile = {
+            render: function(element, options) {
+              setTimeout(() => {
+                if (options.callback) options.callback('e2e-bypass-token');
+              }, 100);
+              return 'widget-id';
+            },
+            reset: function() {},
+            remove: function() {}
+          };
+        `
+      });
+    });
+
     // Login as Admin
     await page.goto('/login');
     await page.fill('input[type="email"]', 'admin@example.com');
     await page.fill('input[type="password"]', 'password123');
-    await page.click('button[type="submit"]');
+    const submitBtn = page.locator('button[type="submit"]');
+    await expect(submitBtn).toBeEnabled({ timeout: 15000 });
+    await submitBtn.click();
     await expect(page).toHaveURL(/.*\/dashboard/);
   });
 

@@ -1,27 +1,30 @@
 'use server';
 
-import fs from 'fs/promises';
-import path from 'path';
 import { revalidatePath } from 'next/cache';
 import { verifySession } from './auth';
-
-const getBlogsFilePath = () => path.join(process.cwd(), 'data', 'blogs.json');
+import { 
+  getAllBlogs, 
+  getBlogById as getBlogByIdQuery, 
+  createBlogQuery, 
+  updateBlogById, 
+  deleteBlogById, 
+  updateBlogCategory 
+} from '@/queries/blogs';
 
 export async function getBlogs() {
   try {
-    const filePath = getBlogsFilePath();
-    const fileData = await fs.readFile(filePath, 'utf8');
-    return JSON.parse(fileData);
+    const blogs = await getAllBlogs();
+    return blogs;
   } catch (error) {
-    console.error('Error reading blogs.json:', error);
+    console.error('Error reading blogs from DB:', error);
     return [];
   }
 }
 
 export async function getBlogById(id) {
   try {
-    const blogs = await getBlogs();
-    return blogs.find(b => b.id === parseInt(id)) || null;
+    const blog = await getBlogByIdQuery(id);
+    return blog;
   } catch (error) {
     console.error('Error finding blog:', error);
     return null;
@@ -33,13 +36,7 @@ export async function createBlog(formData) {
     const user = await verifySession();
     if (!user) throw new Error('Unauthorized');
     
-    const blogs = await getBlogs();
-    
-    // Generate new ID
-    const newId = blogs.length > 0 ? Math.max(...blogs.map(b => b.id)) + 1 : 1;
-    
     const newBlog = {
-      id: newId,
       title: formData.title,
       excerpt: formData.excerpt,
       date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
@@ -53,9 +50,8 @@ export async function createBlog(formData) {
       seo: formData.seo || { metaTitle: '', metaDescription: '', keywords: '' }
     };
     
-    blogs.unshift(newBlog);
+    await createBlogQuery(newBlog);
     
-    await fs.writeFile(getBlogsFilePath(), JSON.stringify(blogs, null, 2));
     revalidatePath('/dashboard/blogs');
     
     return { success: true, message: 'Blog created successfully' };
@@ -70,19 +66,8 @@ export async function updateBlog(id, formData) {
     const user = await verifySession();
     if (!user) throw new Error('Unauthorized');
 
-    const blogs = await getBlogs();
-    const index = blogs.findIndex(b => b.id === id);
+    await updateBlogById(id, formData);
     
-    if (index === -1) {
-      return { success: false, error: 'Blog not found' };
-    }
-    
-    blogs[index] = {
-      ...blogs[index],
-      ...formData
-    };
-    
-    await fs.writeFile(getBlogsFilePath(), JSON.stringify(blogs, null, 2));
     revalidatePath('/dashboard/blogs');
     
     return { success: true, message: 'Blog updated successfully' };
@@ -97,12 +82,8 @@ export async function trashBlog(id) {
     const user = await verifySession();
     if (!user) throw new Error('Unauthorized');
 
-    const blogs = await getBlogs();
-    const index = blogs.findIndex(b => b.id === parseInt(id));
-    if (index === -1) return { success: false, error: 'Blog not found' };
+    await updateBlogById(id, { status: 'trash' });
     
-    blogs[index].status = 'trash';
-    await fs.writeFile(getBlogsFilePath(), JSON.stringify(blogs, null, 2));
     revalidatePath('/dashboard/blogs');
     
     return { success: true, message: 'Blog moved to trash' };
@@ -117,10 +98,8 @@ export async function permanentlyDeleteBlog(id) {
     const user = await verifySession();
     if (!user) throw new Error('Unauthorized');
 
-    const blogs = await getBlogs();
-    const filteredBlogs = blogs.filter(b => b.id !== parseInt(id));
+    await deleteBlogById(id);
     
-    await fs.writeFile(getBlogsFilePath(), JSON.stringify(filteredBlogs, null, 2));
     revalidatePath('/dashboard/blogs');
     
     return { success: true, message: 'Blog permanently deleted' };
@@ -135,12 +114,8 @@ export async function restoreBlog(id) {
     const user = await verifySession();
     if (!user) throw new Error('Unauthorized');
 
-    const blogs = await getBlogs();
-    const index = blogs.findIndex(b => b.id === parseInt(id));
-    if (index === -1) return { success: false, error: 'Blog not found' };
+    await updateBlogById(id, { status: 'draft' });
     
-    blogs[index].status = 'draft';
-    await fs.writeFile(getBlogsFilePath(), JSON.stringify(blogs, null, 2));
     revalidatePath('/dashboard/blogs');
     
     return { success: true, message: 'Blog restored as draft' };
@@ -155,22 +130,10 @@ export async function reassignCategory(oldCategory, newCategory) {
     const user = await verifySession();
     if (!user) throw new Error('Unauthorized');
 
-    const blogs = await getBlogs();
-    let updated = false;
-
-    const updatedBlogs = blogs.map(blog => {
-      if (blog.category.toLowerCase() === oldCategory.toLowerCase()) {
-        updated = true;
-        return { ...blog, category: newCategory };
-      }
-      return blog;
-    });
-
-    if (updated) {
-      await fs.writeFile(getBlogsFilePath(), JSON.stringify(updatedBlogs, null, 2));
-      revalidatePath('/dashboard/blogs');
-    }
-
+    await updateBlogCategory(oldCategory, newCategory);
+    
+    revalidatePath('/dashboard/blogs');
+    
     return { success: true };
   } catch (error) {
     console.error('Error reassigning category:', error);

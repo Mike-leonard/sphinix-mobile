@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ChevronRight, ArrowLeft } from 'lucide-react';
 import RightSidebar from '@/components/sidebar/RightSidebar';
-import MOCK_BLOGS from '@/data/blogs.json';
+import { getBlogs } from '@/actions/blogs';
 import MOCK_PRODUCTS from '@/data/products.json';
 import { generateBlogSlug } from '@/lib/utils';
 import BlogBreadcrumb from './_components/BlogBreadcrumb';
@@ -22,6 +22,16 @@ export default function BlogPostPage({ params }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
+  const [MOCK_BLOGS, setMockBlogs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  React.useEffect(() => {
+    getBlogs().then(blogs => {
+      setMockBlogs(blogs || []);
+      setIsLoading(false);
+    });
+  }, []);
+
   const categories = useMemo(() => {
     const publishedBlogs = MOCK_BLOGS.filter(blog => blog.status === 'published');
     const counts = { "All": publishedBlogs.length };
@@ -29,14 +39,14 @@ export default function BlogPostPage({ params }) {
       counts[b.category] = (counts[b.category] || 0) + 1;
     });
     return Object.entries(counts).map(([name, count]) => ({ name, count }));
-  }, []);
+  }, [MOCK_BLOGS]);
 
   const newArrivals = useMemo(() => MOCK_PRODUCTS.filter(p => p.isNew), []);
   const topRated = useMemo(() => MOCK_PRODUCTS.filter(p => p.isTopRated), []);
 
   const blog = useMemo(() => {
     return MOCK_BLOGS.find(b => generateBlogSlug(b.title) === blogSlug && b.status === 'published');
-  }, [blogSlug]);
+  }, [blogSlug, MOCK_BLOGS]);
 
   const relatedBlogs = useMemo(() => {
     if (!blog) return [];
@@ -47,6 +57,17 @@ export default function BlogPostPage({ params }) {
     }
     return related.slice(0, 3);
   }, [blog]);
+
+  if (isLoading) {
+    return (
+      <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex items-center justify-center min-h-[50vh]">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="mt-4 text-slate-500">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!blog) {
     return notFound();
