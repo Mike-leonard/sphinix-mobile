@@ -16,7 +16,7 @@ export default function GoogleSignInButton({ title = "Continue with Google" }) {
       const { data, error: signInError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || window.location.origin}/auth/callback`,
+          redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || window.location.origin}/api/auth/callback`,
           queryParams: {
             prompt: 'consent', // Forces Google to show the account selector and confirm every time
           }

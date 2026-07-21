@@ -1,24 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
-import { PrismaClient } from '@prisma/client';
-
-import { Pool } from 'pg';
-import { PrismaPg } from '@prisma/adapter-pg';
-
-let prisma;
-if (process.env.NODE_ENV === 'production') {
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-  const adapter = new PrismaPg(pool);
-  prisma = new PrismaClient({ adapter });
-} else {
-  if (!globalThis.prisma) {
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-    const adapter = new PrismaPg(pool);
-    globalThis.prisma = new PrismaClient({ adapter });
-  }
-  prisma = globalThis.prisma;
-}
+import { getUserById, createUser, verifyUserEmail } from '@/queries/users';
 
 export async function verifySession() {
   try {
@@ -35,29 +18,21 @@ export async function verifySession() {
     console.log(`[AUTH DEBUG] verifySession: Supabase user found (${user.email}). Fetching Prisma user...`);
     
     // Fetch the extended user profile from our Prisma database
-    let dbUser = await prisma.user.findUnique({
-      where: { id: user.id }
-    });
+    let dbUser = await getUserById(user.id);
     
     if (!dbUser) {
       // Auto-sync Supabase user to Prisma if they don't exist yet (handles email & OAuth signups)
-      dbUser = await prisma.user.create({
-        data: {
-          id: user.id,
-          email: user.email,
-          name: user.user_metadata?.full_name || 'User',
-          role: 'Normal',
-          password: 'SUPABASE_MANAGED', // Password is managed by Supabase Auth
-          emailVerified: !!user.email_confirmed_at,
-        }
+      dbUser = await createUser({
+        id: user.id,
+        email: user.email,
+        name: user.user_metadata?.full_name || 'User',
+        role: 'Normal',
+        emailVerified: !!user.email_confirmed_at,
       });
     } else {
       // Auto-sync email verification status if it changed (e.g. verified on different browser)
       if (!dbUser.emailVerified && user.email_confirmed_at) {
-        dbUser = await prisma.user.update({
-          where: { id: user.id },
-          data: { emailVerified: true }
-        });
+        dbUser = await verifyUserEmail(user.id);
       }
     }
     
@@ -131,15 +106,12 @@ export async function registerAction(email, password, name, turnstileToken) {
     // Immediately create the user in Prisma so they exist before email verification
     if (data?.user) {
       try {
-        await prisma.user.create({
-          data: {
-            id: data.user.id,
-            email: email,
-            name: name,
-            role: 'Normal',
-            password: 'SUPABASE_MANAGED',
-            emailVerified: false,
-          }
+        await createUser({
+          id: data.user.id,
+          email: email,
+          name: name,
+          role: 'Normal',
+          emailVerified: false,
         });
       } catch (prismaError) {
         console.error('Error syncing new user to Prisma:', prismaError);
@@ -163,4 +135,49 @@ export async function logoutAction() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   return { success: true };
+}
+
+export async function forgotPasswordAction(email, turnstileToken) {
+  try {
+    if (!turnstileToken) {
+      return { success: false, message: 'Please complete the captcha verification' };
+    }
+
+    const supabase = await createClient();
+    
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/callback?next=/reset-password`,
+      captchaToken: turnstileToken,
+    });
+
+    if (error) {
+      return { success: false, message: error.message };
+    }
+
+    return { success: true, message: 'Password reset email sent! Please check your inbox.' };
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    return { success: false, message: 'An error occurred while requesting password reset' };
+  }
+}
+
+export async function resetPasswordAction(newPassword) {
+  try {
+    const supabase = await createClient();
+    
+    // Updates the password for the currently logged-in user
+    // (The user gets logged in securely when they click the reset link)
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword
+    });
+
+    if (error) {
+      return { success: false, message: error.message };
+    }
+
+    return { success: true, message: 'Password successfully updated!' };
+  } catch (error) {
+    console.error('Reset password error:', error);
+    return { success: false, message: 'An error occurred while updating the password' };
+  }
 }
