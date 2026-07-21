@@ -1,37 +1,12 @@
 'use server';
 
-import { PrismaClient } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { verifySession } from './auth';
-
-import { Pool } from 'pg';
-import { PrismaPg } from '@prisma/adapter-pg';
-
-let prisma;
-if (process.env.NODE_ENV === 'production') {
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-  const adapter = new PrismaPg(pool);
-  prisma = new PrismaClient({ adapter });
-} else {
-  if (!globalThis.prisma) {
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-    const adapter = new PrismaPg(pool);
-    globalThis.prisma = new PrismaClient({ adapter });
-  }
-  prisma = globalThis.prisma;
-}
+import { getAllUsers, deleteUserById, updateUserRoleById, getUserById } from '@/queries/users';
 
 export async function getUsers(currentUserId = null) {
   try {
-    const users = await prisma.user.findMany({
-      orderBy: { createdAt: 'desc' }
-    });
-    
-    // Return all users except the current user
-    if (currentUserId) {
-      return users.filter(u => u.id !== currentUserId);
-    }
-    return users;
+    return await getAllUsers(currentUserId);
   } catch (error) {
     console.error('Error fetching users from database:', error);
     return [];
@@ -45,9 +20,7 @@ export async function deleteUser(userId) {
   }
 
   try {
-    await prisma.user.delete({
-      where: { id: userId }
-    });
+    await deleteUserById(userId);
     
     revalidatePath('/dashboard/users');
     return { success: true, message: 'User deleted successfully' };
@@ -64,10 +37,7 @@ export async function updateUserRole(userId, newRole) {
   }
 
   try {
-    await prisma.user.update({
-      where: { id: userId },
-      data: { role: newRole }
-    });
+    await updateUserRoleById(userId, newRole);
     
     revalidatePath('/dashboard/users');
     return { success: true, message: 'User role updated successfully' };
@@ -84,9 +54,7 @@ export async function sendForgetPassword(userId) {
   }
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: userId }
-    });
+    const user = await getUserById(userId);
 
     if (!user) {
       return { success: false, message: 'User not found' };

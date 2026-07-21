@@ -73,15 +73,22 @@ export default function LoginForm() {
             placeholder="you@example.com"
             required
           />
-          <AuthInput
-            id="password"
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            required
-          />
+          <div className="flex flex-col gap-1 -mt-2 mb-2">
+            <AuthInput
+              id="password"
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
+            <div className="flex justify-end pr-1">
+              <Link href="/forgot-password" replace className="text-sm text-brand-600 hover:text-brand-500 font-medium transition-colors">
+                Forgot password?
+              </Link>
+            </div>
+          </div>
           <div className="flex justify-center mt-2 mb-4">
             <Turnstile
               siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'} // Fallback testing key
