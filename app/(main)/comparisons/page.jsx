@@ -64,7 +64,6 @@ export default function ComparisonsPage() {
           setSelectedCategory={() => {}}
           newArrivals={newArrivals}
           topRated={topRated}
-          categories={[]} 
           brands={[]}
         />
       </div>

@@ -17,6 +17,7 @@ export default function DevicePageSidebar({ newArrivals, topRated }) {
       newArrivals={newArrivals}
       topRated={topRated}
       brands={[]}
+      isDevicesRoute={true}
     />
   );
 }

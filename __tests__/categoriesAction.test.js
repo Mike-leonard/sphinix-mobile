@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { getCategories, createCategory, deleteCategory, updateCategory } from '../actions/categories';
-import fs from 'fs/promises';
+import * as categoriesQueries from '../queries/categories';
 
 // Mock auth
 vi.mock('../actions/auth', () => ({
@@ -13,11 +13,12 @@ vi.mock('../actions/blogs.js', () => ({
   reassignCategory: vi.fn().mockResolvedValue({ success: true })
 }));
 
-vi.mock('fs/promises', () => ({
-  default: {
-    readFile: vi.fn(),
-    writeFile: vi.fn()
-  }
+vi.mock('../queries/categories', () => ({
+  getAllCategoriesQuery: vi.fn(),
+  getCategoryByNameQuery: vi.fn(),
+  createCategoryQuery: vi.fn(),
+  updateCategoryQuery: vi.fn(),
+  deleteCategoryQuery: vi.fn()
 }));
 
 vi.mock('next/cache', () => ({
@@ -30,57 +31,50 @@ describe('Categories Server Actions', () => {
   });
 
   describe('getCategories', () => {
-    it('returns parsed categories from file', async () => {
-      const mockCats = ['Tech', 'News'];
-      fs.readFile.mockResolvedValue(JSON.stringify(mockCats));
+    it('returns parsed categories from database query', async () => {
+      const mockCats = [{ id: 1, name: 'Tech' }, { id: 2, name: 'News' }];
+      vi.mocked(categoriesQueries.getAllCategoriesQuery).mockResolvedValue(mockCats);
       
       const result = await getCategories();
-      expect(result).toEqual(mockCats);
-      expect(fs.readFile).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(['Tech', 'News']);
+      expect(categoriesQueries.getAllCategoriesQuery).toHaveBeenCalledTimes(1);
     });
 
     it('returns empty array on error', async () => {
-      fs.readFile.mockRejectedValue(new Error('Not found'));
+      vi.mocked(categoriesQueries.getAllCategoriesQuery).mockRejectedValue(new Error('DB error'));
       const result = await getCategories();
       expect(result).toEqual([]);
     });
   });
 
   describe('createCategory', () => {
-    it('creates a new category and sorts', async () => {
-      fs.readFile.mockResolvedValue(JSON.stringify(['Zebra', 'Apple']));
+    it('creates a new category in database', async () => {
+      vi.mocked(categoriesQueries.getCategoryByNameQuery).mockResolvedValue(null);
+      vi.mocked(categoriesQueries.createCategoryQuery).mockResolvedValue({ id: 1, name: 'Banana', slug: 'banana' });
       
       const result = await createCategory('Banana');
       expect(result.success).toBe(true);
-      
-      expect(fs.writeFile).toHaveBeenCalledWith(
-        expect.stringContaining('categories.json'),
-        expect.stringContaining('Apple') // checking it wrote the new array
-      );
-      // Wait, let's verify sorting
-      const writeCallArg = JSON.parse(fs.writeFile.mock.calls[0][1]);
-      expect(writeCallArg).toEqual(['Apple', 'Banana', 'Zebra']);
+      expect(categoriesQueries.createCategoryQuery).toHaveBeenCalledWith('Banana');
     });
 
     it('prevents duplicates', async () => {
-      fs.readFile.mockResolvedValue(JSON.stringify(['Apple']));
+      vi.mocked(categoriesQueries.getCategoryByNameQuery).mockResolvedValue({ id: 1, name: 'Apple', slug: 'apple' });
       
       const result = await createCategory('apple'); // case insensitive check
       expect(result.success).toBe(false);
       expect(result.error).toBe('Category already exists');
-      expect(fs.writeFile).not.toHaveBeenCalled();
+      expect(categoriesQueries.createCategoryQuery).not.toHaveBeenCalled();
     });
   });
 
   describe('updateCategory', () => {
-    it('updates a category and sorts', async () => {
-      fs.readFile.mockResolvedValue(JSON.stringify(['Apple', 'Banana', 'Zebra']));
+    it('updates a category in database', async () => {
+      vi.mocked(categoriesQueries.getCategoryByNameQuery).mockResolvedValue(null);
+      vi.mocked(categoriesQueries.updateCategoryQuery).mockResolvedValue({ id: 1, name: 'Cat', slug: 'cat' });
       
       const result = await updateCategory('Banana', 'Cat');
       expect(result.success).toBe(true);
-      
-      const writeCallArg = JSON.parse(fs.writeFile.mock.calls[0][1]);
-      expect(writeCallArg).toEqual(['Apple', 'Cat', 'Zebra']);
+      expect(categoriesQueries.updateCategoryQuery).toHaveBeenCalledWith('Banana', 'Cat');
       
       // Verify reassignCategory was called
       const { reassignCategory } = await import('../actions/blogs.js');
@@ -95,14 +89,12 @@ describe('Categories Server Actions', () => {
   });
 
   describe('deleteCategory', () => {
-    it('deletes a category and reassigns', async () => {
-      fs.readFile.mockResolvedValue(JSON.stringify(['Apple', 'Banana']));
+    it('deletes a category in database and reassigns', async () => {
+      vi.mocked(categoriesQueries.deleteCategoryQuery).mockResolvedValue({ id: 1, name: 'Apple', slug: 'apple' });
       
       const result = await deleteCategory('Apple');
       expect(result.success).toBe(true);
-      
-      const writeCallArg = JSON.parse(fs.writeFile.mock.calls[0][1]);
-      expect(writeCallArg).toEqual(['Banana']);
+      expect(categoriesQueries.deleteCategoryQuery).toHaveBeenCalledWith('Apple');
       
       // Verify reassignCategory was called
       const { reassignCategory } = await import('../actions/blogs.js');

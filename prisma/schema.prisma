@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
 }
 
 enum UserRole {
@@ -27,36 +27,48 @@ model User {
 }
 
 model Device {
-  id         String   @id
+  id         String  @id
   name       String
   brand      String
   category   String
   price      String
-  rating     Float    @default(0)
+  rating     Float   @default(0)
   imageColor String
-  isNew      Boolean  @default(false)
-  isTopRated Boolean  @default(false)
+  isNew      Boolean @default(false)
+  isTopRated Boolean @default(false)
   status     String
   specs      Json
-
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-model Blog {
-  id        Int      @id @default(autoincrement())
-  title     String
-  excerpt   String?
-  date      String
-  readTime  String?
-  author    String
-  category  String
-  color     String?
-  image     String?
-  content   String
-  status    String   @default("published")
-  seo       Json?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model BlogCategory {
+  id        Int      @id @default(autoincrement())
+  name      String
+  slug      String   @unique
+  blogs     Blog[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Blog {
+  id           Int           @id @default(autoincrement())
+  title        String
+  excerpt      String?
+  date         String
+  readTime     String?
+  author       String
+  category     String
+  categoryId   Int?
+  blogCategory BlogCategory? @relation(fields: [categoryId], references: [id])
+  color        String?
+  image        String?
+  content      String
+  status       String        @default("published")
+  seo          Json?
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
