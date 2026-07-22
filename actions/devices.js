@@ -1,31 +1,54 @@
 'use server';
 
-import fs from 'fs/promises';
-import path from 'path';
 import { revalidatePath } from 'next/cache';
 import { verifySession } from './auth';
 import { generateDeviceSlug } from '@/lib/utils';
-
-const getDevicesFilePath = () => path.join(process.cwd(), 'data', 'products.json');
+import {
+  getAllDevicesQuery,
+  getDeviceByIdQuery,
+  getPublishedDevicesQuery,
+  getPublishedDevicesCountQuery,
+  createDeviceQuery,
+  updateDeviceQuery,
+  deleteDeviceQuery,
+  trashDeviceQuery,
+  restoreDeviceQuery,
+  reassignDeviceBrandQuery
+} from '@/queries/devices';
 
 export async function getDevices() {
   try {
-    const filePath = getDevicesFilePath();
-    const fileData = await fs.readFile(filePath, 'utf8');
-    return JSON.parse(fileData);
+    return await getAllDevicesQuery();
   } catch (error) {
-    console.error('Error reading products.json:', error);
+    console.error('Error fetching devices:', error);
     return [];
   }
 }
 
 export async function getDeviceById(id) {
   try {
-    const devices = await getDevices();
-    return devices.find(d => d.id === id) || null;
+    return await getDeviceByIdQuery(id);
   } catch (error) {
-    console.error('Error finding device:', error);
+    console.error('Error fetching device by id:', error);
     return null;
+  }
+}
+
+export async function publishedDevices(optionsOrLimit = 10, queryParam = '', brandParam = 'All', offsetParam = 0) {
+  try {
+    return await getPublishedDevicesQuery(optionsOrLimit, queryParam, brandParam, offsetParam);
+  } catch (error) {
+    console.error('Error fetching published devices:', error);
+    return [];
+  }
+}
+
+export async function publishedDevicesCount(optionsOrQuery = '', brandParam = 'All') {
+  try {
+    return await getPublishedDevicesCountQuery(optionsOrQuery, brandParam);
+  } catch (error) {
+    console.error('Error fetching published devices count:', error);
+    return 0;
   }
 }
 
@@ -33,29 +56,29 @@ export async function createDevice(formData) {
   try {
     const user = await verifySession();
     if (!user) throw new Error('Unauthorized');
-    
-    const devices = await getDevices();
-    
+
+    const devices = await getAllDevicesQuery();
+
     // Generate new ID (slug)
     let newId = generateDeviceSlug(formData.name);
-    // Ensure ID is unique
     let counter = 1;
     let uniqueId = newId;
+
     while (devices.some(d => d.id === uniqueId)) {
       uniqueId = `${newId}-${counter}`;
       counter++;
     }
-    
-    const newDevice = {
+
+    const deviceData = {
       id: uniqueId,
       name: formData.name,
       brand: formData.brand,
       category: formData.category || 'Devices',
       price: formData.price,
-      rating: formData.rating || 0,
+      rating: parseFloat(formData.rating) || 0,
       imageColor: formData.imageColor || 'from-slate-600 to-zinc-800',
-      isNew: formData.isNew || false,
-      isTopRated: formData.isTopRated || false,
+      isNew: Boolean(formData.isNew),
+      isTopRated: Boolean(formData.isTopRated),
       status: formData.status || 'draft',
       specs: formData.specs || {
         screen: "",
@@ -77,16 +100,16 @@ export async function createDevice(formData) {
         cameraSpecs: []
       }
     };
-    
-    devices.unshift(newDevice);
-    
-    await fs.writeFile(getDevicesFilePath(), JSON.stringify(devices, null, 2));
+
+    await createDeviceQuery(deviceData);
+
     revalidatePath('/dashboard/phones');
-    
-    return { success: true, message: 'Device created successfully' };
+    revalidatePath('/phones');
+
+    return { success: true, message: 'Device created successfully', id: uniqueId };
   } catch (error) {
     console.error('Error creating device:', error);
-    return { success: false, error: 'Failed to create device' };
+    return { success: false, error: error.message || 'Failed to create device' };
   }
 }
 
@@ -95,26 +118,28 @@ export async function updateDevice(id, formData) {
     const user = await verifySession();
     if (!user) throw new Error('Unauthorized');
 
-    const devices = await getDevices();
-    const index = devices.findIndex(d => d.id === id);
-    
-    if (index === -1) {
-      return { success: false, error: 'Device not found' };
-    }
-    
-    devices[index] = {
-      ...devices[index],
-      ...formData
-    };
-    
-    await fs.writeFile(getDevicesFilePath(), JSON.stringify(devices, null, 2));
+    const updateData = {};
+    if (formData.name !== undefined) updateData.name = formData.name;
+    if (formData.brand !== undefined) updateData.brand = formData.brand;
+    if (formData.category !== undefined) updateData.category = formData.category;
+    if (formData.price !== undefined) updateData.price = formData.price;
+    if (formData.rating !== undefined) updateData.rating = parseFloat(formData.rating);
+    if (formData.imageColor !== undefined) updateData.imageColor = formData.imageColor;
+    if (formData.isNew !== undefined) updateData.isNew = Boolean(formData.isNew);
+    if (formData.isTopRated !== undefined) updateData.isTopRated = Boolean(formData.isTopRated);
+    if (formData.status !== undefined) updateData.status = formData.status;
+    if (formData.specs !== undefined) updateData.specs = formData.specs;
+
+    await updateDeviceQuery(id, updateData);
+
     revalidatePath('/dashboard/phones');
     revalidatePath(`/phones/${id}`);
-    
+    revalidatePath('/phones');
+
     return { success: true, message: 'Device updated successfully' };
   } catch (error) {
     console.error('Error updating device:', error);
-    return { success: false, error: 'Failed to update device' };
+    return { success: false, error: error.message || 'Failed to update device' };
   }
 }
 
@@ -123,21 +148,15 @@ export async function deleteDevice(id) {
     const user = await verifySession();
     if (!user) throw new Error('Unauthorized');
 
-    const devices = await getDevices();
-    const filteredDevices = devices.filter(d => d.id !== id);
-    
-    if (filteredDevices.length === devices.length) {
-      return { success: false, error: 'Device not found' };
-    }
+    await deleteDeviceQuery(id);
 
-    await fs.writeFile(getDevicesFilePath(), JSON.stringify(filteredDevices, null, 2));
     revalidatePath('/dashboard/phones');
     revalidatePath('/phones');
-    
+
     return { success: true, message: 'Device permanently deleted' };
   } catch (error) {
     console.error('Error deleting device:', error);
-    return { success: false, error: 'Failed to delete device' };
+    return { success: false, error: error.message || 'Failed to delete device' };
   }
 }
 
@@ -146,18 +165,15 @@ export async function trashDevice(id) {
     const user = await verifySession();
     if (!user) throw new Error('Unauthorized');
 
-    const devices = await getDevices();
-    const index = devices.findIndex(d => d.id === id);
-    if (index === -1) return { success: false, error: 'Device not found' };
-    
-    devices[index].status = 'trash';
-    await fs.writeFile(getDevicesFilePath(), JSON.stringify(devices, null, 2));
+    await trashDeviceQuery(id);
+
     revalidatePath('/dashboard/phones');
-    
+    revalidatePath('/phones');
+
     return { success: true, message: 'Device moved to trash' };
   } catch (error) {
     console.error('Error trashing device:', error);
-    return { success: false, error: 'Failed to trash device' };
+    return { success: false, error: error.message || 'Failed to trash device' };
   }
 }
 
@@ -166,18 +182,15 @@ export async function restoreDevice(id) {
     const user = await verifySession();
     if (!user) throw new Error('Unauthorized');
 
-    const devices = await getDevices();
-    const index = devices.findIndex(d => d.id === id);
-    if (index === -1) return { success: false, error: 'Device not found' };
-    
-    devices[index].status = 'draft';
-    await fs.writeFile(getDevicesFilePath(), JSON.stringify(devices, null, 2));
+    await restoreDeviceQuery(id);
+
     revalidatePath('/dashboard/phones');
-    
+    revalidatePath('/phones');
+
     return { success: true, message: 'Device restored as draft' };
   } catch (error) {
     console.error('Error restoring device:', error);
-    return { success: false, error: 'Failed to restore device' };
+    return { success: false, error: error.message || 'Failed to restore device' };
   }
 }
 
@@ -186,26 +199,14 @@ export async function reassignDeviceBrand(oldBrand, newBrand) {
     const user = await verifySession();
     if (!user) throw new Error('Unauthorized');
 
-    const devices = await getDevices();
-    let updated = false;
-    
-    for (const device of devices) {
-      if (device.brand && device.brand.toLowerCase() === oldBrand.toLowerCase()) {
-        device.brand = newBrand;
-        updated = true;
-      }
-    }
-    
-    if (updated) {
-      await fs.writeFile(getDevicesFilePath(), JSON.stringify(devices, null, 2));
-      revalidatePath('/dashboard/phones');
-      revalidatePath('/phones');
-    }
-    
+    await reassignDeviceBrandQuery(oldBrand, newBrand);
+
+    revalidatePath('/dashboard/phones');
+    revalidatePath('/phones');
+
     return { success: true };
   } catch (error) {
-    console.error('Error reassinging device brand:', error);
-    return { success: false, error: 'Failed to reassign device brand' };
+    console.error('Error reassigning device brand:', error);
+    return { success: false, error: error.message || 'Failed to reassign device brand' };
   }
 }
-

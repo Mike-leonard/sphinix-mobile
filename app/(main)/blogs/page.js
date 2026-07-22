@@ -51,13 +51,9 @@ export default async function BlogsPage({ searchParams }) {
 
         {/* Right Sidebar */}
         <RightSidebar
-          blogs={blogs}
           searchQuery={query}
           selectedCategory={category}
           isBlogsRoute={true}
-          newArrivals={[]}
-          topRated={[]}
-          brands={[]}
         />
       </div>
     </div>
