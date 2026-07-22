@@ -3,6 +3,8 @@ import DashboardSidebar from '@/app/dashboard/DashboardSidebar';
 import { redirect } from 'next/navigation';
 import { verifySession } from '@/actions/auth';
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardLayout({ children }) {
   const user = await verifySession();
 

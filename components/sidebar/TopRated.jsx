@@ -1,15 +1,18 @@
-import React from 'react';
+'use client';
 
-export default function TopRated({ topRated, setSelectedBrand, setSearchQuery }) {
+import React from 'react';
+import Link from 'next/link';
+
+export default function TopRated({ topRated = [] }) {
   return (
     <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
       <h3 style={{fontSize: "var(--font-size-h3-section, var(--font-size-h3-default))"}} className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Top Rated</h3>
 
       <div className="space-y-3">
-        {topRated.slice(0, 3).map(prod => (
-          <div
+        {(topRated || []).slice(0, 3).map(prod => (
+          <Link
             key={prod.id}
-            onClick={() => { setSelectedBrand(prod.brand); setSearchQuery(prod.name); }}
+            href={`/phones?q=${encodeURIComponent(prod.name)}`}
             className="flex gap-4 items-center bg-slate-100/80 dark:bg-slate-950/40 p-2.5 rounded-xl border border-slate-300 dark:border-slate-850/60 hover:border-brand-500/20 cursor-pointer transition-colors"
           >
             <div className="relative w-12 h-12 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
@@ -29,7 +32,7 @@ export default function TopRated({ topRated, setSelectedBrand, setSearchQuery })
             <div className="text-right">
               <span className="text-xs font-black text-slate-900 dark:text-white block">{prod.price}</span>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

@@ -1,6 +1,9 @@
-import React from 'react';
+'use client';
 
-export default function NewArrivals({ newArrivals, setSelectedBrand, setSearchQuery }) {
+import React from 'react';
+import Link from 'next/link';
+
+export default function NewArrivals({ newArrivals = [] }) {
   return (
     <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
       <h3 style={{fontSize: "var(--font-size-h3-section, var(--font-size-h3-default))"}} className="text-base font-bold text-slate-900 dark:text-white tracking-tight flex items-center justify-between">
@@ -9,10 +12,10 @@ export default function NewArrivals({ newArrivals, setSelectedBrand, setSearchQu
       </h3>
 
       <div className="grid grid-cols-3 gap-2">
-        {newArrivals.slice(0, 6).map(prod => (
-          <div
+        {(newArrivals || []).slice(0, 6).map(prod => (
+          <Link
             key={prod.id}
-            onClick={() => { setSelectedBrand(prod.brand); setSearchQuery(prod.name); }}
+            href={`/phones?q=${encodeURIComponent(prod.name)}`}
             className="group bg-slate-50 dark:bg-slate-950 rounded-xl p-2 border border-slate-300 dark:border-slate-850/60 hover:border-brand-500/30 text-center cursor-pointer transition-colors"
           >
             <div className="relative h-16 w-full bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center overflow-hidden mb-1.5">
@@ -27,7 +30,7 @@ export default function NewArrivals({ newArrivals, setSelectedBrand, setSearchQu
             <span className="text-[9px] text-brand-500 font-extrabold">
               {prod.price}
             </span>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

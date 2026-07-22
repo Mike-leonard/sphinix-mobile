@@ -1,13 +1,14 @@
 import React from 'react';
 import Link from 'next/link';
 import { getDevices } from '@/actions/devices';
-import { getBlogs } from '@/actions/blogs';
+
 import { getUsers } from '@/actions/users';
 import { getGoogleMetrics } from '@/actions/analytics';
 import SiteKitDashboard from './_components/SiteKitDashboard';
 import PublishTrendsChart from './_components/PublishTrendsChart';
 import { Smartphone, FileText, Users, Star, Plus, Settings, Edit3, LineChart, MousePointerClick, Search, AlertCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { allBlogs } from '@/actions/blogs';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +16,7 @@ export default async function DashboardPage() {
   // Fetch real-time data
   const [devices, blogs, users, googleMetrics] = await Promise.all([
     getDevices(),
-    getBlogs(),
+    allBlogs(),
     getUsers(),
     getGoogleMetrics()
   ]);
@@ -25,7 +26,7 @@ export default async function DashboardPage() {
   const publishedPhones = devices.filter(d => d.status === 'published').length;
   const draftPhones = devices.filter(d => d.status === 'draft').length;
   const topRatedPhones = devices.filter(d => d.isTopRated).length;
-  
+
   // Blogs calculations
   const totalBlogs = blogs.length;
   const publishedBlogs = blogs.filter(b => b.status === 'published').length;
@@ -38,14 +39,14 @@ export default async function DashboardPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
-      
+
       {/* Header & Quick Actions */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Platform Dashboard</h1>
           <p className="text-slate-500 text-sm mt-1">Overview of your Sphinix Mobile platform data.</p>
         </div>
-        
+
         <div className="flex flex-wrap items-center gap-3">
           <Link href="/dashboard/phones/new">
             <Button className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl shadow-sm">
@@ -67,7 +68,7 @@ export default async function DashboardPage() {
 
       {/* 4 Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        
+
         {/* Card 1: Total Phones */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-[130px] relative overflow-hidden group">
           <div className="flex justify-between items-start z-10 relative">
@@ -185,7 +186,7 @@ export default async function DashboardPage() {
 
       {/* Tables Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
+
         {/* Latest Added Phones */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden flex flex-col">
           <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
@@ -214,11 +215,10 @@ export default async function DashboardPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-semibold uppercase tracking-wider ${
-                      phone.status === 'published' 
-                        ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-500/20' 
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-semibold uppercase tracking-wider ${phone.status === 'published'
+                        ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-500/20'
                         : 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-200/50 dark:border-amber-500/20'
-                    }`}>
+                      }`}>
                       {phone.status}
                     </span>
                     <Link href={`/dashboard/phones/${phone.id}/edit`}>
@@ -261,11 +261,10 @@ export default async function DashboardPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-semibold uppercase tracking-wider ${
-                      blog.status === 'published' 
-                        ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-500/20' 
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-semibold uppercase tracking-wider ${blog.status === 'published'
+                        ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-500/20'
                         : 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-200/50 dark:border-amber-500/20'
-                    }`}>
+                      }`}>
                       {blog.status}
                     </span>
                     <Link href={`/dashboard/blogs/${blog.id}/edit`}>

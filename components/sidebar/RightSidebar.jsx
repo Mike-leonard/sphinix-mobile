@@ -1,48 +1,32 @@
 import React from 'react';
-import { usePathname } from 'next/navigation';
 import { Search } from '../Search';
 import NewArrivals from './NewArrivals';
 import TopRated from './TopRated';
 import BrandList from './BrandList';
+import Categories from './Categories';
 import AdBanner from '../ads/AdBanner';
-import { getBlogs } from '@/actions/blogs';
 import TrendingBlogsSidebar from './TrendingBlogsSidebar';
 
 export default function RightSidebar({
   searchQuery,
-  setSearchQuery,
   selectedBrand,
-  setSelectedBrand,
   selectedCategory,
-  setSelectedCategory,
-  newArrivals,
-  topRated,
-  categories,
-  brands,
+  categories = [],
+  newArrivals = [],
+  topRated = [],
+  brands = [],
   advancedFiltersComponent,
+  isBlogsRoute = false,
+  isDevicesRoute = false,
+  isHomeRoute = false,
 }) {
-  const pathname = usePathname();
-
-  const [MOCK_BLOGS, setMockBlogs] = React.useState([]);
-  
-  React.useEffect(() => {
-    getBlogs().then(blogs => setMockBlogs(blogs || []));
-  }, []);
-
-  // Define visibility rules based on routes
-  const isDevicesRoute = pathname === '/phones';
-  const isBlogsRoute = pathname === '/blogs';
-  const isHomeRoute = pathname === '/';
-
   return (
     <div className="lg:col-span-4 space-y-8">
       {/* SEARCH AND FILTERS */}
       <div className="hidden lg:flex lg:flex-col lg:gap-8">
         <Search
           searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
           selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
         />
         {advancedFiltersComponent && (
           <div className="w-full">
@@ -51,43 +35,44 @@ export default function RightSidebar({
         )}
       </div>
 
-      {/* NEW ARRIVALS (Hide on devices route to reduce clutter) */}
-      {!isDevicesRoute && (
-        <NewArrivals
-          newArrivals={newArrivals}
-          setSelectedBrand={setSelectedBrand}
-          setSearchQuery={setSearchQuery}
+      {/* BLOG CATEGORIES (Rendered specifically when on blogs route) */}
+      {isBlogsRoute && categories.length > 0 && (
+        <Categories
+          categories={categories}
+          selectedCategory={selectedCategory}
         />
       )}
 
-      {/* LATEST BLOGS */}
-      {/* Show on Devices and Home, or specifically if we want to cross-pollinate on Devices */}
-      {(isDevicesRoute || isHomeRoute || isBlogsRoute) && (
-        <TrendingBlogsSidebar blogs={MOCK_BLOGS.filter(b => b.status === 'published')} />
+      {/* NEW ARRIVALS (Hide on devices route and blogs route) */}
+      {!(isDevicesRoute || isBlogsRoute) && newArrivals.length > 0 && (
+        <NewArrivals
+          newArrivals={newArrivals}
+        />
       )}
 
-      {/* TOP RATED (Devices) */}
-      {/* Good cross-pollination for Blogs page, and standard on other pages */}
-      <TopRated
-        topRated={topRated}
-        setSelectedBrand={setSelectedBrand}
-        setSearchQuery={setSearchQuery}
-      />
+      {/* TRENDING BLOGS (Async Server Component) */}
+      <TrendingBlogsSidebar limit={4} />
 
-      {/* BRANDS LIST CHIPS - Reduce on Blogs to save space, useful on Devices/Home */}
-      {!isBlogsRoute && (
+      {/* TOP RATED (Devices - Hide on blogs route) */}
+      {!isBlogsRoute && topRated.length > 0 && (
+        <TopRated
+          topRated={topRated}
+        />
+      )}
+
+      {/* BRANDS LIST CHIPS - Hide on blogs route */}
+      {!isBlogsRoute && brands.length > 0 && (
         <BrandList
           brands={brands}
           selectedBrand={selectedBrand}
-          setSelectedBrand={setSelectedBrand}
         />
       )}
 
       {/* SIDEBAR AD BANNER (Sticky) */}
       <div className="sticky top-24">
-        <AdBanner 
-          type="vertical" 
-          placement={isBlogsRoute ? "blogsPageSidebar" : "phonesPageSidebar"} 
+        <AdBanner
+          type="vertical"
+          placement={isBlogsRoute ? "blogsPageSidebar" : "phonesPageSidebar"}
         />
       </div>
     </div>

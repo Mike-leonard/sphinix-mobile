@@ -1,11 +1,11 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getBlogs, createBlog, updateBlog, trashBlog, permanentlyDeleteBlog } from '../actions/blogs';
-import { 
-  getAllBlogs, 
-  createBlogQuery, 
-  updateBlogById, 
-  deleteBlogById 
+import { createBlog, updateBlog, trashBlog, permanentlyDeleteBlog, allBlogs } from '../actions/blogs';
+import {
+  getAllBlogs,
+  createBlogQuery,
+  updateBlogById,
+  deleteBlogById
 } from '@/queries/blogs';
 
 // Mock auth
@@ -37,18 +37,18 @@ describe('Blogs Server Actions', () => {
     it('returns blogs from DB', async () => {
       const mockBlogs = [{ id: 1, title: 'Test Blog' }];
       getAllBlogs.mockResolvedValue(mockBlogs);
-      
-      const result = await getBlogs();
-      
+
+      const result = await allBlogs();
+
       expect(result).toEqual(mockBlogs);
       expect(getAllBlogs).toHaveBeenCalledTimes(1);
     });
 
     it('returns empty array on error', async () => {
       getAllBlogs.mockRejectedValue(new Error('DB error'));
-      
-      const result = await getBlogs();
-      
+
+      const result = await allBlogs();
+
       expect(result).toEqual([]);
     });
   });
@@ -56,15 +56,15 @@ describe('Blogs Server Actions', () => {
   describe('createBlog', () => {
     it('creates a new blog successfully', async () => {
       createBlogQuery.mockResolvedValue({ id: 1 });
-      
+
       const newBlogData = {
         title: 'New Blog',
         excerpt: 'Test',
         category: 'Tech'
       };
-      
+
       const result = await createBlog(newBlogData);
-      
+
       expect(result.success).toBe(true);
       expect(createBlogQuery).toHaveBeenCalledWith(
         expect.objectContaining({ title: 'New Blog' })
@@ -75,9 +75,9 @@ describe('Blogs Server Actions', () => {
   describe('updateBlog', () => {
     it('updates an existing blog', async () => {
       updateBlogById.mockResolvedValue({ id: 1 });
-      
+
       const result = await updateBlog(1, { title: 'Updated Title' });
-      
+
       expect(result.success).toBe(true);
       expect(updateBlogById).toHaveBeenCalledWith(1, { title: 'Updated Title' });
     });
@@ -86,9 +86,9 @@ describe('Blogs Server Actions', () => {
   describe('trashBlog', () => {
     it('updates status to trash', async () => {
       updateBlogById.mockResolvedValue({ id: 1 });
-      
+
       const result = await trashBlog(1);
-      
+
       expect(result.success).toBe(true);
       expect(updateBlogById).toHaveBeenCalledWith(1, { status: 'trash' });
     });
@@ -97,9 +97,9 @@ describe('Blogs Server Actions', () => {
   describe('permanentlyDeleteBlog', () => {
     it('deletes from DB', async () => {
       deleteBlogById.mockResolvedValue({ id: 1 });
-      
+
       const result = await permanentlyDeleteBlog(1);
-      
+
       expect(result.success).toBe(true);
       expect(deleteBlogById).toHaveBeenCalledWith(1);
     });

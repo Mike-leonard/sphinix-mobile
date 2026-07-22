@@ -1,34 +1,62 @@
+'use client';
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function Categories({ categories, selectedCategory, setSelectedCategory }) {
+export default function Categories({ categories = [], selectedCategory: propSelectedCategory, setSelectedCategory }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const urlCategory = searchParams ? searchParams.get('category') : null;
+  const activeCategory = propSelectedCategory || urlCategory || "All";
+
+  const handleCategorySelect = (catName) => {
+    if (typeof setSelectedCategory === 'function') {
+      setSelectedCategory(catName);
+    } else {
+      const params = new URLSearchParams(searchParams ? searchParams.toString() : '');
+      if (catName === 'All') {
+        params.delete('category');
+      } else {
+        params.set('category', catName);
+      }
+      params.delete('page'); // Reset page when category changes
+      const queryString = params.toString();
+      router.push(queryString ? `?${queryString}` : '/blogs');
+    }
+  };
+
   return (
-    <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
-      <h3 style={{fontSize: "var(--font-size-h3-section, var(--font-size-h3-default))"}} className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Product Categories</h3>
+    <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-4 shadow-sm">
+      <h3 style={{ fontSize: "var(--font-size-h3-section, var(--font-size-h3-default))" }} className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
+        Categories
+      </h3>
 
-      <ul className="space-y-2">
-        {categories.map(cat => (
-          <li key={cat.name}>
-            <Button
-              variant={selectedCategory === cat.name ? "secondary" : "ghost"}
-              onClick={() => { setSelectedCategory(cat.name); }}
-              className={`cursor-pointer w-full justify-between h-auto py-2 px-3 ${selectedCategory === cat.name ? "bg-brand-600/10 text-brand-400 border border-brand-500/20 font-bold hover:bg-brand-600/20" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"}`}
+      <div className="flex flex-wrap gap-2">
+        {categories.map(cat => {
+          const isSelected = activeCategory.toLowerCase() === cat.name.toLowerCase() || (activeCategory === "All" && cat.name === "All");
+          return (
+            <button
+              key={cat.name}
+              type="button"
+              onClick={() => handleCategorySelect(cat.name)}
+              className={`cursor-pointer px-3.5 py-1.5 rounded-xl text-xs font-medium inline-flex items-center gap-2 transition-all duration-200 border ${
+                isSelected
+                  ? 'bg-brand-500 text-white border-brand-500 shadow-sm shadow-brand-500/20 font-semibold scale-[1.02]'
+                  : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 border-slate-200/60 dark:border-slate-800 hover:bg-slate-200/70 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+              }`}
             >
-              <span className="flex items-center gap-2">
-                <span className={`w-1.5 h-1.5 rounded-full ${cat.count > 0 ? "bg-brand-500" : "bg-slate-300 dark:bg-slate-700"}`}></span>
-                {cat.name}
-              </span>
-              <Badge 
-                variant="outline" 
-                className={`text-[10px] px-1.5 py-0 rounded-full font-bold ${cat.count > 0 ? "text-brand-400 border-brand-400/30" : "text-slate-400 border-slate-200 dark:border-slate-800"}`}
-              >
+              <span>{cat.name}</span>
+              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold transition-colors ${
+                isSelected
+                  ? 'bg-white/20 text-white'
+                  : 'bg-slate-200/80 dark:bg-slate-700/80 text-slate-500 dark:text-slate-400'
+              }`}>
                 {cat.count}
-              </Badge>
-            </Button>
-          </li>
-        ))}
-      </ul>
+              </span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
