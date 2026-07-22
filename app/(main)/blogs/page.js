@@ -1,99 +1,65 @@
-'use client';
-import React, { useState, useMemo } from 'react';
+import React from 'react';
 import Pagination from '@/components/Pagination';
 import RightSidebar from '@/components/sidebar/RightSidebar';
-import { getBlogs } from '@/actions/blogs';
-import MOCK_PRODUCTS from '@/data/products.json';
 import BlogPageHeader from './_components/BlogPageHeader';
 import BlogList from './_components/BlogList';
-import { useSettings } from '@/context/SettingsContext';
+import { publishedBlogs, publishedBlogsCount, getBlogCategoryCounts } from '@/actions/blogs';
+import { getSettings } from '@/actions/settings';
+import { getDevices } from '@/actions/devices';
 
-export default function BlogsPage() {
-  const settings = useSettings();
-  const ITEMS_PER_PAGE = settings?.appearance?.blogs?.blogLimit || 12;
+export default async function BlogsPage({ searchParams }) {
+  const resolvedSearchParams = await searchParams;
+  const page = parseInt(resolvedSearchParams?.page || "1", 10);
+  const category = resolvedSearchParams?.category || "All";
+  const query = resolvedSearchParams?.q || "";
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  // 1. Fetch settings to determine itemsPerPage
+  const settings = await getSettings();
+  const itemsPerPage = settings?.appearance?.blogs?.blogLimit || 12;
+  const offset = Math.max(0, (page - 1) * itemsPerPage);
 
-  const [MOCK_BLOGS, setMockBlogs] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  
-  React.useEffect(() => {
-    getBlogs().then(blogs => {
-      setMockBlogs(blogs || []);
-      setIsLoading(false);
-    });
-  }, []);
+  // 2. Fetch only necessary paginated blogs, total matching count, devices & category counts in parallel
+  const [blogs, totalBlogsCount, devices, categoryGroups] = await Promise.all([
+    publishedBlogs({ limit: itemsPerPage, offset, query, category }),
+    publishedBlogsCount({ query, category }),
+    getDevices(),
+    getBlogCategoryCounts()
+  ]);
 
-  // Since we only have a few categories in the mock, we can hardcode or dynamically generate them.
-  const categories = useMemo(() => {
-    const publishedBlogs = MOCK_BLOGS.filter(blog => blog.status === 'published');
-    const counts = { "All": publishedBlogs.length };
-    publishedBlogs.forEach(blog => {
-      counts[blog.category] = (counts[blog.category] || 0) + 1;
-    });
-    return Object.entries(counts).map(([name, count]) => ({ name, count }));
-  }, [MOCK_BLOGS]);
+  // 3. Server-side pagination calculation
+  const totalPages = Math.ceil(totalBlogsCount / itemsPerPage) || 1;
+  const currentPage = Math.min(Math.max(1, page), totalPages);
 
-  const newArrivals = useMemo(() => MOCK_PRODUCTS.filter(p => p.isNew), []);
-  const topRated = useMemo(() => MOCK_PRODUCTS.filter(p => p.isTopRated), []);
+  // 4. Compute Sidebar Categories Data
+  let totalAllCategoryCount = 0;
+  const categoryCounts = {};
+  (categoryGroups || []).forEach(g => {
+    if (g.category) {
+      categoryCounts[g.category] = g._count.id;
+      totalAllCategoryCount += g._count.id;
+    }
+  });
 
-  const filteredBlogs = useMemo(() => {
-    return MOCK_BLOGS.filter(blog => {
-      const isPublished = blog.status === 'published';
-      const matchesSearch = blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        blog.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = selectedCategory === "All" || blog.category === selectedCategory;
-      return isPublished && matchesSearch && matchesCategory;
-    });
-  }, [searchQuery, selectedCategory, MOCK_BLOGS]);
-
-  const totalPages = Math.ceil(filteredBlogs.length / ITEMS_PER_PAGE);
-
-  // Ensure we don't have an empty page if we filter
-  if (currentPage > totalPages && totalPages > 0) {
-    setCurrentPage(totalPages);
-  }
-
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentBlogs = filteredBlogs.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-  if (isLoading) {
-    return (
-      <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex items-center justify-center min-h-[50vh]">
-        <div className="animate-pulse flex flex-col items-center">
-          <div className="w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="mt-4 text-slate-500">Loading blogs...</p>
-        </div>
-      </div>
-    );
-  }
+  const categories = [
+    { name: "All", count: totalAllCategoryCount },
+    ...Object.entries(categoryCounts).map(([name, count]) => ({ name, count }))
+  ];
 
   return (
     <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
         {/* Main Content Area */}
         <div className="lg:col-span-8 flex flex-col min-h-0">
-          {/* Page Header */}
-          <BlogPageHeader totalCount={filteredBlogs.length} />
+          <BlogPageHeader totalCount={totalBlogsCount} />
 
-          {/* Blogs Grid */}
-          <BlogList 
-            currentBlogs={currentBlogs} 
-            setSearchQuery={setSearchQuery} 
-            setSelectedCategory={setSelectedCategory} 
-          />
+          <BlogList currentBlogs={blogs} />
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="mt-8 flex justify-center">
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
-                onPageChange={setCurrentPage}
               />
             </div>
           )}
@@ -101,16 +67,14 @@ export default function BlogsPage() {
 
         {/* Right Sidebar */}
         <RightSidebar
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          selectedBrand={null}
-          setSelectedBrand={() => { }}
-          newArrivals={newArrivals}
-          topRated={topRated}
+          blogs={blogs}
           categories={categories}
-          brands={[]} // No brands for blogs
+          selectedCategory={category}
+          searchQuery={query}
+          isBlogsRoute={true}
+          newArrivals={[]}
+          topRated={[]}
+          brands={[]}
         />
       </div>
     </div>

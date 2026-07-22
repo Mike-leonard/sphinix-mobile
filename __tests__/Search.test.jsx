@@ -9,6 +9,7 @@ vi.mock('next/navigation', () => ({
     push: vi.fn(),
   }),
   usePathname: () => '/',
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 describe('Search Component', () => {
@@ -29,17 +30,13 @@ describe('Search Component', () => {
     expect(setSearchQuery).toHaveBeenCalledWith('Galaxy');
   });
 
-  test('changes active scope when scope buttons are clicked', async () => {
-    render(<Search searchQuery="Galaxy" setSearchQuery={() => {}} selectedCategory="All Types" setSelectedCategory={() => {}} />);
+  test('changes active scope when scope buttons are clicked', () => {
+    render(<Search searchQuery="iPhone" setSearchQuery={() => {}} selectedCategory="All Types" setSelectedCategory={() => {}} />);
     
-    // Ensure "Phones" scope button exists
-    const devicesBtn = screen.getByText('Phones');
-    expect(devicesBtn).toBeInTheDocument();
+    const phonesBadge = screen.getByText('Phones');
+    fireEvent.click(phonesBadge);
     
-    fireEvent.click(devicesBtn);
-    
-    // Active scope should be updated (visual change or class change usually)
-    // Here we can check if it has the active class (bg-brand-600)
-    expect(devicesBtn.className).toMatch(/bg-brand-600/);
+    // Phones badge should be styled as active (default variant has bg-brand-600)
+    expect(phonesBadge).toHaveClass('bg-brand-600');
   });
 });

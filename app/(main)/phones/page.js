@@ -206,7 +206,7 @@ export default function DevicesPage() {
         </div>
 
         {/* Right Sidebar */}
-        <RightSidebar
+       {/*  <RightSidebar
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           selectedBrand={selectedBrand}
@@ -223,7 +223,7 @@ export default function DevicesPage() {
               className="!mb-0"
             />
           }
-        />
+        /> */}
 
       </div>
 

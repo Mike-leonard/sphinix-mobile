@@ -8,10 +8,13 @@ import {
   createBlogQuery, 
   updateBlogById, 
   deleteBlogById, 
-  updateBlogCategory 
+  updateBlogCategory, 
+  getPublishedBlogs,
+  getPublishedBlogsCount,
+  getBlogCategoryCountsQuery
 } from '@/queries/blogs';
 
-export async function getBlogs() {
+export async function allBlogs() {
   try {
     const blogs = await getAllBlogs();
     return blogs;
@@ -20,6 +23,79 @@ export async function getBlogs() {
     return [];
   }
 }
+
+export async function publishedBlogsCount(optionsOrQuery = '', categoryParam = 'All') {
+  try {
+    const count = await getPublishedBlogsCount(optionsOrQuery, categoryParam);
+    return count;
+  } catch (error) {
+    console.error('Error reading blogs count from DB:', error);
+    return 0;
+  }
+}
+
+export async function publishedBlogs(optionsOrLimit = 10, queryParam = '', categoryParam = 'All', offsetParam = 0) {
+  try {
+    const blogs = await getPublishedBlogs(optionsOrLimit, queryParam, categoryParam, offsetParam);
+    return blogs;
+  } catch (error) {
+    console.error('Error reading published blogs from DB:', error);
+    return [];
+  }
+}
+
+export async function getBlogCategoryCounts() {
+  try {
+    const counts = await getBlogCategoryCountsQuery();
+    return counts;
+  } catch (error) {
+    console.error('Error reading category counts from DB:', error);
+    return [];
+  }
+}
+
+export async function getFeaturedBlogs() {
+  try {
+    const blogs = await getFeaturedBlogsQuery();
+    return blogs;
+  } catch (error) {
+    console.error('Error reading featured blogs from DB:', error);
+    return [];
+  }
+}
+
+export async function getRecentBlogs(limit = 10) {
+  try {
+    const blogs = await getRecentBlogsQuery(limit);
+    return blogs;
+  } catch (error) {
+    console.error('Error reading recent blogs from DB:', error);
+    return [];
+  }
+}
+
+export async function getBlogsByCategory(category, limit = 10) {
+  try {
+    const blogs = await getBlogsByCategoryQuery(category, limit);
+    return blogs;
+  } catch (error) {
+    console.error('Error reading blogs by category from DB:', error);
+    return [];
+  }
+}
+
+
+export async function getBlogsBySearchWithPaginationQuery(query, page, limit) {
+  try {
+    const result = await getBlogsBySearchWithPaginationQuery(query, page, limit);
+    return result;
+  } catch (error) {
+    console.error('Error reading blogs by search with pagination from DB:', error);
+    return { blogs: [], total: 0 };
+  }
+}
+
+
 
 export async function getBlogById(id) {
   try {

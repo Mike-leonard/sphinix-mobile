@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ChevronRight, ArrowLeft } from 'lucide-react';
 import RightSidebar from '@/components/sidebar/RightSidebar';
-import { getBlogs } from '@/actions/blogs';
+
 import MOCK_PRODUCTS from '@/data/products.json';
 import { generateBlogSlug } from '@/lib/utils';
 import BlogBreadcrumb from './_components/BlogBreadcrumb';
@@ -13,6 +13,7 @@ import BlogMeta from './_components/BlogMeta';
 import BlogContent from './_components/BlogContent';
 import RelatedArticles from './_components/RelatedArticles';
 import AdBanner from '@/components/ads/AdBanner';
+import { allBlogs } from '@/actions/blogs';
 
 export default function BlogPostPage({ params }) {
   // Unwrap params using React.use for Next 15+ compatibility
@@ -24,9 +25,9 @@ export default function BlogPostPage({ params }) {
 
   const [MOCK_BLOGS, setMockBlogs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   React.useEffect(() => {
-    getBlogs().then(blogs => {
+    allBlogs().then(blogs => {
       setMockBlogs(blogs || []);
       setIsLoading(false);
     });
@@ -97,16 +98,10 @@ export default function BlogPostPage({ params }) {
 
         {/* Right Sidebar */}
         <RightSidebar
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          selectedBrand={null}
-          setSelectedBrand={() => { }}
-          newArrivals={newArrivals}
-          topRated={topRated}
+          isBlogsRoute={true}
           categories={categories}
-          brands={[]}
+          searchQuery={searchQuery}
+          selectedCategory={selectedCategory}
         />
       </div>
     </div>
