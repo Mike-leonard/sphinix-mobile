@@ -6,8 +6,6 @@ import RightSidebar from '@/components/sidebar/RightSidebar';
 import { getDevices } from '@/actions/devices';
 import { getSettings } from '@/actions/settings';
 
-const BRANDS = ["All", "Apple", "Samsung", "OnePlus", "Google", "LG", "Nokia", "HTC", "Sony", "Motorola", "Huawei", "Oppo"];
-
 export default async function Home() {
   const [settings, products] = await Promise.all([
     getSettings(),
@@ -20,18 +18,6 @@ export default async function Home() {
   const filteredProducts = publishedProducts.slice(0, homeLimits.deviceLimit);
   const newArrivals = publishedProducts.filter(p => p.isNew);
   const topRated = publishedProducts.filter(p => p.isTopRated);
-
-  const brandCounts = { "All": publishedProducts.length };
-  publishedProducts.forEach(p => {
-    if (p.brand) {
-      brandCounts[p.brand] = (brandCounts[p.brand] || 0) + 1;
-    }
-  });
-
-  const dynamicBrands = BRANDS.map(name => ({
-    name,
-    count: brandCounts[name] || 0
-  })).filter(brand => brand.count > 0 || brand.name === "All");
 
   return (
     <div className="text-slate-800 dark:text-slate-100">
@@ -64,7 +50,6 @@ export default async function Home() {
           <RightSidebar
             newArrivals={newArrivals}
             topRated={topRated}
-            brands={dynamicBrands}
             isHomeRoute={true}
           />
 

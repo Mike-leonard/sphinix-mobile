@@ -57,7 +57,7 @@ export default function RightSidebar({
       )}
 
       {/* BRANDS LIST CHIPS - Hide on blogs route */}
-      {!isBlogsRoute && brands.length > 0 && (
+      {!isBlogsRoute && (
         <BrandList
           brands={brands}
           selectedBrand={selectedBrand}

@@ -26,18 +26,28 @@ model User {
   modifiedAt    DateTime @updatedAt
 }
 
+model DeviceBrand {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  slug      String?  @unique
+  devices   Device[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Device {
-  id         String  @id
-  name       String
-  brand      String
-  category   String
-  price      String
-  rating     Float   @default(0)
-  imageColor String
-  isNew      Boolean @default(false)
-  isTopRated Boolean @default(false)
-  status     String
-  specs      Json
+  id          String       @id
+  name        String
+  brand       String
+  brandId     Int?
+  deviceBrand DeviceBrand? @relation(fields: [brandId], references: [id])
+  price       String
+  rating      Float        @default(0)
+  imageColor  String
+  isNew       Boolean      @default(false)
+  isTopRated  Boolean      @default(false)
+  status      String
+  specs       Json
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -71,4 +81,3 @@ model Blog {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
-
