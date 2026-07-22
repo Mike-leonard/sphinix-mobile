@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+import { generateBlogSlug } from '@/lib/utils';
 
 export async function getAllBlogs() {
   return await prisma.blog.findMany({
@@ -150,7 +151,6 @@ export async function getBlogsBySearchWithPagination(
   return { blogs, total };
 }
 
-
 export async function getBlogsByCategory(category, limit = 10) {
   return await prisma.blog.findMany({
     where: {
@@ -165,12 +165,45 @@ export async function getBlogsByCategory(category, limit = 10) {
   });
 }
 
-
-
 export async function getBlogById(id) {
   return await prisma.blog.findUnique({
     where: { id: parseInt(id) }
   });
+}
+
+export async function getBlogBySlugQuery(slug) {
+  const publishedBlogs = await prisma.blog.findMany({
+    where: { status: 'published' }
+  });
+  return publishedBlogs.find(b => generateBlogSlug(b.title) === slug || String(b.id) === String(slug)) || null;
+}
+
+export async function getRelatedBlogsQuery(currentBlog, limit = 3) {
+  if (!currentBlog) return [];
+  let related = await prisma.blog.findMany({
+    where: {
+      status: 'published',
+      category: currentBlog.category,
+      NOT: { id: currentBlog.id }
+    },
+    orderBy: { createdAt: 'desc' },
+    take: limit
+  });
+
+  if (related.length < limit) {
+    const remainingLimit = limit - related.length;
+    const relatedIds = related.map(b => b.id);
+    const others = await prisma.blog.findMany({
+      where: {
+        status: 'published',
+        NOT: { id: { in: [currentBlog.id, ...relatedIds] } }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: remainingLimit
+    });
+    related = [...related, ...others];
+  }
+  return related;
 }
 
 export async function createBlogQuery(data) {

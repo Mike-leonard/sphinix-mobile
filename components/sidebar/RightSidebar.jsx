@@ -31,10 +31,7 @@ export default function RightSidebar({
         )}
       </div>
 
-      {/* BLOG CATEGORIES (Rendered specifically when on blogs route) */}
-      {isBlogsRoute && (
-        <Categories selectedCategory={selectedCategory} />
-      )}
+      
 
       {/* NEW ARRIVALS (Hide on devices route and blogs route) */}
       {!(isDevicesRoute || isBlogsRoute) && (
@@ -44,10 +41,14 @@ export default function RightSidebar({
       {/* TRENDING BLOGS (Async Server Component) */}
       <TrendingBlogsSidebar limit={4} />
 
-      {/* TOP RATED (Devices - Hide on blogs route) */}
-      {!isBlogsRoute && (
-        <TopRated />
+      {/* TOP RATED (Everywhere) */}
+      <TopRated />
+      
+      {/* BLOG CATEGORIES (Rendered specifically when on blogs route) */}
+      {isBlogsRoute && (
+        <Categories selectedCategory={selectedCategory} />
       )}
+
 
       {/* BRANDS LIST CHIPS - Hide on blogs route */}
       {!isBlogsRoute && (
