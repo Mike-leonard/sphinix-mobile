@@ -3,7 +3,7 @@ import Pagination from '@/components/Pagination';
 import RightSidebar from '@/components/sidebar/RightSidebar';
 import BlogPageHeader from './_components/BlogPageHeader';
 import BlogList from './_components/BlogList';
-import { publishedBlogs, publishedBlogsCount, getBlogCategoryCounts } from '@/actions/blogs';
+import { publishedBlogs, publishedBlogsCount, blogCategoryCounts } from '@/actions/blogs';
 import { getSettings } from '@/actions/settings';
 import { getDevices } from '@/actions/devices';
 
@@ -23,7 +23,7 @@ export default async function BlogsPage({ searchParams }) {
     publishedBlogs({ limit: itemsPerPage, offset, query, category }),
     publishedBlogsCount({ query, category }),
     getDevices(),
-    getBlogCategoryCounts()
+    blogCategoryCounts()
   ]);
 
   // 3. Server-side pagination calculation

@@ -44,7 +44,7 @@ export async function publishedBlogs(optionsOrLimit = 10, queryParam = '', categ
   }
 }
 
-export async function getBlogCategoryCounts() {
+export async function blogCategoryCounts() {
   try {
     const counts = await getBlogCategoryCountsQuery();
     return counts;
