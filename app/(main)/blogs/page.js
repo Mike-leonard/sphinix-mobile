@@ -5,7 +5,6 @@ import BlogPageHeader from './_components/BlogPageHeader';
 import BlogList from './_components/BlogList';
 import { publishedBlogs, publishedBlogsCount } from '@/actions/blogs';
 import { getSettings } from '@/actions/settings';
-import { getDevices } from '@/actions/devices';
 
 export default async function BlogsPage({ searchParams }) {
   const resolvedSearchParams = await searchParams;
@@ -19,10 +18,9 @@ export default async function BlogsPage({ searchParams }) {
   const offset = Math.max(0, (page - 1) * itemsPerPage);
 
   // 2. Fetch only necessary paginated blogs, total matching count & devices in parallel
-  const [blogs, totalBlogsCount, devices] = await Promise.all([
+  const [blogs, totalBlogsCount] = await Promise.all([
     publishedBlogs({ limit: itemsPerPage, offset, query, category }),
     publishedBlogsCount({ query, category }),
-    getDevices()
   ]);
 
   // 3. Server-side pagination calculation
