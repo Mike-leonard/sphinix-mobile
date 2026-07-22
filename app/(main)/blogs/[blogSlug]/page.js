@@ -1,8 +1,6 @@
 'use client';
-import React, { useState, useMemo, useEffect } from 'react';
-import Link from 'next/link';
+import React, { useState, useMemo } from 'react';
 import { notFound } from 'next/navigation';
-import { ChevronRight, ArrowLeft } from 'lucide-react';
 import RightSidebar from '@/components/sidebar/RightSidebar';
 
 import MOCK_PRODUCTS from '@/data/products.json';
@@ -21,7 +19,6 @@ export default function BlogPostPage({ params }) {
   const { blogSlug } = resolvedParams;
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
 
   const [MOCK_BLOGS, setMockBlogs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,18 +29,6 @@ export default function BlogPostPage({ params }) {
       setIsLoading(false);
     });
   }, []);
-
-  const categories = useMemo(() => {
-    const publishedBlogs = MOCK_BLOGS.filter(blog => blog.status === 'published');
-    const counts = { "All": publishedBlogs.length };
-    publishedBlogs.forEach(b => {
-      counts[b.category] = (counts[b.category] || 0) + 1;
-    });
-    return Object.entries(counts).map(([name, count]) => ({ name, count }));
-  }, [MOCK_BLOGS]);
-
-  const newArrivals = useMemo(() => MOCK_PRODUCTS.filter(p => p.isNew), []);
-  const topRated = useMemo(() => MOCK_PRODUCTS.filter(p => p.isTopRated), []);
 
   const blog = useMemo(() => {
     return MOCK_BLOGS.find(b => generateBlogSlug(b.title) === blogSlug && b.status === 'published');
@@ -99,9 +84,7 @@ export default function BlogPostPage({ params }) {
         {/* Right Sidebar */}
         <RightSidebar
           isBlogsRoute={true}
-          categories={categories}
           searchQuery={searchQuery}
-          selectedCategory={selectedCategory}
         />
       </div>
     </div>

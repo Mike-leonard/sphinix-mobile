@@ -1,29 +1,13 @@
-'use client';
 import React from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { getCategoryListWithCounts } from '@/actions/categories';
 
-export default function Categories({ categories = [], selectedCategory: propSelectedCategory, setSelectedCategory }) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+export default async function Categories({ selectedCategory: propSelectedCategory }) {
+  const categories = await getCategoryListWithCounts();
 
-  const urlCategory = searchParams ? searchParams.get('category') : null;
-  const activeCategory = propSelectedCategory || urlCategory || "All";
+  if (!categories || categories.length === 0) return null;
 
-  const handleCategorySelect = (catName) => {
-    if (typeof setSelectedCategory === 'function') {
-      setSelectedCategory(catName);
-    } else {
-      const params = new URLSearchParams(searchParams ? searchParams.toString() : '');
-      if (catName === 'All') {
-        params.delete('category');
-      } else {
-        params.set('category', catName);
-      }
-      params.delete('page'); // Reset page when category changes
-      const queryString = params.toString();
-      router.push(queryString ? `?${queryString}` : '/blogs');
-    }
-  };
+  const activeCategory = propSelectedCategory || "All";
 
   return (
     <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-4 shadow-sm">
@@ -34,11 +18,12 @@ export default function Categories({ categories = [], selectedCategory: propSele
       <div className="flex flex-wrap gap-2">
         {categories.map(cat => {
           const isSelected = activeCategory.toLowerCase() === cat.name.toLowerCase() || (activeCategory === "All" && cat.name === "All");
+          const href = cat.name === 'All' ? '/blogs' : `/blogs?category=${encodeURIComponent(cat.name)}`;
+
           return (
-            <button
+            <Link
               key={cat.name}
-              type="button"
-              onClick={() => handleCategorySelect(cat.name)}
+              href={href}
               className={`cursor-pointer px-3.5 py-1.5 rounded-xl text-xs font-medium inline-flex items-center gap-2 transition-all duration-200 border ${
                 isSelected
                   ? 'bg-brand-500 text-white border-brand-500 shadow-sm shadow-brand-500/20 font-semibold scale-[1.02]'
@@ -53,7 +38,7 @@ export default function Categories({ categories = [], selectedCategory: propSele
               }`}>
                 {cat.count}
               </span>
-            </button>
+            </Link>
           );
         })}
       </div>

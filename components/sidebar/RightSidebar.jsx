@@ -11,7 +11,6 @@ export default function RightSidebar({
   searchQuery,
   selectedBrand,
   selectedCategory,
-  categories = [],
   newArrivals = [],
   topRated = [],
   brands = [],
@@ -36,11 +35,8 @@ export default function RightSidebar({
       </div>
 
       {/* BLOG CATEGORIES (Rendered specifically when on blogs route) */}
-      {isBlogsRoute && categories.length > 0 && (
-        <Categories
-          categories={categories}
-          selectedCategory={selectedCategory}
-        />
+      {isBlogsRoute && (
+        <Categories selectedCategory={selectedCategory} />
       )}
 
       {/* NEW ARRIVALS (Hide on devices route and blogs route) */}
