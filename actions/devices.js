@@ -9,6 +9,8 @@ import {
   getPublishedDevicesQuery,
   getPublishedDevicesCountQuery,
   getDeviceBrandCountsQuery,
+  getNewArrivalsQuery,
+  getTopRatedDevicesQuery,
   createDeviceQuery,
   updateDeviceQuery,
   deleteDeviceQuery,
@@ -59,6 +61,24 @@ export async function getDeviceBrandCounts() {
   } catch (error) {
     console.error('Error fetching device brand counts:', error);
     return { "All": 0 };
+  }
+}
+
+export async function getNewArrivals(limit = 6) {
+  try {
+    return await getNewArrivalsQuery(limit);
+  } catch (error) {
+    console.error('Error fetching new arrivals:', error);
+    return [];
+  }
+}
+
+export async function getTopRatedDevices(limit = 3) {
+  try {
+    return await getTopRatedDevicesQuery(limit);
+  } catch (error) {
+    console.error('Error fetching top rated devices:', error);
+    return [];
   }
 }
 

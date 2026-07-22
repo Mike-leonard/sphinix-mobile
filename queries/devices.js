@@ -103,6 +103,28 @@ export async function getDeviceBrandCountsQuery() {
   return brandCounts;
 }
 
+export async function getNewArrivalsQuery(limit = 6) {
+  return await prisma.device.findMany({
+    where: {
+      status: 'published',
+      isNew: true
+    },
+    orderBy: { createdAt: 'desc' },
+    take: limit
+  });
+}
+
+export async function getTopRatedDevicesQuery(limit = 3) {
+  return await prisma.device.findMany({
+    where: {
+      status: 'published',
+      isTopRated: true
+    },
+    orderBy: { rating: 'desc' },
+    take: limit
+  });
+}
+
 export async function createDeviceQuery(deviceData) {
   return await prisma.device.create({
     data: deviceData,

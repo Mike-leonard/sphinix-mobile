@@ -48,8 +48,6 @@ export default async function Home() {
 
           {/* RIGHT COLUMN: SIDEBAR */}
           <RightSidebar
-            newArrivals={newArrivals}
-            topRated={topRated}
             isHomeRoute={true}
           />
 
