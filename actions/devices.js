@@ -8,6 +8,7 @@ import {
   getDeviceByIdQuery,
   getPublishedDevicesQuery,
   getPublishedDevicesCountQuery,
+  getDeviceBrandCountsQuery,
   createDeviceQuery,
   updateDeviceQuery,
   deleteDeviceQuery,
@@ -52,6 +53,15 @@ export async function publishedDevicesCount(optionsOrQuery = '', brandParam = 'A
   }
 }
 
+export async function getDeviceBrandCounts() {
+  try {
+    return await getDeviceBrandCountsQuery();
+  } catch (error) {
+    console.error('Error fetching device brand counts:', error);
+    return { "All": 0 };
+  }
+}
+
 export async function createDevice(formData) {
   try {
     const user = await verifySession();
@@ -73,7 +83,6 @@ export async function createDevice(formData) {
       id: uniqueId,
       name: formData.name,
       brand: formData.brand,
-      category: formData.category || 'Devices',
       price: formData.price,
       rating: parseFloat(formData.rating) || 0,
       imageColor: formData.imageColor || 'from-slate-600 to-zinc-800',
@@ -121,7 +130,6 @@ export async function updateDevice(id, formData) {
     const updateData = {};
     if (formData.name !== undefined) updateData.name = formData.name;
     if (formData.brand !== undefined) updateData.brand = formData.brand;
-    if (formData.category !== undefined) updateData.category = formData.category;
     if (formData.price !== undefined) updateData.price = formData.price;
     if (formData.rating !== undefined) updateData.rating = parseFloat(formData.rating);
     if (formData.imageColor !== undefined) updateData.imageColor = formData.imageColor;

@@ -2,13 +2,15 @@ import prisma from '@/lib/prisma';
 
 export async function getAllDevicesQuery() {
   return await prisma.device.findMany({
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
+    include: { deviceBrand: true }
   });
 }
 
 export async function getDeviceByIdQuery(id) {
   return await prisma.device.findUnique({
-    where: { id }
+    where: { id },
+    include: { deviceBrand: true }
   });
 }
 
@@ -16,14 +18,12 @@ export async function getPublishedDevicesQuery(optionsOrLimit = 10, queryParam =
   let limit = 10;
   let query = '';
   let brand = 'All';
-  let category = 'All';
   let offset = 0;
 
   if (typeof optionsOrLimit === 'object' && optionsOrLimit !== null) {
     limit = optionsOrLimit.limit ?? 10;
     query = optionsOrLimit.query || '';
     brand = optionsOrLimit.brand || 'All';
-    category = optionsOrLimit.category || 'All';
     offset = optionsOrLimit.offset ?? 0;
   } else {
     limit = optionsOrLimit ?? 10;
@@ -38,15 +38,10 @@ export async function getPublishedDevicesQuery(optionsOrLimit = 10, queryParam =
     where.brand = { equals: brand, mode: 'insensitive' };
   }
 
-  if (category && category !== 'All') {
-    where.category = { equals: category, mode: 'insensitive' };
-  }
-
   if (query) {
     where.OR = [
       { name: { contains: query, mode: 'insensitive' } },
-      { brand: { contains: query, mode: 'insensitive' } },
-      { category: { contains: query, mode: 'insensitive' } }
+      { brand: { contains: query, mode: 'insensitive' } }
     ];
   }
 
@@ -54,7 +49,8 @@ export async function getPublishedDevicesQuery(optionsOrLimit = 10, queryParam =
     where,
     orderBy: { createdAt: 'desc' },
     take: limit,
-    skip: offset
+    skip: offset,
+    include: { deviceBrand: true }
   });
 }
 
@@ -79,24 +75,46 @@ export async function getPublishedDevicesCountQuery(optionsOrQuery = '', brandPa
   if (query) {
     where.OR = [
       { name: { contains: query, mode: 'insensitive' } },
-      { brand: { contains: query, mode: 'insensitive' } },
-      { category: { contains: query, mode: 'insensitive' } }
+      { brand: { contains: query, mode: 'insensitive' } }
     ];
   }
 
   return await prisma.device.count({ where });
 }
 
+export async function getDeviceBrandCountsQuery() {
+  const brandGroups = await prisma.device.groupBy({
+    by: ['brand'],
+    where: { status: 'published' },
+    _count: { id: true }
+  });
+
+  const totalCount = await prisma.device.count({
+    where: { status: 'published' }
+  });
+
+  const brandCounts = { "All": totalCount };
+  brandGroups.forEach(group => {
+    if (group.brand) {
+      brandCounts[group.brand] = group._count.id;
+    }
+  });
+
+  return brandCounts;
+}
+
 export async function createDeviceQuery(deviceData) {
   return await prisma.device.create({
-    data: deviceData
+    data: deviceData,
+    include: { deviceBrand: true }
   });
 }
 
 export async function updateDeviceQuery(id, updateData) {
   return await prisma.device.update({
     where: { id },
-    data: updateData
+    data: updateData,
+    include: { deviceBrand: true }
   });
 }
 
