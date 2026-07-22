@@ -1,15 +1,22 @@
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
+import { getTopRatedDevices } from '@/actions/devices';
 
-export default function TopRated({ topRated = [] }) {
+export default async function TopRated({ topRated: propTopRated, limit = 3 }) {
+  let devices = propTopRated;
+
+  if (!devices || devices.length === 0) {
+    devices = await getTopRatedDevices(limit);
+  }
+
+  if (!devices || devices.length === 0) return null;
+
   return (
     <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
       <h3 style={{fontSize: "var(--font-size-h3-section, var(--font-size-h3-default))"}} className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Top Rated</h3>
 
       <div className="space-y-3">
-        {(topRated || []).slice(0, 3).map(prod => (
+        {devices.slice(0, limit).map(prod => (
           <Link
             key={prod.id}
             href={`/phones?q=${encodeURIComponent(prod.name)}`}

@@ -1,9 +1,16 @@
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
+import { getNewArrivals } from '@/actions/devices';
 
-export default function NewArrivals({ newArrivals = [] }) {
+export default async function NewArrivals({ newArrivals: propNewArrivals, limit = 6 }) {
+  let arrivals = propNewArrivals;
+
+  if (!arrivals || arrivals.length === 0) {
+    arrivals = await getNewArrivals(limit);
+  }
+
+  if (!arrivals || arrivals.length === 0) return null;
+
   return (
     <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
       <h3 style={{fontSize: "var(--font-size-h3-section, var(--font-size-h3-default))"}} className="text-base font-bold text-slate-900 dark:text-white tracking-tight flex items-center justify-between">
@@ -12,7 +19,7 @@ export default function NewArrivals({ newArrivals = [] }) {
       </h3>
 
       <div className="grid grid-cols-3 gap-2">
-        {(newArrivals || []).slice(0, 6).map(prod => (
+        {arrivals.slice(0, limit).map(prod => (
           <Link
             key={prod.id}
             href={`/phones?q=${encodeURIComponent(prod.name)}`}

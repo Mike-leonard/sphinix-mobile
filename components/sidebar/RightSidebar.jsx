@@ -11,9 +11,6 @@ export default function RightSidebar({
   searchQuery,
   selectedBrand,
   selectedCategory,
-  newArrivals = [],
-  topRated = [],
-  brands = [],
   advancedFiltersComponent,
   isBlogsRoute = false,
   isDevicesRoute = false,
@@ -40,26 +37,21 @@ export default function RightSidebar({
       )}
 
       {/* NEW ARRIVALS (Hide on devices route and blogs route) */}
-      {!(isDevicesRoute || isBlogsRoute) && newArrivals.length > 0 && (
-        <NewArrivals
-          newArrivals={newArrivals}
-        />
+      {!(isDevicesRoute || isBlogsRoute) && (
+        <NewArrivals />
       )}
 
       {/* TRENDING BLOGS (Async Server Component) */}
       <TrendingBlogsSidebar limit={4} />
 
       {/* TOP RATED (Devices - Hide on blogs route) */}
-      {!isBlogsRoute && topRated.length > 0 && (
-        <TopRated
-          topRated={topRated}
-        />
+      {!isBlogsRoute && (
+        <TopRated />
       )}
 
       {/* BRANDS LIST CHIPS - Hide on blogs route */}
       {!isBlogsRoute && (
         <BrandList
-          brands={brands}
           selectedBrand={selectedBrand}
         />
       )}
