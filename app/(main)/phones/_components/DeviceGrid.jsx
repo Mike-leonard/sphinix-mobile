@@ -2,15 +2,20 @@ import React from 'react';
 import InFeedAd from '@/components/ads/InFeedAd';
 import ProductCard from '@/app/(main)/_components/_cards/ProductCard';
 import DeviceListCard from '@/app/(main)/phones/_components/DeviceListCard';
-import { useSettings } from '@/context/SettingsContext';
+import { getDeviceViewMode } from '@/actions/devices';
+import { getSettings } from '@/actions/settings';
 
-export default function DeviceGrid({ currentProducts, viewMode, compareList, handleToggleCompare }) {
-  const settings = useSettings();
+export default async function DeviceGrid({ currentProducts = [] }) {
+  const [viewMode, settings] = await Promise.all([
+    getDeviceViewMode(),
+    getSettings()
+  ]);
+
   const freq = settings?.advertisements?.injectionFrequency?.phonesPageGrid || 6;
   if (currentProducts.length === 0) {
     return (
       <div className="py-20 text-center text-slate-500 dark:text-slate-400">
-        <p  style={{fontSize: "var(--font-size-p-default, var(--font-size-p-default))"}} className="text-xl font-bold mb-2">No devices found</p>
+        <p style={{fontSize: "var(--font-size-p-default, var(--font-size-p-default))"}} className="text-xl font-bold mb-2">No devices found</p>
         <p>Try adjusting your filters or search query.</p>
       </div>
     );
@@ -31,14 +36,10 @@ export default function DeviceGrid({ currentProducts, viewMode, compareList, han
           {viewMode === 'grid' ? (
             <ProductCard
               product={product}
-              isComparing={compareList.some(item => item.id === product.id)}
-              onToggleCompare={() => handleToggleCompare(product)}
             />
           ) : (
             <DeviceListCard
               product={product}
-              isComparing={compareList.some(item => item.id === product.id)}
-              onToggleCompare={() => handleToggleCompare(product)}
             />
           )}
         </React.Fragment>

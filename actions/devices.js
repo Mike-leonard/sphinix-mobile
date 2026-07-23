@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
 import { verifySession } from './auth';
 import { generateDeviceSlug } from '@/lib/utils';
 import {
@@ -238,3 +239,27 @@ export async function reassignDeviceBrand(oldBrand, newBrand) {
     return { success: false, error: error.message || 'Failed to reassign device brand' };
   }
 }
+
+export async function setDeviceViewMode(mode) {
+  try {
+    const cookieStore = await cookies();
+    cookieStore.set('deviceViewMode', mode, { path: '/', maxAge: 60 * 60 * 24 * 365 });
+    revalidatePath('/phones');
+    return { success: true };
+  } catch (error) {
+    console.error('Error setting device view mode:', error);
+    return { success: false };
+  }
+}
+
+export async function getDeviceViewMode() {
+  try {
+    const cookieStore = await cookies();
+    const mode = cookieStore.get('deviceViewMode')?.value;
+    return mode === 'list' ? 'list' : 'grid';
+  } catch (error) {
+    console.error('Error getting device view mode:', error);
+    return 'grid';
+  }
+}
+

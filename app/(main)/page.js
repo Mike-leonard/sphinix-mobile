@@ -3,21 +3,12 @@ import AdBanner from '@/components/ads/AdBanner';
 import ProductSection from './_components/_sections/ProductSection';
 import BlogSection from './_components/_sections/BlogSection';
 import RightSidebar from '@/components/sidebar/RightSidebar';
-import { getDevices } from '@/actions/devices';
 import { getSettings } from '@/actions/settings';
 
 export default async function Home() {
-  const [settings, products] = await Promise.all([
-    getSettings(),
-    getDevices()
-  ]);
 
+  const settings = await getSettings();
   const homeLimits = settings?.appearance?.home || { deviceLimit: 8, blogLimit: 3 };
-
-  const publishedProducts = products.filter(p => p.status === 'published');
-  const filteredProducts = publishedProducts.slice(0, homeLimits.deviceLimit);
-  const newArrivals = publishedProducts.filter(p => p.isNew);
-  const topRated = publishedProducts.filter(p => p.isTopRated);
 
   return (
     <div className="text-slate-800 dark:text-slate-100">
@@ -34,7 +25,7 @@ export default async function Home() {
 
             {/* LATEST PRODUCTS SECTION */}
             <ProductSection
-              filteredProducts={filteredProducts}
+              limit={homeLimits.deviceLimit}
               isHomePage={true}
             />
 

@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import { generateBrandSlug } from '@/lib/utils';
+import DeviceListCardCompare from './DeviceListCardCompare';
 
 export default function DeviceListCard({ product, isComparing, onToggleCompare }) {
   const slug = product.id;
@@ -27,7 +28,7 @@ export default function DeviceListCard({ product, isComparing, onToggleCompare }
       <div className="flex-1 p-6 flex flex-col justify-between">
         <div>
           <div className="flex justify-between items-start mb-2">
-            <h3  style={{fontSize: "var(--font-size-h3-section, var(--font-size-h3-default))"}} className="text-2xl font-bold text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+            <h3 style={{fontSize: "var(--font-size-h3-section, var(--font-size-h3-default))"}} className="text-2xl font-bold text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
               {product.name}
             </h3>
             <span className="bg-slate-600 dark:bg-slate-700 text-white text-sm font-bold px-3 py-1 rounded-full shadow-sm">
@@ -36,11 +37,11 @@ export default function DeviceListCard({ product, isComparing, onToggleCompare }
           </div>
 
           <div className="space-y-1 text-sm text-slate-600 dark:text-slate-400 mt-4">
-            <p><strong className="text-slate-700 dark:text-slate-300">CPU:</strong> {product.specs.chipset}</p>
-            <p><strong className="text-slate-700 dark:text-slate-300">RAM:</strong> {product.specs.ram}</p>
-            <p><strong className="text-slate-700 dark:text-slate-300">Storage:</strong> {product.specs.storage}</p>
-            <p><strong className="text-slate-700 dark:text-slate-300">Display:</strong> {product.specs.screen}</p>
-            <p><strong className="text-slate-700 dark:text-slate-300">Camera:</strong> {product.specs.camera}</p>
+            <p><strong className="text-slate-700 dark:text-slate-300">CPU:</strong> {product.specs?.chipset}</p>
+            <p><strong className="text-slate-700 dark:text-slate-300">RAM:</strong> {product.specs?.ram}</p>
+            <p><strong className="text-slate-700 dark:text-slate-300">Storage:</strong> {product.specs?.storage}</p>
+            <p><strong className="text-slate-700 dark:text-slate-300">Display:</strong> {product.specs?.screen}</p>
+            <p><strong className="text-slate-700 dark:text-slate-300">Camera:</strong> {product.specs?.camera}</p>
             <p><strong className="text-slate-700 dark:text-slate-300">OS:</strong> Android</p>
           </div>
         </div>
@@ -50,17 +51,11 @@ export default function DeviceListCard({ product, isComparing, onToggleCompare }
             View Details <span className="group-hover/link:translate-x-1 transition-transform">→</span>
           </Link>
           
-          <label className="group/compare flex items-center gap-2 cursor-pointer py-1.5 px-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
-            <input 
-              type="checkbox"
-              checked={isComparing}
-              onChange={onToggleCompare}
-              className="rounded border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-brand-600 dark:text-brand-500 focus:ring-brand-500 focus:ring-offset-white dark:focus:ring-offset-slate-900 w-4 h-4 cursor-pointer"
-            />
-            <span className={`text-sm font-semibold select-none transition-colors ${isComparing ? "text-brand-600 dark:text-brand-400 font-bold" : "text-slate-600 dark:text-slate-400 group-hover/compare:text-slate-900 dark:group-hover/compare:text-white"}`}>
-              Add to Compare
-            </span>
-          </label>
+          <DeviceListCardCompare 
+            product={product} 
+            isComparing={isComparing} 
+            onToggleCompare={onToggleCompare} 
+          />
         </div>
       </div>
       
