@@ -5,8 +5,6 @@ export default function DevicePageSidebar({ newArrivals, topRated }) {
   return (
     <RightSidebar
       selectedCategory="All"
-      newArrivals={newArrivals}
-      topRated={topRated}
       isDevicesRoute={true}
     />
   );

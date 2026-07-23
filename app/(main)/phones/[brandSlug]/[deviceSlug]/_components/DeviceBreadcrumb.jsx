@@ -13,7 +13,7 @@ export default function DeviceBreadcrumb({ device }) {
         <span className="text-slate-900 dark:text-white line-clamp-1 break-all sm:break-normal">{device.name}</span>
       </div>
       <div className="text-xs sm:text-sm font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-700 whitespace-nowrap flex-shrink-0">
-        Product Details
+        Device Details
       </div>
     </div>
   );
