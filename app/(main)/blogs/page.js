@@ -30,7 +30,7 @@ export default async function BlogsPage({ searchParams }) {
   return (
     <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
+
         {/* Main Content Area */}
         <div className="lg:col-span-8 flex flex-col min-h-0">
           <BlogPageHeader totalCount={totalBlogsCount} />

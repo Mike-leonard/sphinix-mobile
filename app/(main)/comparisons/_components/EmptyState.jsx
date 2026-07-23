@@ -1,15 +1,31 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect } from 'react';
 import { Smartphone } from 'lucide-react';
 import Link from 'next/link';
+import { useCompare } from '@/context/CompareContext';
+import { useRouter } from 'next/navigation';
 
 export default function EmptyState() {
+  const { compareList } = useCompare();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (compareList && compareList.length > 0) {
+      const ids = compareList.map(item => item.id).join(',');
+      if (ids) {
+        router.replace(`/comparisons?ids=${encodeURIComponent(ids)}`);
+      }
+    }
+  }, [compareList, router]);
+
   return (
     <div className="flex-1 flex flex-col items-center justify-center py-20 px-4">
       <div className="bg-slate-100 dark:bg-slate-800 p-6 rounded-full mb-6">
         <Smartphone className="w-12 h-12 text-slate-400" />
       </div>
-      <h1  style={{fontSize: "var(--font-size-h1-comparisons, var(--font-size-h1-default))"}} className="text-2xl font-bold text-slate-900 dark:text-white mb-2">No devices selected</h1>
-      <p  style={{fontSize: "var(--font-size-p-form, var(--font-size-p-default))"}} className="text-slate-500 dark:text-slate-400 text-center mb-6 max-w-md">
+      <h1 style={{fontSize: "var(--font-size-h1-comparisons, var(--font-size-h1-default))"}} className="text-2xl font-bold text-slate-900 dark:text-white mb-2">No devices selected</h1>
+      <p style={{fontSize: "var(--font-size-p-form, var(--font-size-p-default))"}} className="text-slate-500 dark:text-slate-400 text-center mb-6 max-w-md">
         You haven't added any devices to compare yet. Browse our selection and click "Compare" to see them side-by-side.
       </p>
       <Link 
