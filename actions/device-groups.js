@@ -1,19 +1,20 @@
 'use server';
 
-import fs from 'fs/promises';
-import path from 'path';
 import { revalidatePath } from 'next/cache';
 import { verifySession } from './auth';
-
-const getGroupsFilePath = () => path.join(process.cwd(), 'data', 'device-groups.json');
+import {
+  getDeviceGroupsQuery,
+  createDeviceGroupQuery,
+  updateDeviceGroupQuery,
+  deleteDeviceGroupQuery,
+  reorderDeviceGroupsQuery
+} from '@/queries/device-groups';
 
 export async function getDeviceGroups() {
   try {
-    const filePath = getGroupsFilePath();
-    const fileData = await fs.readFile(filePath, 'utf8');
-    return JSON.parse(fileData);
+    return await getDeviceGroupsQuery();
   } catch (error) {
-    console.error('Error reading device-groups.json:', error);
+    console.error('Error reading device groups from database:', error);
     return [];
   }
 }
@@ -36,9 +37,7 @@ export async function createDeviceGroup(newGroup) {
       return { success: false, error: 'Group already exists' };
     }
     
-    groups.push(trimmedGroup);
-    
-    await fs.writeFile(getGroupsFilePath(), JSON.stringify(groups, null, 2));
+    await createDeviceGroupQuery(trimmedGroup);
     
     revalidatePath('/dashboard/phones');
     revalidatePath('/dashboard/phones/groups');
@@ -73,15 +72,9 @@ export async function updateDeviceGroup(oldGroup, newGroup) {
       return { success: false, error: 'Group already exists' };
     }
 
-    const filteredGroups = groups.filter(g => g !== oldGroup);
+    await updateDeviceGroupQuery(oldGroup, trimmedGroup);
     
-    // Insert updated group in the same position it was before
-    const originalIndex = groups.indexOf(oldGroup);
-    filteredGroups.splice(originalIndex > -1 ? originalIndex : filteredGroups.length, 0, trimmedGroup);
-    
-    await fs.writeFile(getGroupsFilePath(), JSON.stringify(filteredGroups, null, 2));
-    
-    // Reassign attributes to new group
+    // Reassign attributes to new group name
     const { reassignAttributeGroup } = await import('./device-attributes.js');
     await reassignAttributeGroup(oldGroup, trimmedGroup);
     
@@ -105,10 +98,7 @@ export async function deleteDeviceGroup(groupToDelete) {
       return { success: false, error: 'Cannot delete the General group' };
     }
 
-    const groups = await getDeviceGroups();
-    const filteredGroups = groups.filter(g => g !== groupToDelete);
-    
-    await fs.writeFile(getGroupsFilePath(), JSON.stringify(filteredGroups, null, 2));
+    await deleteDeviceGroupQuery(groupToDelete);
     
     // Reassign affected attributes to General
     const { reassignAttributeGroup } = await import('./device-attributes.js');
@@ -134,17 +124,7 @@ export async function reorderDeviceGroups(newGroupsOrder) {
       return { success: false, error: 'Invalid groups order' };
     }
 
-    const groups = await getDeviceGroups();
-    
-    // Validate that the new order contains exactly the same groups
-    const currentSorted = [...groups].sort();
-    const newSorted = [...newGroupsOrder].sort();
-    
-    if (JSON.stringify(currentSorted) !== JSON.stringify(newSorted)) {
-      return { success: false, error: 'New order does not match existing groups' };
-    }
-
-    await fs.writeFile(getGroupsFilePath(), JSON.stringify(newGroupsOrder, null, 2));
+    await reorderDeviceGroupsQuery(newGroupsOrder);
     
     revalidatePath('/dashboard/phones');
     revalidatePath('/dashboard/phones/groups');

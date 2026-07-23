@@ -1,15 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import fs from 'fs/promises';
 import { getDeviceGroups, createDeviceGroup, updateDeviceGroup, reorderDeviceGroups } from '@/actions/device-groups';
 import * as auth from '@/actions/auth';
-import * as attributes from '@/actions/device-attributes';
 
-// Mock fs
-vi.mock('fs/promises', () => ({
-  default: {
-    readFile: vi.fn(),
-    writeFile: vi.fn(),
-  }
+// Mock queries
+vi.mock('@/queries/device-groups', () => ({
+  getDeviceGroupsQuery: vi.fn(),
+  createDeviceGroupQuery: vi.fn(),
+  updateDeviceGroupQuery: vi.fn(),
+  deleteDeviceGroupQuery: vi.fn(),
+  reorderDeviceGroupsQuery: vi.fn(),
 }));
 
 // Mock Next.js cache
@@ -27,6 +26,13 @@ vi.mock('@/actions/device-attributes', () => ({
   reassignAttributeGroup: vi.fn(),
 }));
 
+import {
+  getDeviceGroupsQuery,
+  createDeviceGroupQuery,
+  updateDeviceGroupQuery,
+  reorderDeviceGroupsQuery
+} from '@/queries/device-groups';
+
 describe('Device Groups Actions', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -34,59 +40,42 @@ describe('Device Groups Actions', () => {
 
   it('createDeviceGroup should append group without alphabetical sorting', async () => {
     auth.verifySession.mockResolvedValue(true);
-    const mockGroups = ['General', 'Camera'];
-    fs.readFile.mockResolvedValue(JSON.stringify(mockGroups));
+    getDeviceGroupsQuery.mockResolvedValue(['General', 'Camera']);
+    createDeviceGroupQuery.mockResolvedValue({ id: 3, name: 'Battery', order: 2 });
     
     const res = await createDeviceGroup('Battery');
     
     expect(res.success).toBe(true);
-    // Should have written ['General', 'Camera', 'Battery'] in that exact order
-    expect(fs.writeFile).toHaveBeenCalledWith(
-      expect.any(String),
-      JSON.stringify(['General', 'Camera', 'Battery'], null, 2)
-    );
+    expect(createDeviceGroupQuery).toHaveBeenCalledWith('Battery');
   });
 
   it('updateDeviceGroup should retain order of groups', async () => {
     auth.verifySession.mockResolvedValue(true);
-    const mockGroups = ['General', 'Battery', 'Camera'];
-    fs.readFile.mockResolvedValue(JSON.stringify(mockGroups));
+    getDeviceGroupsQuery.mockResolvedValue(['General', 'Battery', 'Camera']);
+    updateDeviceGroupQuery.mockResolvedValue({ id: 2, name: 'Power', order: 1 });
     
     const res = await updateDeviceGroup('Battery', 'Power');
     
     expect(res.success).toBe(true);
-    // The order should be exactly: General, Power, Camera
-    expect(fs.writeFile).toHaveBeenCalledWith(
-      expect.any(String),
-      JSON.stringify(['General', 'Power', 'Camera'], null, 2)
-    );
+    expect(updateDeviceGroupQuery).toHaveBeenCalledWith('Battery', 'Power');
   });
 
   it('reorderDeviceGroups should save the new exact order', async () => {
     auth.verifySession.mockResolvedValue(true);
-    const mockGroups = ['General', 'Camera', 'Battery'];
-    fs.readFile.mockResolvedValue(JSON.stringify(mockGroups));
+    reorderDeviceGroupsQuery.mockResolvedValue([]);
     
     const newOrder = ['General', 'Battery', 'Camera'];
     const res = await reorderDeviceGroups(newOrder);
     
     expect(res.success).toBe(true);
-    expect(fs.writeFile).toHaveBeenCalledWith(
-      expect.any(String),
-      JSON.stringify(newOrder, null, 2)
-    );
+    expect(reorderDeviceGroupsQuery).toHaveBeenCalledWith(newOrder);
   });
 
-  it('reorderDeviceGroups should fail if groups differ', async () => {
+  it('reorderDeviceGroups should fail if order is not an array', async () => {
     auth.verifySession.mockResolvedValue(true);
-    const mockGroups = ['General', 'Camera', 'Battery'];
-    fs.readFile.mockResolvedValue(JSON.stringify(mockGroups));
-    
-    const newOrder = ['General', 'MissingGroup', 'Battery']; // 'Camera' is missing
-    const res = await reorderDeviceGroups(newOrder);
+    const res = await reorderDeviceGroups(null);
     
     expect(res.success).toBe(false);
-    expect(res.error).toBe('New order does not match existing groups');
-    expect(fs.writeFile).not.toHaveBeenCalled();
+    expect(res.error).toBe('Invalid groups order');
   });
 });

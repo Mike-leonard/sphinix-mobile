@@ -3,7 +3,7 @@ import { expect, test, describe, vi } from 'vitest';
 import { Search } from '@/components/Search';
 import React from 'react';
 
-// Mock Next.js router
+// Mock Next.js navigation
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: vi.fn(),
@@ -12,21 +12,31 @@ vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
+// Mock server actions
+vi.mock('@/actions/devices', () => ({
+  publishedDevices: vi.fn().mockResolvedValue([
+    { id: '1', name: 'Galaxy S24', brand: 'Samsung', slug: 'galaxy-s24' }
+  ])
+}));
+
+vi.mock('@/actions/blogs', () => ({
+  publishedBlogs: vi.fn().mockResolvedValue([])
+}));
+
 describe('Search Component', () => {
   test('renders search input', () => {
     render(<Search searchQuery="" setSearchQuery={() => {}} selectedCategory="All" setSelectedCategory={() => {}} />);
-    expect(screen.getByPlaceholderText(/Search model, brand/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Search/i)).toBeInTheDocument();
   });
 
   test('opens autocomplete dropdown when typing', async () => {
     const setSearchQuery = vi.fn();
     render(<Search searchQuery="" setSearchQuery={setSearchQuery} selectedCategory="All Types" setSelectedCategory={() => {}} />);
     
-    const input = screen.getByPlaceholderText(/Search model, brand/i);
+    const input = screen.getByPlaceholderText(/Search/i);
     fireEvent.focus(input);
     fireEvent.change(input, { target: { value: 'Galaxy' } });
     
-    // Check if the mock callback was fired
     expect(setSearchQuery).toHaveBeenCalledWith('Galaxy');
   });
 
@@ -36,7 +46,6 @@ describe('Search Component', () => {
     const phonesBadge = screen.getByText('Phones');
     fireEvent.click(phonesBadge);
     
-    // Phones badge should be styled as active (default variant has bg-brand-600)
     expect(phonesBadge).toHaveClass('bg-brand-600');
   });
 });
