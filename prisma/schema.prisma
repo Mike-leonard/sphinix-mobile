@@ -65,25 +65,40 @@ model DeviceFilter {
 }
 
 model DeviceGroup {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  order     Int      @default(0)
+  id         Int               @id @default(autoincrement())
+  name       String            @unique
+  order      Int               @default(0)
+  attributes DeviceAttribute[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model DeviceAttribute {
-  id          String   @id
+  id          String       @id
   name        String
-  slug        String   @unique
+  slug        String       @unique
   terms       String[]
-  groupIds    String[]
+  group       String       @default("General")
+  groupId     Int?
+  deviceGroup DeviceGroup? @relation(fields: [groupId], references: [id])
   placeholder String?
-  order       Int      @default(0)
+  order       Int          @default(0)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model RatingBar {
+  id           String   @id @default(uuid())
+  name         String
+  slug         String   @unique
+  description  String?  @default("")
+  defaultValue Int      @default(3)
+  order        Int      @default(0)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model BlogCategory {
