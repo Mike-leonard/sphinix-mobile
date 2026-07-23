@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 
 // Filters are now passed as props from the database

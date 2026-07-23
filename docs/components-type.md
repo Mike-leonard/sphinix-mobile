@@ -14,7 +14,7 @@ This document outlines all components in the project and identifies whether they
 
 ## `app/(main)/`
 - 🖥️ **layout.js** - Server Component
-- 🌐 **page.js** - Client Component
+- 🖥️ **page.js** - Server Component
 
 ## `app/(main)/_components/`
 - 🌐 **HeroCarousel.jsx** - Client Component
@@ -22,7 +22,7 @@ This document outlines all components in the project and identifies whether they
 ## `app/(main)/_components/_cards/`
 - 🖥️ **BlogCard.jsx** - Server Component
 - 🖥️ **ProductCard.jsx** - Server Component
-- 🖥️ **ProductCardFooter.jsx** - Server Component
+- 🌐 **ProductCardFooter.jsx** - Client Component
 - 🖥️ **ProductCardImage.jsx** - Server Component
 - 🖥️ **ProductCardSpecs.jsx** - Server Component
 
@@ -35,10 +35,10 @@ This document outlines all components in the project and identifies whether they
 
 ## `app/(main)/blogs/`
 - 🖥️ **layout.js** - Server Component
-- 🌐 **page.js** - Client Component
+- 🖥️ **page.js** - Server Component
 
 ## `app/(main)/blogs/[blogSlug]/`
-- 🌐 **page.js** - Client Component
+- 🖥️ **page.js** - Server Component
 
 ## `app/(main)/blogs/[blogSlug]/_components/`
 - 🖥️ **BlogBreadcrumb.jsx** - Server Component
@@ -63,7 +63,7 @@ This document outlines all components in the project and identifies whether they
 
 ## `app/(main)/phones/`
 - 🖥️ **layout.js** - Server Component
-- 🌐 **page.js** - Client Component
+- 🖥️ **page.js** - Server Component
 
 ## `app/(main)/phones/[brandSlug]/[deviceSlug]/`
 - 🖥️ **page.js** - Server Component
@@ -96,6 +96,7 @@ This document outlines all components in the project and identifies whether they
 ## `app/(main)/phones/_components/`
 - 🖥️ **DeviceGrid.jsx** - Server Component
 - 🖥️ **DeviceListCard.jsx** - Server Component
+- 🌐 **DeviceListCardCompare.jsx** - Client Component
 - 🖥️ **MobileFiltersSheet.jsx** - Server Component
 - 🖥️ **SortingControl.jsx** - Server Component
 
@@ -339,18 +340,18 @@ This document outlines all components in the project and identifies whether they
 - 🖥️ **route.js** - Server Component
 
 ## `components/`
-- 🖥️ **AdvancedFilters.jsx** - Server Component
+- 🌐 **AdvancedFilters.jsx** - Client Component
 - 🌐 **AuthModal.jsx** - Client Component
 - 🌐 **CompareDrawer.jsx** - Client Component
 - 🖥️ **DynamicStyles.jsx** - Server Component
 - 🖥️ **Footer.jsx** - Server Component
-- 🖥️ **Pagination.jsx** - Server Component
+- 🌐 **Pagination.jsx** - Client Component
 - 🌐 **Search.jsx** - Client Component
 - 🖥️ **StructuredData.jsx** - Server Component
 
 ## `components/ads/`
 - 🌐 **AdBanner.jsx** - Client Component
-- 🖥️ **InFeedAd.jsx** - Server Component
+- 🌐 **InFeedAd.jsx** - Client Component
 
 ## `components/navbar/`
 - 🌐 **DesktopNav.jsx** - Client Component
