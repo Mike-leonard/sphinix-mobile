@@ -1,6 +1,5 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
-import CompareDrawer from '@/components/CompareDrawer';
 import { getDeviceById, publishedDevices } from '@/actions/devices';
 import { getRatingBars } from '@/actions/rating-bars';
 import { getDeviceAttributes } from '@/actions/device-attributes';
@@ -64,8 +63,6 @@ export default async function DeviceDetailsPage({ params }) {
         <DevicePageSidebar />
 
       </div>
-
-      <CompareDrawer />
     </div>
   );
 }
