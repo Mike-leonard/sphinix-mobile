@@ -137,16 +137,8 @@ export default async function DevicesPage({ searchParams }) {
           <SortingControl
             selectedBrand={selectedBrand}
             BRANDS={BRANDS}
-          />
-
-          {/* Mobile Advanced Filters Sheet */}
-          {/* <MobileFiltersSheet
             filters={filtersData}
-            showFilters={showFilters}
-            setShowFilters={setShowFilters}
-            advancedFilters={advancedFilters}
-            handleToggleAdvancedFilter={handleToggleAdvancedFilter}
-          /> */}
+          />
 
           {/* Products Grid/List */}
           <DeviceGrid
