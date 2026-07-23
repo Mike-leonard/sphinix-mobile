@@ -30,7 +30,7 @@ export default async function DeviceDetailsPage({ params }) {
   const quickSpecs = attrs.filter(a => a.groupIds?.includes('Quick Specifications') || a.groupId === 'Quick Specifications');
 
   // Fetch related devices from database
-  const relatedList = await publishedDevices({ limit: 6, brand: device.brand });
+  const relatedList = await publishedDevices({ limit: 4, brand: device.brand });
   const relatedDevices = (relatedList || []).filter(p => p.id !== device.id).slice(0, 3);
 
   return (
