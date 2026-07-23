@@ -71,7 +71,7 @@ This document outlines all components in the project and identifies whether they
 ## `app/(main)/phones/[brandSlug]/[deviceSlug]/_components/`
 - 🖥️ **DeviceBreadcrumb.jsx** - Server Component
 - 🌐 **DeviceGallery.jsx** - Client Component
-- 🌐 **DevicePageSidebar.jsx** - Client Component
+- 🖥️ **DevicePageSidebar.jsx** - Server Component
 - 🌐 **DeviceQuickInfo.jsx** - Client Component
 - 🌐 **DeviceTabs.jsx** - Client Component
 - 🌐 **RelatedDevices.jsx** - Client Component
