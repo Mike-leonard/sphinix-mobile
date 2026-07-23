@@ -1,5 +1,6 @@
 import Footer from "@/components/Footer";
 import Navbar from "@/components/navbar/Navbar";
+import CompareDrawer from "@/components/CompareDrawer";
 import { CompareProvider } from "@/context/CompareContext";
 import { cookies } from "next/headers";
 import { getSettings } from "@/actions/settings";
@@ -24,6 +25,7 @@ export default async function MainLayout({ children }) {
           {children}
         </main>
         <Footer />
+        <CompareDrawer />
       </div>
     </CompareProvider>
   );

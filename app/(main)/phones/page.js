@@ -2,7 +2,6 @@ import React from 'react';
 import AdvancedFilters from '@/components/AdvancedFilters';
 import Pagination from '@/components/Pagination';
 import RightSidebar from '@/components/sidebar/RightSidebar';
-import CompareDrawer from '@/components/CompareDrawer';
 import SortingControl from './_components/SortingControl';
 import DeviceGrid from './_components/DeviceGrid';
 import { getDeviceFilters } from '@/actions/device-filters';
@@ -100,9 +99,6 @@ export default async function DevicesPage({ searchParams }) {
         />
 
       </div>
-
-      {/* FLOATING COMPARE DRAWER */}
-      <CompareDrawer />
     </div>
   );
 }
