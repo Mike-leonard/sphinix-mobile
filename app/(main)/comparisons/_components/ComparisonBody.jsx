@@ -43,13 +43,35 @@ const formatTitle = (key) => {
   return key;
 };
 
+const DEFAULT_DEVICE_GROUPS = [
+  "General",
+  "Design",
+  "Network",
+  "Display",
+  "Hardware",
+  "Camera",
+  "Connectivity",
+  "Battery",
+  "Audio",
+  "Multimedia",
+  "Software",
+  "Sensors",
+  "In The Box"
+];
+
 export default function ComparisonBody({ compareList, gridColsClass }) {
   const settings = useSettings();
   const freq = settings?.advertisements?.injectionFrequency?.comparisons || 3;
-  const [deviceGroups, setDeviceGroups] = React.useState([]);
+  const [deviceGroups, setDeviceGroups] = React.useState(DEFAULT_DEVICE_GROUPS);
 
   React.useEffect(() => {
-    import('@/actions/device-groups').then(m => m.getDeviceGroups().then(setDeviceGroups));
+    let isCancelled = false;
+    import('@/actions/device-groups').then(m => m.getDeviceGroups().then(groups => {
+      if (!isCancelled && groups && Array.isArray(groups) && groups.length > 0) {
+        setDeviceGroups(groups);
+      }
+    }));
+    return () => { isCancelled = true; };
   }, []);
 
   // Get unique dynamic spec groups from all devices

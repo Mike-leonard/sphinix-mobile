@@ -5,15 +5,40 @@ import {
   Battery, LayoutTemplate, Cpu, Monitor, Film, Camera,
   List, Wifi, ScanFace, Headphones, Package, Sparkles
 } from 'lucide-react';
-import AdBanner from '@/components/ads/AdBanner';
 import InFeedAd from '@/components/ads/InFeedAd';
 
-export default function SpecsTab({ device, hideAds = false }) {
-  const [deviceGroups, setDeviceGroups] = React.useState([]);
+const DEFAULT_DEVICE_GROUPS = [
+  "General",
+  "Design",
+  "Network",
+  "Display",
+  "Hardware",
+  "Camera",
+  "Connectivity",
+  "Battery",
+  "Audio",
+  "Multimedia",
+  "Software",
+  "Sensors",
+  "In The Box"
+];
+
+export default function SpecsTab({ device, hideAds = false, deviceGroups: propDeviceGroups }) {
+  const [deviceGroups, setDeviceGroups] = React.useState(propDeviceGroups || DEFAULT_DEVICE_GROUPS);
 
   React.useEffect(() => {
-    import('@/actions/device-groups').then(m => m.getDeviceGroups().then(setDeviceGroups));
-  }, []);
+    if (propDeviceGroups && propDeviceGroups.length > 0) {
+      setDeviceGroups(propDeviceGroups);
+      return;
+    }
+    let isCancelled = false;
+    import('@/actions/device-groups').then(m => m.getDeviceGroups().then(groups => {
+      if (!isCancelled && groups && Array.isArray(groups) && groups.length > 0) {
+        setDeviceGroups(groups);
+      }
+    }));
+    return () => { isCancelled = true; };
+  }, [propDeviceGroups]);
 
   const specs = device?.specs || {};
 
@@ -69,7 +94,7 @@ export default function SpecsTab({ device, hideAds = false }) {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
-      <h2  style={{fontSize: "var(--font-size-h2-default, var(--font-size-h2-default))"}} className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-6">
+      <h2 style={{fontSize: "var(--font-size-h2-default, var(--font-size-h2-default))"}} className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-6">
         {device.name} - Specs
       </h2>
 
