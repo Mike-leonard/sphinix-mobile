@@ -7,6 +7,7 @@ import { generateDeviceSlug } from '@/lib/utils';
 import {
   getAllDevicesQuery,
   getDeviceByIdQuery,
+  getDevicesByIdsQuery,
   getPublishedDevicesQuery,
   getPublishedDevicesCountQuery,
   getDeviceBrandCountsQuery,
@@ -35,6 +36,15 @@ export async function getDeviceById(id) {
   } catch (error) {
     console.error('Error fetching device by id:', error);
     return null;
+  }
+}
+
+export async function getDevicesByIds(ids) {
+  try {
+    return await getDevicesByIdsQuery(ids);
+  } catch (error) {
+    console.error('Error fetching devices by ids:', error);
+    return [];
   }
 }
 

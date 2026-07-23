@@ -11,15 +11,19 @@ import {
 import { Button } from "@/components/ui/button"
 import { BarChart2, X } from 'lucide-react'
 import { useCompare } from '@/context/CompareContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 export default function CompareDrawer() {
   const { compareList, isOpen, setIsCompareOpen, handleToggleCompare, clearCompare } = useCompare();
   const router = useRouter();
+  const pathname = usePathname();
 
   // We read from isCompareOpen from context! Note context uses 'isCompareOpen'
   const isDrawerOpen = useCompare().isCompareOpen; 
 
+  const isVisibleRoute = pathname === '/' || pathname.startsWith('/phones');
+
+  if (!isVisibleRoute) return null;
   if (compareList.length === 0) return null;
 
   return (
@@ -92,7 +96,8 @@ export default function CompareDrawer() {
             <Button
               onClick={() => {
                 setIsCompareOpen(false);
-                router.push("/comparisons");
+                const ids = compareList.map(item => item.id).join(',');
+                router.push(ids ? `/comparisons?ids=${ids}` : "/comparisons");
               }}
               className="flex-1 bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white border-0 text-xs shadow-md shadow-brand-600/20"
             >

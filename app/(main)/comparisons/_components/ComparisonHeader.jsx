@@ -1,9 +1,26 @@
+'use client';
 
 import React from 'react';
 import { X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { useCompare } from '@/context/CompareContext';
+import { useRouter } from 'next/navigation';
 
-export default function ComparisonHeader({ compareList, gridColsClass, handleToggleCompare }) {
+export default function ComparisonHeader({ compareList, gridColsClass, handleToggleCompare: propHandleToggleCompare }) {
+  const { handleToggleCompare: contextToggle } = useCompare();
+  const router = useRouter();
+
+  const handleRemove = (device) => {
+    if (propHandleToggleCompare) {
+      propHandleToggleCompare(device);
+    } else {
+      if (contextToggle) contextToggle(device);
+      const remaining = compareList.filter(d => d.id !== device.id);
+      const ids = remaining.map(d => d.id).join(',');
+      router.push(ids ? `/comparisons?ids=${ids}` : '/comparisons');
+    }
+  };
+
   return (
     <div className={`sticky top-[64px] z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border border-slate-200 dark:border-slate-800 grid ${gridColsClass} divide-x divide-slate-200 dark:divide-slate-800 rounded-2xl shadow-sm`}>
       {/* Empty first cell for the 'labels' column */}
@@ -15,7 +32,7 @@ export default function ComparisonHeader({ compareList, gridColsClass, handleTog
       {compareList.map((device) => (
         <div key={device.id} className="p-4 md:p-6 relative group text-center flex flex-col items-center">
           <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-default, var(--font-size-button-default))"}}  
-            onClick={() => handleToggleCompare(device)}
+            onClick={() => handleRemove(device)}
             className="absolute top-2 right-2 md:top-4 md:right-4 p-1.5 bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 rounded-full hover:bg-red-200 dark:hover:bg-red-500/40 transition-colors opacity-0 group-hover:opacity-100"
             title="Remove from comparison"
           >

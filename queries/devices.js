@@ -14,6 +14,16 @@ export async function getDeviceByIdQuery(id) {
   });
 }
 
+export async function getDevicesByIdsQuery(ids) {
+  if (!Array.isArray(ids) || ids.length === 0) return [];
+  return await prisma.device.findMany({
+    where: {
+      id: { in: ids }
+    },
+    include: { deviceBrand: true }
+  });
+}
+
 const ATTR_KEY_MAP = {
   filter_price: ['price'],
   price: ['price'],

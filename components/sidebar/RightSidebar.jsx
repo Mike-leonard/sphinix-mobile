@@ -31,7 +31,7 @@ export default function RightSidebar({
         )}
       </div>
 
-      
+
 
       {/* NEW ARRIVALS (Hide on devices route and blogs route) */}
       {!(isDevicesRoute || isBlogsRoute) && (
@@ -43,7 +43,7 @@ export default function RightSidebar({
 
       {/* TOP RATED (Everywhere) */}
       <TopRated />
-      
+
       {/* BLOG CATEGORIES (Rendered specifically when on blogs route) */}
       {isBlogsRoute && (
         <Categories selectedCategory={selectedCategory} />

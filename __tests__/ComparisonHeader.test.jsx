@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import ComparisonHeader from '@/app/(main)/comparisons/_components/ComparisonHeader';
+import { CompareProvider } from '@/context/CompareContext';
 
 const mockCompareList = [
   {
@@ -18,11 +19,13 @@ const mockCompareList = [
 describe('ComparisonHeader Component', () => {
   it('renders device names and prices correctly', () => {
     render(
-      <ComparisonHeader 
-        compareList={mockCompareList} 
-        gridColsClass="grid-cols-3" 
-        handleToggleCompare={vi.fn()} 
-      />
+      <CompareProvider>
+        <ComparisonHeader 
+          compareList={mockCompareList} 
+          gridColsClass="grid-cols-3" 
+          handleToggleCompare={vi.fn()} 
+        />
+      </CompareProvider>
     );
     
     // Check if device names are rendered
@@ -37,11 +40,13 @@ describe('ComparisonHeader Component', () => {
   it('calls handleToggleCompare when remove button is clicked', () => {
     const handleToggleCompareMock = vi.fn();
     render(
-      <ComparisonHeader 
-        compareList={mockCompareList} 
-        gridColsClass="grid-cols-3" 
-        handleToggleCompare={handleToggleCompareMock} 
-      />
+      <CompareProvider>
+        <ComparisonHeader 
+          compareList={mockCompareList} 
+          gridColsClass="grid-cols-3" 
+          handleToggleCompare={handleToggleCompareMock} 
+        />
+      </CompareProvider>
     );
     
     // Get all remove buttons
