@@ -1,7 +1,7 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
-import MOCK_PRODUCTS from '@/data/products.json';
 import CompareDrawer from '@/components/CompareDrawer';
+import { getDeviceById, publishedDevices } from '@/actions/devices';
 import { getRatingBars } from '@/actions/rating-bars';
 import { getDeviceAttributes } from '@/actions/device-attributes';
 
@@ -15,23 +15,23 @@ import DevicePageSidebar from './_components/DevicePageSidebar';
 
 export default async function DeviceDetailsPage({ params }) {
   const resolvedParams = await params;
-  const { brandSlug, deviceSlug } = resolvedParams;
+  const { deviceSlug } = resolvedParams;
 
-  const device = MOCK_PRODUCTS.find(p => p.id === deviceSlug);
-
-  const [ratingBars, attrs] = await Promise.all([
+  const [device, ratingBars, attrs] = await Promise.all([
+    getDeviceById(deviceSlug),
     getRatingBars(),
     getDeviceAttributes()
   ]);
 
-  const quickSpecs = attrs.filter(a => a.groupIds?.includes('Quick Specifications') || a.groupId === 'Quick Specifications');
-
-  const newArrivals = MOCK_PRODUCTS.filter(p => p.isNew);
-  const topRated = MOCK_PRODUCTS.filter(p => p.isTopRated);
-
   if (!device || device.status !== 'published') {
     return notFound();
   }
+
+  const quickSpecs = attrs.filter(a => a.groupIds?.includes('Quick Specifications') || a.groupId === 'Quick Specifications');
+
+  // Fetch related devices from database
+  const relatedList = await publishedDevices({ limit: 6, brand: device.brand });
+  const relatedDevices = (relatedList || []).filter(p => p.id !== device.id).slice(0, 3);
 
   return (
     <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -54,16 +54,14 @@ export default async function DeviceDetailsPage({ params }) {
           <DeviceTabs device={device} ratingBars={ratingBars} />
 
           <AdBanner placement="deviceDetailsBanner" className='mt-10'/>
+
           {/* Related Devices */}
-          <RelatedDevices currentDevice={device} />
+          <RelatedDevices relatedDevices={relatedDevices} />
 
         </div>
 
         {/* Right Sidebar */}
-        <DevicePageSidebar 
-          newArrivals={newArrivals}
-          topRated={topRated}
-        />
+        <DevicePageSidebar />
 
       </div>
 
