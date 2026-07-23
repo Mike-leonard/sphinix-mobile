@@ -7,57 +7,32 @@ import { Button } from "@/components/ui/button";
 import { setDeviceViewMode } from '@/actions/devices';
 import MobileFiltersSheet from './MobileFiltersSheet';
 
-const DEFAULT_BRANDS = ["All", "Apple", "Samsung", "OnePlus", "Google", "LG", "Nokia", "HTC", "Sony", "Motorola", "Huawei", "Oppo"];
-
 export default function SortingControl({ 
   selectedBrand = "All", 
-  BRANDS = DEFAULT_BRANDS,
-  filters = [],
-  viewMode: propViewMode,
-  setViewMode: propSetViewMode,
-  sortOption: propSortOption,
-  setSortOption: propSetSortOption,
-  setSelectedBrand: propSetSelectedBrand,
-  setShowFilters: propSetShowFilters,
-  showFilters: propShowFilters,
-  setCurrentPage: propSetCurrentPage
+  BRANDS = [],
+  filters = []
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [localViewMode, setLocalViewMode] = useState('grid');
-  const [localSortOption, setLocalSortOption] = useState('Date (default)');
-  const [localShowFilters, setLocalShowFilters] = useState(false);
-
-  const viewMode = propViewMode ?? localViewMode;
-  const sortOption = propSortOption ?? localSortOption;
-  const setSortOption = propSetSortOption ?? setLocalSortOption;
-  const showFilters = propShowFilters ?? localShowFilters;
-  const setShowFilters = propSetShowFilters ?? setLocalShowFilters;
+  const [viewMode, setViewMode] = useState('grid');
+  const [sortOption, setSortOption] = useState('Date (default)');
+  const [showFilters, setShowFilters] = useState(false);
 
   const handleViewModeToggle = async (mode) => {
-    if (propSetViewMode) {
-      propSetViewMode(mode);
-    } else {
-      setLocalViewMode(mode);
-    }
+    setViewMode(mode);
     await setDeviceViewMode(mode);
   };
 
   const handleBrandChange = (newBrand) => {
-    if (propSetSelectedBrand) {
-      propSetSelectedBrand(newBrand);
-      if (propSetCurrentPage) propSetCurrentPage(1);
+    const params = new URLSearchParams(searchParams ? searchParams.toString() : '');
+    if (newBrand && newBrand !== 'All') {
+      params.set('brand', newBrand);
     } else {
-      const params = new URLSearchParams(searchParams ? searchParams.toString() : '');
-      if (newBrand && newBrand !== 'All') {
-        params.set('brand', newBrand);
-      } else {
-        params.delete('brand');
-      }
-      params.delete('page');
-      router.push(`?${params.toString()}`);
+      params.delete('brand');
     }
+    params.delete('page');
+    router.push(`?${params.toString()}`);
   };
 
   return (

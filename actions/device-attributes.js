@@ -1,19 +1,20 @@
 'use server';
 
-import fs from 'fs/promises';
-import path from 'path';
 import { revalidatePath } from 'next/cache';
 import { verifySession } from './auth';
-
-const getAttributesFilePath = () => path.join(process.cwd(), 'data', 'device-attributes.json');
+import {
+  getDeviceAttributesQuery,
+  createDeviceAttributeQuery,
+  updateDeviceAttributeQuery,
+  deleteDeviceAttributeQuery,
+  reassignAttributeGroupQuery
+} from '@/queries/device-attributes';
 
 export async function getDeviceAttributes() {
   try {
-    const filePath = getAttributesFilePath();
-    const fileData = await fs.readFile(filePath, 'utf8');
-    return JSON.parse(fileData);
+    return await getDeviceAttributesQuery();
   } catch (error) {
-    console.error('Error reading device-attributes.json:', error);
+    console.error('Error reading device attributes from database:', error);
     return [];
   }
 }
@@ -41,17 +42,13 @@ export async function createDeviceAttribute(name, groupIds = ['General'], custom
     }
     
     const newId = `attr_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
-    const newAttribute = {
+    const newAttribute = await createDeviceAttributeQuery({
       id: newId,
       name: trimmedName,
       slug: customSlug.trim() || generateSlug(trimmedName),
       terms: [],
       groupIds: Array.isArray(groupIds) && groupIds.length > 0 ? groupIds : ['General']
-    };
-
-    attributes.push(newAttribute);
-    
-    await fs.writeFile(getAttributesFilePath(), JSON.stringify(attributes, null, 2));
+    });
     
     revalidatePath('/dashboard/phones/attributes');
     
@@ -74,8 +71,8 @@ export async function updateDeviceAttribute(id, newName, newGroupIds, customSlug
     const trimmedName = newName.trim();
     const attributes = await getDeviceAttributes();
     
-    const index = attributes.findIndex(a => a.id === id);
-    if (index === -1) {
+    const target = attributes.find(a => a.id === id);
+    if (!target) {
       return { success: false, error: 'Attribute not found' };
     }
 
@@ -85,13 +82,12 @@ export async function updateDeviceAttribute(id, newName, newGroupIds, customSlug
       return { success: false, error: 'Another attribute with this name already exists' };
     }
 
-    attributes[index].name = trimmedName;
-    attributes[index].slug = customSlug.trim() || generateSlug(trimmedName);
-    if (newGroupIds && Array.isArray(newGroupIds) && newGroupIds.length > 0) {
-      attributes[index].groupIds = newGroupIds;
-    }
-    
-    await fs.writeFile(getAttributesFilePath(), JSON.stringify(attributes, null, 2));
+    await updateDeviceAttributeQuery(id, {
+      name: trimmedName,
+      slug: customSlug.trim() || generateSlug(trimmedName),
+      ...(newGroupIds && Array.isArray(newGroupIds) && newGroupIds.length > 0 && { groupIds: newGroupIds })
+    });
+
     revalidatePath('/dashboard/phones/attributes');
     revalidatePath('/dashboard/phones/groups');
     
@@ -107,10 +103,7 @@ export async function deleteDeviceAttribute(id) {
     const user = await verifySession();
     if (!user) throw new Error('Unauthorized');
 
-    const attributes = await getDeviceAttributes();
-    const filteredAttributes = attributes.filter(a => a.id !== id);
-    
-    await fs.writeFile(getAttributesFilePath(), JSON.stringify(filteredAttributes, null, 2));
+    await deleteDeviceAttributeQuery(id);
     
     revalidatePath('/dashboard/phones/attributes');
     
@@ -133,23 +126,20 @@ export async function addAttributeTerm(attributeId, term) {
     const trimmedTerm = term.trim();
     const attributes = await getDeviceAttributes();
     
-    const index = attributes.findIndex(a => a.id === attributeId);
-    if (index === -1) {
+    const target = attributes.find(a => a.id === attributeId);
+    if (!target) {
       return { success: false, error: 'Attribute not found' };
     }
 
-    if (!attributes[index].terms) {
-      attributes[index].terms = [];
-    }
-
-    const exists = attributes[index].terms.some(t => t.toLowerCase() === trimmedTerm.toLowerCase());
+    const terms = target.terms || [];
+    const exists = terms.some(t => t.toLowerCase() === trimmedTerm.toLowerCase());
     if (exists) {
-       return { success: false, error: 'Term already exists' };
+      return { success: false, error: 'Term already exists' };
     }
 
-    attributes[index].terms.push(trimmedTerm);
+    const updatedTerms = [...terms, trimmedTerm];
+    await updateDeviceAttributeQuery(attributeId, { terms: updatedTerms });
     
-    await fs.writeFile(getAttributesFilePath(), JSON.stringify(attributes, null, 2));
     revalidatePath('/dashboard/phones/attributes');
     
     return { success: true, message: 'Term added successfully' };
@@ -166,18 +156,15 @@ export async function deleteAttributeTerm(attributeId, term) {
 
     const attributes = await getDeviceAttributes();
     
-    const index = attributes.findIndex(a => a.id === attributeId);
-    if (index === -1) {
+    const target = attributes.find(a => a.id === attributeId);
+    if (!target) {
       return { success: false, error: 'Attribute not found' };
     }
 
-    if (!attributes[index].terms) {
-      return { success: false, error: 'No terms found' };
-    }
-
-    attributes[index].terms = attributes[index].terms.filter(t => t !== term);
+    const terms = target.terms || [];
+    const updatedTerms = terms.filter(t => t !== term);
     
-    await fs.writeFile(getAttributesFilePath(), JSON.stringify(attributes, null, 2));
+    await updateDeviceAttributeQuery(attributeId, { terms: updatedTerms });
     revalidatePath('/dashboard/phones/attributes');
     
     return { success: true, message: 'Term deleted successfully' };
@@ -192,34 +179,8 @@ export async function reassignAttributeGroup(oldGroup, newGroup) {
     const user = await verifySession();
     if (!user) throw new Error('Unauthorized');
 
-    const attributes = await getDeviceAttributes();
-    let updated = false;
-    
-    for (const attr of attributes) {
-      if (attr.groupIds) {
-        const idx = attr.groupIds.findIndex(g => g.toLowerCase() === oldGroup.toLowerCase());
-        if (idx !== -1) {
-          attr.groupIds = attr.groupIds.filter((g, i) => i !== idx);
-          if (!attr.groupIds.some(g => g.toLowerCase() === newGroup.toLowerCase())) {
-            attr.groupIds.push(newGroup);
-          }
-          if (attr.groupIds.length === 0) {
-            attr.groupIds = ['General'];
-          }
-          updated = true;
-        }
-      } else if (attr.groupId && attr.groupId.toLowerCase() === oldGroup.toLowerCase()) {
-        // Fallback for old data just in case
-        attr.groupIds = [newGroup];
-        delete attr.groupId;
-        updated = true;
-      }
-    }
-    
-    if (updated) {
-      await fs.writeFile(getAttributesFilePath(), JSON.stringify(attributes, null, 2));
-      revalidatePath('/dashboard/phones/attributes');
-    }
+    await reassignAttributeGroupQuery(oldGroup, newGroup);
+    revalidatePath('/dashboard/phones/attributes');
     
     return { success: true };
   } catch (error) {
@@ -237,28 +198,9 @@ export async function reorderDeviceAttributes(orderedIds) {
       throw new Error('orderedIds must be an array');
     }
 
-    const attributes = await getDeviceAttributes();
-    
-    // Create a map for quick lookup
-    const attributeMap = new Map(attributes.map(attr => [attr.id, attr]));
-    
-    // Build the new ordered array
-    const newOrderedAttributes = [];
-    
-    // First push items in the specified order
-    orderedIds.forEach(id => {
-      if (attributeMap.has(id)) {
-        newOrderedAttributes.push(attributeMap.get(id));
-        attributeMap.delete(id);
-      }
-    });
-    
-    // Then append any remaining items that weren't in the orderedIds list
-    for (const attr of attributeMap.values()) {
-      newOrderedAttributes.push(attr);
+    for (let i = 0; i < orderedIds.length; i++) {
+      await updateDeviceAttributeQuery(orderedIds[i], { order: i });
     }
-    
-    await fs.writeFile(getAttributesFilePath(), JSON.stringify(newOrderedAttributes, null, 2));
     
     revalidatePath('/dashboard/phones/attributes');
     return { success: true };

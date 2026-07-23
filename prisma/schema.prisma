@@ -53,6 +53,39 @@ model Device {
   updatedAt DateTime @updatedAt
 }
 
+model DeviceFilter {
+  id            String   @id
+  title         String
+  attributeSlug String
+  options       String[]
+  order         Int      @default(0)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model DeviceGroup {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  order     Int      @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DeviceAttribute {
+  id          String   @id
+  name        String
+  slug        String   @unique
+  terms       String[]
+  groupIds    String[]
+  placeholder String?
+  order       Int      @default(0)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model BlogCategory {
   id        Int      @id @default(autoincrement())
   name      String
