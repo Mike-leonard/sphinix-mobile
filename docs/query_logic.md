@@ -1,26 +1,49 @@
 # Query Logic & Data Fetching Strategies
 
-*This file outlines the caching strategies, file parsing optimization, pagination patterns, and fetching techniques used across the application.*
+*This file outlines the database query abstraction layer (`queries/`), caching strategies, pagination patterns, and server-side data fetching techniques.*
 
 ---
 
-## 1. Data Fetching Strategy
-*   **React Server Components (RSC):** The application relies heavily on RSCs (`app/page.js`, `app/dashboard/page.js`, etc.) to securely parse `fs/promises` reads from the server directly without exposing APIs.
-*   **Server Actions for Mutations:** Form submissions and state changes are passed to server actions, avoiding the need for dedicated API route handlers.
-*   **Client-Side Pagination/Filtering:** The Blog Manager uses React `useMemo` hooks on the client to filter, sort, and paginate the data passed down as `initialBlogs` props.
+## 1. Modular Query Abstraction Layer (`queries/`)
+Database interactions are isolated from Server Actions inside dedicated query modules:
+*   `queries/settings.js`: Manages PostgreSQL `SiteSettings` Singleton fetches and updates.
+*   `queries/device-attributes.js`: Queries device spec attributes and group relations.
+*   `queries/device-brands.js`: Queries and manages brand records.
+*   `queries/device-groups.js`: Handles spec categories and groups.
+*   `queries/devices.js`: Fetches paginated devices, counts, and search results.
+*   `queries/blogs.js`: Manages blog articles, filtering by status (`published`, `draft`, `trash`), and pagination.
+*   `queries/users.js`: User profiles and authentication query logic.
 
-## 2. Caching & Revalidation
-*   **Next.js Data Cache:** Static routes pull JSON data during build time/request time. 
-*   **Revalidation:** Server Actions manually clear the Next.js router cache using `revalidatePath(...)` after mutations.
-    *   Example: `revalidatePath('/dashboard/blogs')` ensures the admin table immediately shows new edits or trashed files.
-*   **Deep Revalidation:** `updateSettings` triggers `revalidatePath('/', 'layout')` to instantly update global typography and SEO rules site-wide.
+---
 
-## 3. Query Patterns & Optimizations
-*   **Pagination & Orchestration:**
-    *   State-driven parameters (`currentPage`, `itemsPerPage`, `search`, `category`) are lifted to a high-level Orchestrator component (e.g., `BlogsManager`, `CategoryManager`).
-    *   The orchestrator runs the arrays through client-side `useMemo` hooks, and then calculates the paginated slice to pass down to simple, presentational child components (e.g., `BlogsTable`, `BlogsPagination`).
-*   **Search & Filtering:**
-    *   Client-side search uses lowercase string matching (`includes()`) across titles, categories, and excerpts.
-    *   Visibility filters (like "Trash View") conditionally modify the base array before search filters apply.
-*   **Public Visibility Guards:**
-    *   All public-facing routes (`app/(main)/blogs/page.js`) perform server-side array filtering (`blog.status === 'published'`) before transmitting JSON to the client, preventing data leaks of drafted or trashed posts.
+## 2. Caching & Revalidation Strategy
+
+### 1. Next.js `unstable_cache` & Tag Invalidation
+*   **Site Settings Caching:** `getSettings()` wraps the PostgreSQL fetch in `unstable_cache` with cache tag `['site-settings']`:
+    ```javascript
+    export const getSettings = unstable_cache(
+      async () => { ... },
+      ['site-settings'],
+      { tags: ['site-settings'] }
+    );
+    ```
+*   **Targeted Revalidation:** On setting updates, `revalidateTag('site-settings')` purges the stale cache immediately so administrative changes reflect instant site-wide updates.
+*   **Path Revalidation:** Server Actions trigger `revalidatePath(...)` on dynamic routes (e.g. `/phones`, `/blogs`, `/dashboard/settings/...`).
+
+---
+
+## 3. Query Patterns & Layout Limit Propagation
+
+### 1. Dynamic Layout Limit Controls
+*   Public list pages (`app/(main)/phones/page.js` and `app/(main)/blogs/page.js`) query site settings to determine pagination size (`ITEMS_PER_PAGE`):
+    ```javascript
+    const settings = await getSettings();
+    const ITEMS_PER_PAGE = settings?.appearance?.phones?.deviceLimit 
+      ?? settings?.appearance?.devices?.deviceLimit 
+      ?? 12;
+    ```
+*   `DeviceGrid` passes `deviceCardSpecLimit` down to `ProductCard`, controlling how many key specification badges display on each product card dynamically.
+
+### 2. Search, Filtering & Pagination
+*   `publishedDevices({ limit, offset, query, brand, filters })` executes parallel PostgreSQL queries using Prisma `findMany` and `count` with offset-based pagination.
+*   Sidebar filter parameters (`filter_price`, `filter_ram`, etc.) are parsed server-side into structured search filters.
