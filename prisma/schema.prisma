@@ -147,6 +147,7 @@ model SiteSettings {
   ai             Json?
   recaptcha      Json?
   backups        Json?
+  smtp           Json?
 
   updatedAt      DateTime @updatedAt
 }

@@ -8,7 +8,7 @@ vi.mock('@/lib/mail/smtp', () => ({
 }));
 
 vi.mock('@/lib/rateLimit', () => ({
-  rateLimit: vi.fn(),
+  checkRateLimit: vi.fn(),
 }));
 
 describe('Contact Form Server Action', () => {
@@ -35,7 +35,7 @@ describe('Contact Form Server Action', () => {
   });
 
   it('fails if rate limit is exceeded', async () => {
-    vi.spyOn(rateLimitModule, 'rateLimit').mockResolvedValue(false);
+    vi.spyOn(rateLimitModule, 'checkRateLimit').mockReturnValue({ success: false });
 
     const res = await submitContactForm({
       name: 'John',
@@ -49,7 +49,7 @@ describe('Contact Form Server Action', () => {
   });
 
   it('successfully dispatches contact email via SMTP helper', async () => {
-    vi.spyOn(rateLimitModule, 'rateLimit').mockResolvedValue(true);
+    vi.spyOn(rateLimitModule, 'checkRateLimit').mockReturnValue({ success: true });
     vi.spyOn(smtpModule, 'sendSupportEmail').mockResolvedValue({ messageId: '12345' });
 
     const res = await submitContactForm({

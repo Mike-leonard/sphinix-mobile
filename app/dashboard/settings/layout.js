@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { 
   Globe, Type, Palette, BarChart, 
   MonitorPlay, MessageSquare, Languages, 
-  Wrench, Share2, Image as ImageIcon, Shield, Sparkles
+  Wrench, Share2, Image as ImageIcon, Shield, Sparkles, Mail
 } from 'lucide-react';
 
 export default function SettingsLayout({ children }) {
@@ -25,6 +25,7 @@ export default function SettingsLayout({ children }) {
     { name: 'Media', href: '/dashboard/settings/media', icon: ImageIcon },
     { name: 'AI Configuration', href: '/dashboard/settings/ai-configuration', icon: Sparkles },
     { name: 'Security', href: '/dashboard/settings/security', icon: Shield },
+    { name: 'SMTP & Email', href: '/dashboard/settings/smtp-email', icon: Mail },
   ];
 
   return (

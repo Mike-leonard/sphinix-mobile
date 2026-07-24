@@ -83,6 +83,14 @@ export async function getResolvedSettings() {
       ...settings.recaptcha,
       siteKey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || settings.recaptcha?.siteKey || "",
       secretKey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_SECRECT || settings.recaptcha?.secretKey || ""
+    },
+    smtp: {
+      host: process.env.SMTP_HOST || settings.smtp?.host || "smtp.gmail.com",
+      port: process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT, 10) : (settings.smtp?.port || 587),
+      user: process.env.SMTP_USER || settings.smtp?.user || "",
+      pass: process.env.SMTP_PASS || settings.smtp?.pass || "",
+      from: process.env.SMTP_FROM || settings.smtp?.from || "",
+      receiverEmail: process.env.CONTACT_RECEIVER_EMAIL || settings.smtp?.receiverEmail || ""
     }
   };
 }
@@ -157,3 +165,8 @@ export async function updateSecuritySettings(securityData) {
 export async function updateMediaSettings(mediaData) {
   return await updateSettings({ media: mediaData });
 }
+
+export async function updateSmtpSettings(smtpData) {
+  return await updateSettings({ smtp: smtpData });
+}
+
