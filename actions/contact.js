@@ -1,7 +1,7 @@
 'use server';
 
 import { sendSupportEmail } from '@/lib/mail/smtp';
-import { rateLimit } from '@/lib/rateLimit';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 export async function submitContactForm(formData) {
   try {
@@ -21,9 +21,9 @@ export async function submitContactForm(formData) {
       return { success: false, message: 'Please provide a valid email address.' };
     }
 
-    // Rate limiting (max 5 contact requests per 10 minutes per IP)
-    const isAllowed = await rateLimit(`contact-${email.toLowerCase()}`, 5, 600);
-    if (!isAllowed) {
+    // Rate limiting (max 5 contact requests per 10 minutes per IP/email)
+    const limitResult = checkRateLimit(`contact-${email.toLowerCase()}`, 5, 10);
+    if (!limitResult.success) {
       return { success: false, message: 'Too many submissions. Please wait a few minutes before trying again.' };
     }
 

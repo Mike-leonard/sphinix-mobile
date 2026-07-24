@@ -168,5 +168,13 @@ export const defaultSettings = {
     automaticBackups: false,
     schedule: "daily",
     lastBackup: null
+  },
+  smtp: {
+    host: "smtp.gmail.com",
+    port: 587,
+    user: "",
+    pass: "",
+    from: "",
+    receiverEmail: ""
   }
 };
