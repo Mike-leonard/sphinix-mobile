@@ -1,19 +1,19 @@
-import fs from 'fs';
-import path from 'path';
 import { NextResponse } from 'next/server';
+import { verifySession } from '@/actions/auth';
+import { getSettings } from '@/actions/settings';
 
 export async function GET() {
   try {
-    const settingsFile = path.join(process.cwd(), 'data', 'settings.json');
-    
-    if (!fs.existsSync(settingsFile)) {
-      return new NextResponse('File not found', { status: 404 });
+    const session = await verifySession();
+    if (!session || session.role !== 'Admin') {
+      return new NextResponse('Unauthorized. Admin access required.', { status: 401 });
     }
 
-    const fileBuffer = fs.readFileSync(settingsFile);
+    const settings = await getSettings();
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const jsonString = JSON.stringify(settings, null, 2);
     
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(jsonString, {
       status: 200,
       headers: {
         'Content-Disposition': `attachment; filename="sphinix-backup-${timestamp}.json"`,

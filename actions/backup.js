@@ -1,37 +1,44 @@
 'use server';
 
-import fs from 'fs';
-import path from 'path';
+import { verifySession } from './auth';
+import { getSettings, updateSettings } from './settings';
 
+/**
+ * Creates a backup object from PostgreSQL siteSettings (using config/default-settings.js as fallback)
+ */
 export async function createBackup() {
   try {
-    const dataDir = path.join(process.cwd(), 'data');
-    const backupsDir = path.join(dataDir, 'backups');
-    const settingsFile = path.join(dataDir, 'settings.json');
-
-    if (!fs.existsSync(backupsDir)) {
-      fs.mkdirSync(backupsDir, { recursive: true });
+    const session = await verifySession();
+    if (!session || session.role !== 'Admin') {
+      return { success: false, error: 'Unauthorized. Admin access required.' };
     }
 
-    if (!fs.existsSync(settingsFile)) {
-      return { success: false, error: 'Settings file not found.' };
-    }
-
+    const settings = await getSettings();
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const backupFileName = `backup-${timestamp}.json`;
-    const backupPath = path.join(backupsDir, backupFileName);
 
-    fs.copyFileSync(settingsFile, backupPath);
-
-    return { success: true, fileName: backupFileName, message: 'Backup created successfully!' };
+    return {
+      success: true,
+      fileName: backupFileName,
+      data: settings,
+      message: 'Backup created successfully!'
+    };
   } catch (error) {
     console.error('Failed to create backup:', error);
     return { success: false, error: 'Failed to create backup.' };
   }
 }
 
+/**
+ * Restores siteSettings into PostgreSQL database
+ */
 export async function restoreBackup(formData) {
   try {
+    const session = await verifySession();
+    if (!session || session.role !== 'Admin') {
+      return { success: false, error: 'Unauthorized. Admin access required.' };
+    }
+
     const file = formData.get('file');
     if (!file) {
       return { success: false, error: 'No file uploaded.' };
@@ -51,8 +58,13 @@ export async function restoreBackup(formData) {
       return { success: false, error: 'Invalid settings format.' };
     }
 
-    const settingsFile = path.join(process.cwd(), 'data', 'settings.json');
-    fs.writeFileSync(settingsFile, JSON.stringify(parsedData, null, 2));
+    // Clean payload for updateSettings
+    const { id, createdAt, updatedAt, version, ...updatePayload } = parsedData;
+
+    const res = await updateSettings(updatePayload);
+    if (!res.success) {
+      return { success: false, error: res.error || 'Failed to restore settings.' };
+    }
 
     return { success: true, message: 'Backup restored successfully!' };
   } catch (error) {

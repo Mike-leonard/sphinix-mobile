@@ -15,7 +15,6 @@ export async function verifySession() {
       return null;
     }
     
-    console.log(`[AUTH DEBUG] verifySession: Supabase user found (${user.email}). Fetching Prisma user...`);
     
     // Fetch the extended user profile from our Prisma database
     let dbUser = await getUserById(user.id);
