@@ -34,7 +34,7 @@ export default async function DevicesPage({ searchParams }) {
 
   // 1. Fetch settings to determine ITEMS_PER_PAGE
   const settings = await getSettings();
-  const ITEMS_PER_PAGE = settings?.appearance?.devices?.deviceLimit || 9;
+  const ITEMS_PER_PAGE = settings?.appearance?.phones?.deviceLimit ?? settings?.appearance?.devices?.deviceLimit ?? 12;
   const offset = Math.max(0, (page - 1) * ITEMS_PER_PAGE);
 
   // 2. Fetch published devices, total count, filters & brand list from PostgreSQL in parallel

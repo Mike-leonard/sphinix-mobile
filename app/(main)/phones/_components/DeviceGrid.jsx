@@ -12,6 +12,8 @@ export default async function DeviceGrid({ currentProducts = [] }) {
   ]);
 
   const freq = settings?.advertisements?.injectionFrequency?.phonesPageGrid || 6;
+  const deviceCardSpecLimit = settings?.appearance?.phones?.deviceCardSpecLimit ?? settings?.appearance?.devices?.deviceCardSpecLimit ?? 3;
+
   if (currentProducts.length === 0) {
     return (
       <div className="py-20 text-center text-slate-500 dark:text-slate-400">
@@ -36,6 +38,7 @@ export default async function DeviceGrid({ currentProducts = [] }) {
           {viewMode === 'grid' ? (
             <ProductCard
               product={product}
+              limit={deviceCardSpecLimit}
             />
           ) : (
             <DeviceListCard

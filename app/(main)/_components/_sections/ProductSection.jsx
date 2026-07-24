@@ -1,4 +1,6 @@
 import React from 'react';
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import ProductCard from '@/app/(main)/_components/_cards/ProductCard';
 import InFeedAd from '@/components/ads/InFeedAd';
 import { publishedDevices } from '@/actions/devices';
@@ -38,21 +40,34 @@ export default async function ProductSection({
           <p style={{ fontSize: "var(--font-size-p-subtitle, var(--font-size-p-default))" }} className="text-sm mt-1">Check back later for new arrivals.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {devices.map((device, index) => (
-            <React.Fragment key={device.id}>
-              {index > 0 && index % freq === 0 && (
-                <div className="col-span-full w-full py-2">
-                  <InFeedAd placement="homePageInFeed" />
-                </div>
-              )}
-              <ProductCard
-                product={device}
-                limit={deviceCardSpecLimit}
-              />
-            </React.Fragment>
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {devices.map((device, index) => (
+              <React.Fragment key={device.id}>
+                {index > 0 && index % freq === 0 && (
+                  <div className="col-span-full w-full py-2">
+                    <InFeedAd placement="homePageInFeed" />
+                  </div>
+                )}
+                <ProductCard
+                  product={device}
+                  limit={deviceCardSpecLimit}
+                />
+              </React.Fragment>
+            ))}
+          </div>
+
+          <div className="flex justify-center pt-4">
+            <Link
+              href="/phones"
+              style={{ fontSize: "var(--font-size-link-inline, var(--font-size-link-default))" }}
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-slate-900 dark:text-white font-bold hover:bg-brand-100 dark:hover:bg-brand-500/20 hover:text-brand-600 dark:hover:text-brand-400 transition-colors border border-brand-200 dark:border-brand-500/30"
+            >
+              View All Phones
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </>
       )}
     </section>
   );
