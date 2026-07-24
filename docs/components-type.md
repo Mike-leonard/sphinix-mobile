@@ -1,6 +1,6 @@
 # Component Hierarchy and Types
 
-This document outlines all components in the project and identifies whether they are **Client Components** or **Server Components**.
+This document outlines all components in the project and identifies whether they are **Client Components** (`🌐`) or **Server Components** (`🖥️`).
 
 ## `app/`
 - 🖥️ **layout.js** - Server Component
@@ -128,6 +128,7 @@ This document outlines all components in the project and identifies whether they
 - 🌐 **page.js** - Client Component
 
 ## `app/dashboard/_components/`
+- 🌐 **PublishTrendsChart.jsx** - Client Component
 - 🌐 **SidebarFooter.jsx** - Client Component
 - 🖥️ **SidebarLogo.jsx** - Server Component
 - 🌐 **SidebarNav.jsx** - Client Component
@@ -373,4 +374,3 @@ This document outlines all components in the project and identifies whether they
 - 🖥️ **card.jsx** - Server Component
 - 🖥️ **input.jsx** - Server Component
 - 🌐 **sheet.jsx** - Client Component
-
