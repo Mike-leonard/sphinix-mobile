@@ -7,7 +7,9 @@ import { generateDeviceSlug } from '@/lib/utils';
 import {
   getAllDevicesQuery,
   getDeviceByIdQuery,
+  getPublishedDeviceByIdQuery,
   getDevicesByIdsQuery,
+  getPublishedDevicesByIdsQuery,
   getPublishedDevicesQuery,
   getPublishedDevicesCountQuery,
   getDeviceBrandCountsQuery,
@@ -21,8 +23,13 @@ import {
   reassignDeviceBrandQuery
 } from '@/queries/devices';
 
+/**
+ * Admin action: fetch all devices regardless of status. Restricted to admin.
+ */
 export async function getDevices() {
   try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
     return await getAllDevicesQuery();
   } catch (error) {
     console.error('Error fetching devices:', error);
@@ -30,8 +37,13 @@ export async function getDevices() {
   }
 }
 
+/**
+ * Admin action: fetch device by ID regardless of status. Restricted to admin.
+ */
 export async function getDeviceById(id) {
   try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
     return await getDeviceByIdQuery(id);
   } catch (error) {
     console.error('Error fetching device by id:', error);
@@ -39,11 +51,40 @@ export async function getDeviceById(id) {
   }
 }
 
+/**
+ * Public action: fetch published device by ID for public routes.
+ */
+export async function getPublishedDeviceById(id) {
+  try {
+    return await getPublishedDeviceByIdQuery(id);
+  } catch (error) {
+    console.error('Error fetching published device by id:', error);
+    return null;
+  }
+}
+
+/**
+ * Admin action: fetch devices by IDs regardless of status. Restricted to admin.
+ */
 export async function getDevicesByIds(ids) {
   try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
     return await getDevicesByIdsQuery(ids);
   } catch (error) {
     console.error('Error fetching devices by ids:', error);
+    return [];
+  }
+}
+
+/**
+ * Public action: fetch published devices by IDs for public routes (e.g. comparison page).
+ */
+export async function getPublishedDevicesByIds(ids) {
+  try {
+    return await getPublishedDevicesByIdsQuery(ids);
+  } catch (error) {
+    console.error('Error fetching published devices by ids:', error);
     return [];
   }
 }

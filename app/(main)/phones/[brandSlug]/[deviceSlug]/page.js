@@ -1,6 +1,6 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
-import { getDeviceById, publishedDevices } from '@/actions/devices';
+import { getPublishedDeviceById, publishedDevices } from '@/actions/devices';
 import { getRatingBars } from '@/actions/rating-bars';
 import { getDeviceAttributes } from '@/actions/device-attributes';
 
@@ -17,7 +17,7 @@ export default async function DeviceDetailsPage({ params }) {
   const { deviceSlug } = resolvedParams;
 
   const [device, ratingBars, attrs] = await Promise.all([
-    getDeviceById(deviceSlug),
+    getPublishedDeviceById(deviceSlug),
     getRatingBars(),
     getDeviceAttributes()
   ]);

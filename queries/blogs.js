@@ -166,16 +166,43 @@ export async function getBlogsByCategory(category, limit = 10) {
 }
 
 export async function getBlogById(id) {
+  const parsedId = parseInt(id);
+  if (isNaN(parsedId)) return null;
   return await prisma.blog.findUnique({
-    where: { id: parseInt(id) }
+    where: { id: parsedId }
+  });
+}
+
+export async function getPublishedBlogByIdQuery(id) {
+  const parsedId = parseInt(id);
+  if (isNaN(parsedId)) return null;
+  return await prisma.blog.findFirst({
+    where: { id: parsedId, status: 'published' }
   });
 }
 
 export async function getBlogBySlugQuery(slug) {
+  const blogs = await prisma.blog.findMany();
+  return blogs.find(b => generateBlogSlug(b.title) === slug || String(b.id) === String(slug)) || null;
+}
+
+export async function getPublishedBlogBySlugQuery(slug) {
   const publishedBlogs = await prisma.blog.findMany({
     where: { status: 'published' }
   });
   return publishedBlogs.find(b => generateBlogSlug(b.title) === slug || String(b.id) === String(slug)) || null;
+}
+
+export async function getPublishedBlogsByIdsQuery(ids) {
+  if (!Array.isArray(ids) || ids.length === 0) return [];
+  const parsedIds = ids.map(id => parseInt(id)).filter(id => !isNaN(id));
+  if (parsedIds.length === 0) return [];
+  return await prisma.blog.findMany({
+    where: {
+      id: { in: parsedIds },
+      status: 'published'
+    }
+  });
 }
 
 export async function getRelatedBlogsQuery(currentBlog, limit = 3) {

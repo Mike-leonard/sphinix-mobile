@@ -22,7 +22,7 @@ vi.mock('@/components/sidebar/RightSidebar', () => ({
 
 describe('ComparisonsPage', () => {
   it('renders EmptyState when searchParams has no devices', async () => {
-    vi.spyOn(DevicesActions, 'getDevicesByIds').mockResolvedValue([]);
+    vi.spyOn(DevicesActions, 'getPublishedDevicesByIds').mockResolvedValue([]);
 
     const Page = await ComparisonsPage({ searchParams: Promise.resolve({}) });
     render(Page);
@@ -37,7 +37,7 @@ describe('ComparisonsPage', () => {
       { id: "2", name: "Phone B" }
     ];
 
-    vi.spyOn(DevicesActions, 'getDevicesByIds').mockResolvedValue(mockList);
+    vi.spyOn(DevicesActions, 'getPublishedDevicesByIds').mockResolvedValue(mockList);
 
     const Page = await ComparisonsPage({ searchParams: Promise.resolve({ ids: '1,2' }) });
     render(Page);
