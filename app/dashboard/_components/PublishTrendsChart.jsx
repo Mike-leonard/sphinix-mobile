@@ -4,49 +4,23 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
-export default function PublishTrendsChart({ totalPhones, totalBlogs }) {
-  // Generate simulated historical data based on current totals to make the chart look realistic
-  // In a real database, you'd group by createdAt date.
-  
-  const generateMockData = () => {
+export default function PublishTrendsChart({ totalPhones = 0, totalBlogs = 0 }) {
+  // Deterministic calculation to ensure identical Server-Side Rendering (SSR) & Client Hydration
+  const data = React.useMemo(() => {
     const months = ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];
-    const data = [];
-    
-    // Distribute the totals roughly across 6 months
-    let remainingPhones = totalPhones || 15;
-    let remainingBlogs = totalBlogs || 10;
-    
-    for (let i = 0; i < 6; i++) {
-      const isLast = i === 5;
-      
-      let pCount = isLast ? remainingPhones : Math.max(0, Math.floor(Math.random() * (remainingPhones / 2)));
-      let bCount = isLast ? remainingBlogs : Math.max(0, Math.floor(Math.random() * (remainingBlogs / 2)));
-      
-      // Ensure we don't drop below zero and add some realism
-      if (pCount === 0 && remainingPhones > 0) pCount = 1;
-      if (bCount === 0 && remainingBlogs > 0) bCount = 1;
-      
-      data.push({
-        name: months[i],
+    const phoneRatios = [0.1, 0.12, 0.15, 0.18, 0.22, 0.23];
+    const blogRatios = [0.08, 0.12, 0.16, 0.18, 0.21, 0.25];
+
+    return months.map((month, i) => {
+      const pCount = Math.max(0, Math.round((totalPhones || 15) * phoneRatios[i]));
+      const bCount = Math.max(0, Math.round((totalBlogs || 10) * blogRatios[i]));
+      return {
+        name: month,
         Phones: pCount,
         Blogs: bCount
-      });
-      
-      remainingPhones -= pCount;
-      remainingBlogs -= bCount;
-    }
-    
-    // Smooth out any drastic drops if random distribution was weird
-    if (data[5].Phones > data[4].Phones * 3) {
-      const diff = Math.floor((data[5].Phones - data[4].Phones) / 2);
-      data[4].Phones += diff;
-      data[5].Phones -= diff;
-    }
-    
-    return data;
-  };
-
-  const [data] = React.useState(generateMockData());
+      };
+    });
+  }, [totalPhones, totalBlogs]);
 
   // Calculate Trend
   const currentMonth = data[5];
