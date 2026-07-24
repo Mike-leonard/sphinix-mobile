@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Send, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Turnstile } from '@marsidev/react-turnstile';
+import { submitContactForm } from '@/actions/contact';
 
 export default function ContactForm() {
   const [name, setName] = useState('');
@@ -11,31 +12,43 @@ export default function ContactForm() {
   const [category, setCategory] = useState('General Enquiry');
   const [message, setMessage] = useState('');
   const [turnstileToken, setTurnstileToken] = useState('');
-  const [captchaError, setCaptchaError] = useState('');
+  const [formError, setFormError] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name || !email || !message) return;
 
     if (!turnstileToken) {
-      setCaptchaError('Please complete the captcha verification.');
+      setFormError('Please complete the captcha verification.');
       return;
     }
 
     setIsSubmitting(true);
-    setCaptchaError('');
+    setFormError('');
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+    const res = await submitContactForm({
+      name,
+      email,
+      subject,
+      category,
+      message,
+      turnstileToken
+    });
+
+    setIsSubmitting(false);
+
+    if (res.success) {
       setSubmitted(true);
       setName('');
       setEmail('');
       setSubject('');
       setMessage('');
       setTurnstileToken('');
-    }, 1000);
+    } else {
+      setFormError(res.message || 'Failed to submit form. Please try again.');
+    }
   };
 
   return (
@@ -47,7 +60,7 @@ export default function ContactForm() {
           </div>
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Message Sent Successfully!</h2>
           <p className="text-sm text-slate-500 max-w-md mx-auto">
-            Thank you for contacting Sphinix Mobile support. We have received your inquiry and will respond shortly.
+            Thank you for contacting Sphinix Mobile support. We have received your inquiry and sent it directly to our team email.
           </p>
           <button
             onClick={() => setSubmitted(false)}
@@ -58,10 +71,10 @@ export default function ContactForm() {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-5">
-          {captchaError && (
+          {formError && (
             <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 text-xs font-semibold flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{captchaError}</span>
+              <span>{formError}</span>
             </div>
           )}
 
@@ -144,7 +157,7 @@ export default function ContactForm() {
               siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}
               onSuccess={(token) => {
                 setTurnstileToken(token);
-                setCaptchaError('');
+                setFormError('');
               }}
               onExpire={() => setTurnstileToken('')}
             />
