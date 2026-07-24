@@ -1,21 +1,18 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createBackup, restoreBackup } from '../actions/backup';
-import fs from 'fs';
-import { join } from 'path';
+import { getSettings, updateSettings } from '../actions/settings';
 
-// Mock fs module
-vi.mock('fs', () => {
-  return {
-    default: {
-      readFileSync: vi.fn(),
-      writeFileSync: vi.fn(),
-      existsSync: vi.fn(),
-      mkdirSync: vi.fn(),
-      copyFileSync: vi.fn()
-    }
-  };
-});
+// Mock auth
+vi.mock('../actions/auth', () => ({
+  verifySession: vi.fn().mockResolvedValue({ id: 1, role: 'Admin' })
+}));
+
+// Mock settings actions
+vi.mock('../actions/settings', () => ({
+  getSettings: vi.fn().mockResolvedValue({ appearance: { theme: 'dark' } }),
+  updateSettings: vi.fn().mockResolvedValue({ success: true })
+}));
 
 describe('Backup Server Actions', () => {
   beforeEach(() => {
@@ -23,30 +20,18 @@ describe('Backup Server Actions', () => {
   });
 
   describe('createBackup', () => {
-    it('creates a backup successfully', async () => {
-      fs.existsSync.mockReturnValue(true);
-      
+    it('creates a backup successfully from database settings', async () => {
       const result = await createBackup();
       
       expect(result.success).toBe(true);
       expect(result.message).toBe('Backup created successfully!');
-      expect(fs.copyFileSync).toHaveBeenCalledTimes(1);
-    });
-
-    it('returns an error if settings file does not exist', async () => {
-      fs.existsSync.mockReturnValue(false); // First call for dir, second for file
-      
-      const result = await createBackup();
-      
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('Settings file not found.');
-      expect(fs.copyFileSync).not.toHaveBeenCalled();
+      expect(getSettings).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('restoreBackup', () => {
-    it('restores a backup successfully when data is valid JSON', async () => {
-      const validJsonString = JSON.stringify({ new: 'setting' });
+    it('restores a backup successfully to database when data is valid JSON', async () => {
+      const validJsonString = JSON.stringify({ appearance: { theme: 'dark' } });
       
       // Mock FormData
       const mockFormData = new FormData();
@@ -56,10 +41,7 @@ describe('Backup Server Actions', () => {
       
       expect(result.success).toBe(true);
       expect(result.message).toBe('Backup restored successfully!');
-      expect(fs.writeFileSync).toHaveBeenCalledWith(
-        expect.stringContaining('settings.json'), 
-        expect.stringContaining('"new": "setting"')
-      );
+      expect(updateSettings).toHaveBeenCalledWith({ appearance: { theme: 'dark' } });
     });
 
     it('returns an error for invalid JSON string', async () => {
@@ -70,7 +52,7 @@ describe('Backup Server Actions', () => {
       
       expect(result.success).toBe(false);
       expect(result.error).toBe('Invalid JSON file.');
-      expect(fs.writeFileSync).not.toHaveBeenCalled();
+      expect(updateSettings).not.toHaveBeenCalled();
     });
 
     it('returns an error if no file is provided', async () => {
