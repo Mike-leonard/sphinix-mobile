@@ -21,6 +21,7 @@ export default function AiConfigurationForm() {
     temperature: 0.7,
     systemPrompt: ''
   });
+  const [envMeta, setEnvMeta] = useState({ envKeysAvailable: {}, isEnvConfigured: false, envVarName: null });
 
   useEffect(() => {
     async function loadSettings() {
@@ -33,6 +34,11 @@ export default function AiConfigurationForm() {
           apiKey: currentSettings.ai.apiKey || '',
           temperature: currentSettings.ai.temperature ?? 0.7,
           systemPrompt: currentSettings.ai.systemPrompt || ''
+        });
+        setEnvMeta({
+          envKeysAvailable: currentSettings.ai.envKeysAvailable || {},
+          isEnvConfigured: currentSettings.ai.isEnvConfigured || false,
+          envVarName: currentSettings.ai.envVarName || null
         });
       }
     }
@@ -106,6 +112,7 @@ export default function AiConfigurationForm() {
             <PromptConfigurationSection 
               aiConfig={aiConfig} 
               setAiConfig={setAiConfig} 
+              envMeta={envMeta}
             />
           </div>
         )}

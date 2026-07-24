@@ -16,19 +16,34 @@ async function generateText(prompt, systemInstruction = '', jsonMode = false) {
     throw new Error('AI features are disabled in settings.');
   }
 
-  const { provider, model, apiKey } = settings.ai;
+  const { provider, model, apiKey: dbApiKey } = settings.ai;
+
+  let apiKey = dbApiKey;
+  if (provider === 'gemini') {
+    apiKey = process.env.GEMINI_API_KEY || dbApiKey;
+  } else if (provider === 'openai') {
+    apiKey = process.env.CHAT_GPT_API_KEY || dbApiKey;
+  } else if (provider === 'anthropic') {
+    apiKey = process.env.CLAUDE_API_KEY || dbApiKey;
+  } else if (provider === 'openrouter') {
+    apiKey = process.env.OPEN_ROUTER_API_KEY || dbApiKey;
+  } else if (provider === 'kilo') {
+    apiKey = process.env.KILO_CODE_API_KEY || dbApiKey;
+  } else if (provider === 'ollama') {
+    apiKey = process.env.OLLAMA_API_KEY || dbApiKey;
+  }
 
   if (!apiKey && provider !== 'ollama') {
-    throw new Error(`API Key for ${provider} is missing in settings.`);
+    throw new Error(`API Key for ${provider} is missing in .env / .env.local or settings.`);
   }
 
   if (provider === 'gemini') {
     const ai = new GoogleGenAI({ apiKey });
     const fullPrompt = systemInstruction ? `${systemInstruction}\n\n${prompt}` : prompt;
-    
+
     const config = {};
     if (jsonMode) config.responseMimeType = 'application/json';
-    
+
     const response = await ai.models.generateContent({
       model: model || 'gemini-3.5-flash',
       contents: fullPrompt,
@@ -36,16 +51,16 @@ async function generateText(prompt, systemInstruction = '', jsonMode = false) {
     });
     return response.text;
   }
-  
+
   if (provider === 'openai' || provider === 'openrouter' || provider === 'kilo' || provider === 'ollama') {
     const messages = [];
     if (systemInstruction) messages.push({ role: 'system', content: systemInstruction });
     messages.push({ role: 'user', content: prompt });
-    
+
     let defaultModel = 'gpt-4o';
     if (provider === 'openrouter') defaultModel = 'openai/gpt-4o';
     if (provider === 'ollama') defaultModel = 'llama3';
-    
+
     const body = {
       model: model || defaultModel,
       messages,
@@ -65,14 +80,14 @@ async function generateText(prompt, systemInstruction = '', jsonMode = false) {
         url = 'http://localhost:11434/v1/chat/completions';
       }
     }
-      
+
     const headers = {
       'Content-Type': 'application/json',
     };
     if (apiKey && provider !== 'ollama') {
       headers['Authorization'] = `Bearer ${apiKey}`;
     }
-    
+
     if (provider === 'openrouter') {
       headers['HTTP-Referer'] = 'https://sphinix-mobile.com'; // Optional
       headers['X-Title'] = 'Sphinix Mobile'; // Optional
@@ -83,16 +98,16 @@ async function generateText(prompt, systemInstruction = '', jsonMode = false) {
       headers,
       body: JSON.stringify(body)
     });
-    
+
     const data = await res.json();
     const errorMessage = typeof data.error === 'string' ? data.error : data.error?.message;
     if (!res.ok) throw new Error(errorMessage || `${provider} API Error`);
     return data.choices[0].message.content;
   }
-  
+
   if (provider === 'anthropic') {
     const messages = [{ role: 'user', content: prompt }];
-    
+
     let anthropicPrompt = prompt;
     // Anthropic doesn't have a strict JSON mode flag, so we enforce it in the prompt
     if (jsonMode) {
@@ -113,7 +128,7 @@ async function generateText(prompt, systemInstruction = '', jsonMode = false) {
         messages: [{ role: 'user', content: anthropicPrompt }],
       })
     });
-    
+
     const data = await res.json();
     if (!res.ok) throw new Error(data.error?.message || 'Anthropic API Error');
     return data.content[0].text;
@@ -149,12 +164,12 @@ export async function generateBlogFromTitle(title) {
     `;
 
     let htmlContent = await generateText(prompt, system, false);
-    
+
     // Clean up potential markdown formatting if the AI ignores instruction #2
     if (htmlContent.startsWith('```html')) {
       htmlContent = htmlContent.replace(/^```html\n?/, '').replace(/\n?```$/, '');
     }
-    
+
     return { success: true, data: htmlContent.trim() };
   } catch (error) {
     console.error('Error generating blog:', error);
@@ -193,7 +208,7 @@ export async function generateSEOFromContent(htmlContent, currentTitle) {
     `;
 
     let rawJson = await generateText(prompt, system, true);
-    
+
     // Clean up potential markdown formatting
     if (rawJson.startsWith('```json')) {
       rawJson = rawJson.replace(/^```json\n?/, '').replace(/\n?```$/, '');
@@ -218,18 +233,18 @@ export async function generateBlogFromUrl(url) {
 
     // Use Jina Reader API to bypass bot protections (Cloudflare) and get clean markdown
     const fetchRes = await fetch(`https://r.jina.ai/${url}`);
-    
+
     if (!fetchRes.ok) throw new Error(`Failed to fetch the URL (Status: ${fetchRes.status})`);
-    
+
     let cleanText = await fetchRes.text();
-    
+
     // Jina returns "Title: <title>" at the top of the markdown
     let pageTitle = "New Article";
     const titleMatch = cleanText.match(/^Title:\s+(.+)/im);
     if (titleMatch) {
       pageTitle = titleMatch[1].trim();
     }
-    
+
     // Limit text to avoid blowing up context window
     if (cleanText.length > 20000) {
       cleanText = cleanText.substring(0, 20000);
@@ -237,7 +252,7 @@ export async function generateBlogFromUrl(url) {
 
     const settings = await getSettings();
     const system = settings?.ai?.systemPrompt || `You are an expert tech blog writer for Sphinix Mobile, a premium smartphone and tech review site.`;
-    
+
     const prompt = `
       Rewrite the following raw article content into a highly engaging, structured, and original blog post for our tech blog.
       
@@ -259,11 +274,11 @@ export async function generateBlogFromUrl(url) {
     `;
 
     let htmlContent = await generateText(prompt, system, false);
-    
+
     if (htmlContent.startsWith('```html')) {
       htmlContent = htmlContent.replace(/^```html\n?/, '').replace(/\n?```$/, '');
     }
-    
+
     // We return both title and content so the frontend can populate the title input too
     return { success: true, data: { title: pageTitle.trim(), content: htmlContent.trim() } };
   } catch (error) {
@@ -303,7 +318,7 @@ export async function generateDeviceSEO(deviceName, brand, description) {
     `;
 
     let rawJson = await generateText(prompt, system, true);
-    
+
     // Clean up potential markdown formatting
     if (rawJson.startsWith('\`\`\`json')) {
       rawJson = rawJson.replace(/^\`\`\`json\n?/, '').replace(/\n?\`\`\`$/, '');
@@ -332,10 +347,10 @@ export async function generateDeviceData(deviceName, brand) {
     const allAttributes = JSON.parse(attributesStr);
 
     // Exclude attributes that ONLY belong to Quick Specifications
-    const detailedAttributes = allAttributes.filter(a => 
+    const detailedAttributes = allAttributes.filter(a =>
       a.groupIds.some(g => g !== 'Quick Specifications')
     );
-    
+
     // Create a compact schema map for the AI to understand what keys it can fill
     const schemaMap = {};
     detailedAttributes.forEach(a => {
@@ -375,16 +390,16 @@ export async function generateDeviceData(deviceName, brand) {
     `;
 
     let rawJson = await generateText(prompt, system, true);
-    
+
     if (rawJson.startsWith('\`\`\`json')) {
       rawJson = rawJson.replace(/^\`\`\`json\n?/, '').replace(/\n?\`\`\`$/, '');
     }
 
     const aiData = JSON.parse(rawJson);
-    
+
     // Post-process detailed specs into frontend expected shape: { "Group Name": [ { label, slug, value } ] }
     const formattedDetailedSpecs = {};
-    
+
     if (aiData.detailedSpecs) {
       for (const [slug, value] of Object.entries(aiData.detailedSpecs)) {
         const attr = detailedAttributes.find(a => a.slug === slug);
@@ -402,8 +417,8 @@ export async function generateDeviceData(deviceName, brand) {
       }
     }
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       data: {
         price: aiData.price,
         description: aiData.description,
@@ -429,16 +444,16 @@ export async function generateDeviceDataFromUrl(url) {
     // Use Jina Reader API to bypass bot protections (Cloudflare) and get clean markdown
     const fetchRes = await fetch(`https://r.jina.ai/${url}`);
     if (!fetchRes.ok) throw new Error(`Failed to fetch the URL (Status: ${fetchRes.status})`);
-    
+
     let cleanText = await fetchRes.text();
-    
+
     // Extract title (Brand + Name)
     let pageTitle = "New Device";
     const titleMatch = cleanText.match(/^Title:\s+(.+)/im);
     if (titleMatch) {
       pageTitle = titleMatch[1].trim();
     }
-    
+
     // Limit text to avoid blowing up context window
     if (cleanText.length > 30000) {
       cleanText = cleanText.substring(0, 30000);
@@ -450,10 +465,10 @@ export async function generateDeviceDataFromUrl(url) {
     const allAttributes = JSON.parse(attributesStr);
 
     // Exclude attributes that ONLY belong to Quick Specifications
-    const detailedAttributes = allAttributes.filter(a => 
+    const detailedAttributes = allAttributes.filter(a =>
       a.groupIds.some(g => g !== 'Quick Specifications')
     );
-    
+
     // Create a compact schema map for the AI to understand what keys it can fill
     const schemaMap = {};
     detailedAttributes.forEach(a => {
@@ -496,13 +511,13 @@ export async function generateDeviceDataFromUrl(url) {
     `;
 
     let rawJson = await generateText(prompt, system, true);
-    
+
     if (rawJson.startsWith('\`\`\`json')) {
       rawJson = rawJson.replace(/^\`\`\`json\n?/, '').replace(/\n?\`\`\`$/, '');
     }
 
     const aiData = JSON.parse(rawJson);
-    
+
     // Post-process detailed specs into frontend expected shape
     const formattedDetailedSpecs = {};
     if (aiData.detailedSpecs) {
@@ -522,8 +537,8 @@ export async function generateDeviceDataFromUrl(url) {
       }
     }
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       data: {
         extractedName: pageTitle,
         price: aiData.price,
