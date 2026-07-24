@@ -1,27 +1,50 @@
 import prisma from '@/lib/prisma';
 
+export function formatDevice(device) {
+  if (!device) return null;
+  const specsObj = (device.specs && typeof device.specs === 'object') ? device.specs : {};
+  return {
+    ...device,
+    description: device.description ?? specsObj.description ?? '',
+    expertRatings: device.expertRatings ?? specsObj.expertRatings ?? {},
+    images: device.images ?? specsObj.images ?? ['', '', '', ''],
+    affiliates: device.affiliates ?? specsObj.affiliates ?? {
+      amazon: { url: '', price: '' },
+      bestbuy: { url: '', price: '' },
+      walmart: { url: '', price: '' },
+      ebay: { url: '', price: '' }
+    },
+    allowReviews: device.allowReviews ?? specsObj.allowReviews ?? true,
+    seo: device.seo ?? specsObj.seo ?? { metaTitle: '', metaDescription: '', keywords: '' },
+    specs: specsObj
+  };
+}
+
 export async function getAllDevicesQuery() {
-  return await prisma.device.findMany({
+  const devices = await prisma.device.findMany({
     orderBy: { createdAt: 'desc' },
     include: { deviceBrand: true }
   });
+  return devices.map(formatDevice);
 }
 
 export async function getDeviceByIdQuery(id) {
-  return await prisma.device.findUnique({
+  const device = await prisma.device.findUnique({
     where: { id },
     include: { deviceBrand: true }
   });
+  return formatDevice(device);
 }
 
 export async function getDevicesByIdsQuery(ids) {
   if (!Array.isArray(ids) || ids.length === 0) return [];
-  return await prisma.device.findMany({
+  const devices = await prisma.device.findMany({
     where: {
       id: { in: ids }
     },
     include: { deviceBrand: true }
   });
+  return devices.map(formatDevice);
 }
 
 const ATTR_KEY_MAP = {
@@ -134,11 +157,13 @@ export async function getPublishedDevicesQuery(optionsOrLimit = 10, queryParam =
     ];
   }
 
-  const allMatching = await prisma.device.findMany({
+  const rawMatching = await prisma.device.findMany({
     where,
     orderBy: { createdAt: 'desc' },
     include: { deviceBrand: true }
   });
+
+  const allMatching = rawMatching.map(formatDevice);
 
   if (filters && Object.keys(filters).length > 0) {
     const filtered = allMatching.filter(device => {
@@ -184,7 +209,8 @@ export async function getPublishedDevicesCountQuery(optionsOrQuery = '', brandPa
   }
 
   if (filters && Object.keys(filters).length > 0) {
-    const allMatching = await prisma.device.findMany({ where });
+    const rawMatching = await prisma.device.findMany({ where });
+    const allMatching = rawMatching.map(formatDevice);
     const filtered = allMatching.filter(device => {
       return Object.entries(filters).every(([filterId, selectedOptions]) => {
         if (!selectedOptions || selectedOptions.length === 0) return true;
@@ -215,30 +241,34 @@ export async function getDeviceBrandCountsQuery() {
 }
 
 export async function getNewArrivalsQuery(limit = 6) {
-  return await prisma.device.findMany({
+  const devices = await prisma.device.findMany({
     where: { status: 'published', isNew: true },
     orderBy: { createdAt: 'desc' },
     take: limit
   });
+  return devices.map(formatDevice);
 }
 
 export async function getTopRatedDevicesQuery(limit = 3) {
-  return await prisma.device.findMany({
+  const devices = await prisma.device.findMany({
     where: { status: 'published', isTopRated: true },
     orderBy: { rating: 'desc' },
     take: limit
   });
+  return devices.map(formatDevice);
 }
 
 export async function createDeviceQuery(data) {
-  return await prisma.device.create({ data });
+  const created = await prisma.device.create({ data });
+  return formatDevice(created);
 }
 
 export async function updateDeviceQuery(id, data) {
-  return await prisma.device.update({
+  const updated = await prisma.device.update({
     where: { id },
     data
   });
+  return formatDevice(updated);
 }
 
 export async function deleteDeviceQuery(id) {
@@ -248,17 +278,19 @@ export async function deleteDeviceQuery(id) {
 }
 
 export async function trashDeviceQuery(id) {
-  return await prisma.device.update({
+  const updated = await prisma.device.update({
     where: { id },
     data: { status: 'trashed' }
   });
+  return formatDevice(updated);
 }
 
 export async function restoreDeviceQuery(id) {
-  return await prisma.device.update({
+  const updated = await prisma.device.update({
     where: { id },
     data: { status: 'draft' }
   });
+  return formatDevice(updated);
 }
 
 export async function reassignDeviceBrandQuery(oldBrand, newBrand) {
