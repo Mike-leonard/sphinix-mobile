@@ -4,11 +4,6 @@ import { createBackup, restoreBackup } from '../actions/backup';
 import fs from 'fs';
 import { join } from 'path';
 
-// Mock auth
-vi.mock('../actions/auth', () => ({
-  verifySession: vi.fn().mockResolvedValue({ id: 1, role: 'Admin' })
-}));
-
 // Mock fs module
 vi.mock('fs', () => {
   return {

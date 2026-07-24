@@ -3,16 +3,11 @@
 import { getGoogleApiClients } from '@/lib/analytics/google-clients';
 import { getDummySiteKitData } from '@/lib/analytics/dummy-data';
 import { getSettings } from './settings';
-import { verifySession } from './auth';
 
 export { getDummySiteKitData };
 
 export async function getGoogleMetrics() {
   try {
-    const session = await verifySession();
-    if (!session) {
-      return { setupRequired: true, error: 'Unauthorized. Admin access required.' };
-    }
     // 1. Initialize API clients from .env or data/google-credentials.json
     const apiClients = await getGoogleApiClients();
     if (!apiClients) {

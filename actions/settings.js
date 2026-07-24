@@ -58,14 +58,9 @@ export async function getSettings() {
 }
 
 /**
- * Resolves settings with secrets injected from .env and .env.local (Admin only)
+ * Resolves settings with secrets injected from .env and .env.local
  */
 export async function getResolvedSettings() {
-  const session = await verifySession();
-  if (!session || session.role !== 'Admin') {
-    throw new Error('Unauthorized. Admin access required.');
-  }
-
   const settings = await getSettings();
 
   // Resolve Provider API Key

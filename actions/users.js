@@ -6,10 +6,6 @@ import { getAllUsers, deleteUserById, updateUserRoleById, getUserById, updateUse
 
 export async function getUsers(currentUserId = null) {
   try {
-    const session = await verifySession();
-    if (!session || session.role !== 'Admin') {
-      return [];
-    }
     return await getAllUsers(currentUserId);
   } catch (error) {
     console.error('Error fetching users from database:', error);

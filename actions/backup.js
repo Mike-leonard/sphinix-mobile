@@ -2,15 +2,9 @@
 
 import fs from 'fs';
 import path from 'path';
-import { verifySession } from './auth';
 
 export async function createBackup() {
   try {
-    const session = await verifySession();
-    if (!session || session.role !== 'Admin') {
-      return { success: false, error: 'Unauthorized. Admin access required.' };
-    }
-
     const dataDir = path.join(process.cwd(), 'data');
     const backupsDir = path.join(dataDir, 'backups');
     const settingsFile = path.join(dataDir, 'settings.json');
@@ -38,10 +32,6 @@ export async function createBackup() {
 
 export async function restoreBackup(formData) {
   try {
-    const session = await verifySession();
-    if (!session || session.role !== 'Admin') {
-      return { success: false, error: 'Unauthorized. Admin access required.' };
-    }
     const file = formData.get('file');
     if (!file) {
       return { success: false, error: 'No file uploaded.' };
