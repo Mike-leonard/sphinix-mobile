@@ -1,6 +1,6 @@
 import React from 'react';
 import { getSettings } from '@/actions/settings';
-import { getDevicesByIds } from '@/actions/devices';
+import { getPublishedDevicesByIds } from '@/actions/devices';
 import EmptyState from './_components/EmptyState';
 import ComparisonHeader from './_components/ComparisonHeader';
 import ComparisonBody from './_components/ComparisonBody';
@@ -37,7 +37,7 @@ export async function generateMetadata({ searchParams }) {
     };
   }
 
-  const devices = await getDevicesByIds(ids);
+  const devices = await getPublishedDevicesByIds(ids);
   if (!devices || devices.length === 0) {
     return {
       title: baseTitle,
@@ -93,7 +93,7 @@ export default async function ComparisonsPage({ searchParams }) {
 
   let compareList = [];
   if (ids.length > 0) {
-    compareList = await getDevicesByIds(ids);
+    compareList = await getPublishedDevicesByIds(ids);
   }
 
   if (!compareList || compareList.length === 0) {

@@ -5,7 +5,10 @@ import { verifySession } from './auth';
 import { 
   getAllBlogs, 
   getBlogById as getBlogByIdQuery, 
+  getPublishedBlogByIdQuery,
   getBlogBySlugQuery,
+  getPublishedBlogBySlugQuery,
+  getPublishedBlogsByIdsQuery,
   getRelatedBlogsQuery,
   createBlogQuery, 
   updateBlogById, 
@@ -16,8 +19,13 @@ import {
   getBlogCategoryCountsQuery
 } from '@/queries/blogs';
 
+/**
+ * Admin action: fetch all blogs regardless of status. Restricted to admin.
+ */
 export async function allBlogs() {
   try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
     const blogs = await getAllBlogs();
     return blogs;
   } catch (error) {
@@ -56,12 +64,53 @@ export async function blogCategoryCounts() {
   }
 }
 
+/**
+ * Admin action: fetch blog by slug regardless of status. Restricted to admin.
+ */
 export async function getBlogBySlug(slug) {
   try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
     return await getBlogBySlugQuery(slug);
   } catch (error) {
     console.error('Error fetching blog by slug:', error);
     return null;
+  }
+}
+
+/**
+ * Public action: fetch published blog by slug for public routes.
+ */
+export async function getPublishedBlogBySlug(slug) {
+  try {
+    return await getPublishedBlogBySlugQuery(slug);
+  } catch (error) {
+    console.error('Error fetching published blog by slug:', error);
+    return null;
+  }
+}
+
+/**
+ * Public action: fetch published blog by ID for public routes.
+ */
+export async function getPublishedBlogById(id) {
+  try {
+    return await getPublishedBlogByIdQuery(id);
+  } catch (error) {
+    console.error('Error fetching published blog by ID:', error);
+    return null;
+  }
+}
+
+/**
+ * Public action: fetch published blogs by IDs for public routes.
+ */
+export async function getPublishedBlogsByIds(ids) {
+  try {
+    return await getPublishedBlogsByIdsQuery(ids);
+  } catch (error) {
+    console.error('Error fetching published blogs by IDs:', error);
+    return [];
   }
 }
 
@@ -74,8 +123,13 @@ export async function getRelatedBlogs(currentBlog, limit = 3) {
   }
 }
 
+/**
+ * Admin action: fetch blog by ID regardless of status. Restricted to admin.
+ */
 export async function getBlogById(id) {
   try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
     const blog = await getBlogByIdQuery(id);
     return blog;
   } catch (error) {

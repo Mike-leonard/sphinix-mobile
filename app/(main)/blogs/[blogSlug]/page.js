@@ -7,13 +7,13 @@ import BlogMeta from './_components/BlogMeta';
 import BlogContent from './_components/BlogContent';
 import RelatedArticles from './_components/RelatedArticles';
 import AdBanner from '@/components/ads/AdBanner';
-import { getBlogBySlug, getRelatedBlogs } from '@/actions/blogs';
+import { getPublishedBlogBySlug, getRelatedBlogs } from '@/actions/blogs';
 
 export default async function BlogPostPage({ params }) {
   const resolvedParams = await params;
   const { blogSlug } = resolvedParams;
 
-  const blog = await getBlogBySlug(blogSlug);
+  const blog = await getPublishedBlogBySlug(blogSlug);
 
   if (!blog) {
     return notFound();

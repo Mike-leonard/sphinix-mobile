@@ -36,11 +36,34 @@ export async function getDeviceByIdQuery(id) {
   return formatDevice(device);
 }
 
+export async function getPublishedDeviceByIdQuery(id) {
+  const device = await prisma.device.findFirst({
+    where: {
+      id,
+      status: 'published'
+    },
+    include: { deviceBrand: true }
+  });
+  return formatDevice(device);
+}
+
 export async function getDevicesByIdsQuery(ids) {
   if (!Array.isArray(ids) || ids.length === 0) return [];
   const devices = await prisma.device.findMany({
     where: {
       id: { in: ids }
+    },
+    include: { deviceBrand: true }
+  });
+  return devices.map(formatDevice);
+}
+
+export async function getPublishedDevicesByIdsQuery(ids) {
+  if (!Array.isArray(ids) || ids.length === 0) return [];
+  const devices = await prisma.device.findMany({
+    where: {
+      id: { in: ids },
+      status: 'published'
     },
     include: { deviceBrand: true }
   });
