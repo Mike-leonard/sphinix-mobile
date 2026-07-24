@@ -129,3 +129,24 @@ model Blog {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
+
+model SiteSettings {
+  id             Int      @id @default(1)
+  version        Int      @default(1)
+  seo            Json?
+  typography     Json?
+  appearance     Json?
+  analytics      Json?
+  advertisements Json?
+  comments       Json?
+  localization   Json?
+  maintenance    Json?
+  socialMedia    Json?
+  media          Json?
+  security       Json?
+  ai             Json?
+  recaptcha      Json?
+  backups        Json?
+
+  updatedAt      DateTime @updatedAt
+}
