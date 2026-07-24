@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Send, CheckCircle2 } from 'lucide-react';
+import { Send, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Turnstile } from '@marsidev/react-turnstile';
 
 export default function ContactForm() {
   const [name, setName] = useState('');
@@ -9,6 +10,8 @@ export default function ContactForm() {
   const [subject, setSubject] = useState('');
   const [category, setCategory] = useState('General Enquiry');
   const [message, setMessage] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
+  const [captchaError, setCaptchaError] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -16,7 +19,14 @@ export default function ContactForm() {
     e.preventDefault();
     if (!name || !email || !message) return;
 
+    if (!turnstileToken) {
+      setCaptchaError('Please complete the captcha verification.');
+      return;
+    }
+
     setIsSubmitting(true);
+    setCaptchaError('');
+
     setTimeout(() => {
       setIsSubmitting(false);
       setSubmitted(true);
@@ -24,6 +34,7 @@ export default function ContactForm() {
       setEmail('');
       setSubject('');
       setMessage('');
+      setTurnstileToken('');
     }, 1000);
   };
 
@@ -47,6 +58,13 @@ export default function ContactForm() {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-5">
+          {captchaError && (
+            <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 text-xs font-semibold flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{captchaError}</span>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
@@ -120,10 +138,22 @@ export default function ContactForm() {
             />
           </div>
 
+          {/* Turnstile Captcha Widget */}
+          <div className="flex justify-center pt-2">
+            <Turnstile
+              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'}
+              onSuccess={(token) => {
+                setTurnstileToken(token);
+                setCaptchaError('');
+              }}
+              onExpire={() => setTurnstileToken('')}
+            />
+          </div>
+
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="w-full py-3 bg-brand-600 hover:bg-brand-700 active:scale-[0.99] text-white rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-70 cursor-pointer shadow-lg shadow-brand-500/20"
+            disabled={isSubmitting || !turnstileToken}
+            className="w-full py-3 bg-brand-600 hover:bg-brand-700 active:scale-[0.99] text-white rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-lg shadow-brand-500/20"
           >
             {isSubmitting ? (
               <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
