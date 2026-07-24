@@ -110,6 +110,21 @@ export async function createDevice(formData) {
       counter++;
     }
 
+    const specsPayload = {
+      ...(formData.specs || {}),
+      affiliates: formData.affiliates || {
+        amazon: { url: '', price: '' },
+        bestbuy: { url: '', price: '' },
+        walmart: { url: '', price: '' },
+        ebay: { url: '', price: '' }
+      },
+      description: formData.description || '',
+      expertRatings: formData.expertRatings || {},
+      images: formData.images || ['', '', '', ''],
+      allowReviews: formData.allowReviews ?? true,
+      seo: formData.seo || { metaTitle: '', metaDescription: '', keywords: '' }
+    };
+
     const deviceData = {
       id: uniqueId,
       name: formData.name,
@@ -120,25 +135,7 @@ export async function createDevice(formData) {
       isNew: Boolean(formData.isNew),
       isTopRated: Boolean(formData.isTopRated),
       status: formData.status || 'draft',
-      specs: formData.specs || {
-        screen: "",
-        chipset: "",
-        camera: "",
-        battery: "",
-        ram: "",
-        storage: "",
-        generalSpecs: [],
-        designSpecs: [],
-        networkSpecs: [],
-        dataSpecs: [],
-        messagingSpecs: [],
-        batterySpecs: [],
-        softwareSpecs: [],
-        hardwareSpecs: [],
-        displaySpecs: [],
-        mediaSpecs: [],
-        cameraSpecs: []
-      }
+      specs: specsPayload
     };
 
     await createDeviceQuery(deviceData);
@@ -158,6 +155,9 @@ export async function updateDevice(id, formData) {
     const user = await verifySession();
     if (!user) throw new Error('Unauthorized');
 
+    const existing = await getDeviceByIdQuery(id);
+    const existingSpecs = (existing?.specs && typeof existing.specs === 'object') ? existing.specs : {};
+
     const updateData = {};
     if (formData.name !== undefined) updateData.name = formData.name;
     if (formData.brand !== undefined) updateData.brand = formData.brand;
@@ -167,7 +167,19 @@ export async function updateDevice(id, formData) {
     if (formData.isNew !== undefined) updateData.isNew = Boolean(formData.isNew);
     if (formData.isTopRated !== undefined) updateData.isTopRated = Boolean(formData.isTopRated);
     if (formData.status !== undefined) updateData.status = formData.status;
-    if (formData.specs !== undefined) updateData.specs = formData.specs;
+
+    const updatedSpecs = {
+      ...existingSpecs,
+      ...(formData.specs || {}),
+      ...(formData.affiliates !== undefined ? { affiliates: formData.affiliates } : {}),
+      ...(formData.description !== undefined ? { description: formData.description } : {}),
+      ...(formData.expertRatings !== undefined ? { expertRatings: formData.expertRatings } : {}),
+      ...(formData.images !== undefined ? { images: formData.images } : {}),
+      ...(formData.allowReviews !== undefined ? { allowReviews: formData.allowReviews } : {}),
+      ...(formData.seo !== undefined ? { seo: formData.seo } : {})
+    };
+
+    updateData.specs = updatedSpecs;
 
     await updateDeviceQuery(id, updateData);
 
