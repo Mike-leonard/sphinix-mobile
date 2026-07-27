@@ -26,6 +26,12 @@ model User {
   modifiedAt    DateTime @updatedAt
 }
 
+enum StatusType {
+  DRAFT
+  PUBLISHED
+  TRASHED
+}
+
 model DeviceBrand {
   id        Int      @id @default(autoincrement())
   name      String   @unique
@@ -38,19 +44,21 @@ model DeviceBrand {
 model Device {
   id          String       @id
   name        String
-  brand       String
-  brandId     Int?
-  deviceBrand DeviceBrand? @relation(fields: [brandId], references: [id])
+  brandName   String       @map("brand")
+  deviceBrand DeviceBrand  @relation(fields: [brandName], references: [name], onDelete: Cascade)
   price       String
   rating      Float        @default(0)
   imageColor  String
   isNew       Boolean      @default(false)
   isTopRated  Boolean      @default(false)
-  status      String
+  status      StatusType   @default(DRAFT)
   specs       Json
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([brandName])
+  @@index([status])
 }
 
 model DeviceFilter {
@@ -123,11 +131,13 @@ model Blog {
   color        String?
   image        String?
   content      String
-  status       String        @default("published")
+  status       StatusType    @default(DRAFT)
   seo          Json?
 
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+
+  @@index([status])
 }
 
 model SiteSettings {
