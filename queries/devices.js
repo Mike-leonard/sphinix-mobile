@@ -3,8 +3,13 @@ import prisma from '@/lib/prisma';
 export function formatDevice(device) {
   if (!device) return null;
   const specsObj = (device.specs && typeof device.specs === 'object') ? device.specs : {};
+  const brandVal = device.brandName || device.brand || (device.deviceBrand?.name ?? '');
   return {
     ...device,
+    brand: brandVal,
+    brandName: brandVal,
+    price: device.price !== undefined && device.price !== null ? String(device.price) : '',
+    status: (device.status || 'DRAFT').toLowerCase(),
     description: device.description ?? specsObj.description ?? '',
     expertRatings: device.expertRatings ?? specsObj.expertRatings ?? {},
     images: device.images ?? specsObj.images ?? ['', '', '', ''],
@@ -40,7 +45,7 @@ export async function getPublishedDeviceByIdQuery(id) {
   const device = await prisma.device.findFirst({
     where: {
       id,
-      status: 'published'
+      status: 'PUBLISHED'
     },
     include: { deviceBrand: true }
   });
@@ -63,7 +68,7 @@ export async function getPublishedDevicesByIdsQuery(ids) {
   const devices = await prisma.device.findMany({
     where: {
       id: { in: ids },
-      status: 'published'
+      status: 'PUBLISHED'
     },
     include: { deviceBrand: true }
   });
@@ -167,16 +172,16 @@ export async function getPublishedDevicesQuery(optionsOrLimit = 10, queryParam =
     offset = offsetParam ?? 0;
   }
 
-  const where = { status: 'published' };
+  const where = { status: 'PUBLISHED' };
 
   if (brand && brand !== 'All') {
-    where.brand = { equals: brand, mode: 'insensitive' };
+    where.brandName = { equals: brand, mode: 'insensitive' };
   }
 
   if (query) {
     where.OR = [
       { name: { contains: query, mode: 'insensitive' } },
-      { brand: { contains: query, mode: 'insensitive' } }
+      { brandName: { contains: query, mode: 'insensitive' } }
     ];
   }
 
@@ -218,16 +223,16 @@ export async function getPublishedDevicesCountQuery(optionsOrQuery = '', brandPa
     brand = brandParam || 'All';
   }
 
-  const where = { status: 'published' };
+  const where = { status: 'PUBLISHED' };
 
   if (brand && brand !== 'All') {
-    where.brand = { equals: brand, mode: 'insensitive' };
+    where.brandName = { equals: brand, mode: 'insensitive' };
   }
 
   if (query) {
     where.OR = [
       { name: { contains: query, mode: 'insensitive' } },
-      { brand: { contains: query, mode: 'insensitive' } }
+      { brandName: { contains: query, mode: 'insensitive' } }
     ];
   }
 
@@ -250,13 +255,14 @@ export async function getPublishedDevicesCountQuery(optionsOrQuery = '', brandPa
 
 export async function getDeviceBrandCountsQuery() {
   const publishedDevices = await prisma.device.findMany({
-    where: { status: 'published' }
+    where: { status: 'PUBLISHED' }
   });
 
   const counts = { "All": publishedDevices.length };
   publishedDevices.forEach(device => {
-    if (device.brand) {
-      counts[device.brand] = (counts[device.brand] || 0) + 1;
+    const b = device.brandName || device.brand;
+    if (b) {
+      counts[b] = (counts[b] || 0) + 1;
     }
   });
 
@@ -265,7 +271,7 @@ export async function getDeviceBrandCountsQuery() {
 
 export async function getNewArrivalsQuery(limit = 6) {
   const devices = await prisma.device.findMany({
-    where: { status: 'published', isNew: true },
+    where: { status: 'PUBLISHED', isNew: true },
     orderBy: { createdAt: 'desc' },
     take: limit
   });
@@ -274,7 +280,7 @@ export async function getNewArrivalsQuery(limit = 6) {
 
 export async function getTopRatedDevicesQuery(limit = 3) {
   const devices = await prisma.device.findMany({
-    where: { status: 'published', isTopRated: true },
+    where: { status: 'PUBLISHED', isTopRated: true },
     orderBy: { rating: 'desc' },
     take: limit
   });
@@ -282,14 +288,30 @@ export async function getTopRatedDevicesQuery(limit = 3) {
 }
 
 export async function createDeviceQuery(data) {
-  const created = await prisma.device.create({ data });
+  const payload = { ...data };
+  if (payload.status) {
+    payload.status = payload.status.toUpperCase();
+  }
+  if (payload.brand && !payload.brandName) {
+    payload.brandName = payload.brand;
+    delete payload.brand;
+  }
+  const created = await prisma.device.create({ data: payload });
   return formatDevice(created);
 }
 
 export async function updateDeviceQuery(id, data) {
+  const payload = { ...data };
+  if (payload.status) {
+    payload.status = payload.status.toUpperCase();
+  }
+  if (payload.brand && !payload.brandName) {
+    payload.brandName = payload.brand;
+    delete payload.brand;
+  }
   const updated = await prisma.device.update({
     where: { id },
-    data
+    data: payload
   });
   return formatDevice(updated);
 }
@@ -303,7 +325,7 @@ export async function deleteDeviceQuery(id) {
 export async function trashDeviceQuery(id) {
   const updated = await prisma.device.update({
     where: { id },
-    data: { status: 'trashed' }
+    data: { status: 'TRASHED' }
   });
   return formatDevice(updated);
 }
@@ -311,14 +333,14 @@ export async function trashDeviceQuery(id) {
 export async function restoreDeviceQuery(id) {
   const updated = await prisma.device.update({
     where: { id },
-    data: { status: 'draft' }
+    data: { status: 'DRAFT' }
   });
   return formatDevice(updated);
 }
 
 export async function reassignDeviceBrandQuery(oldBrand, newBrand) {
   return await prisma.device.updateMany({
-    where: { brand: oldBrand },
-    data: { brand: newBrand }
+    where: { brandName: oldBrand },
+    data: { brandName: newBrand }
   });
 }

@@ -1,10 +1,19 @@
 import prisma from '@/lib/prisma';
 import { generateBlogSlug } from '@/lib/utils';
 
+export function formatBlog(blog) {
+  if (!blog) return null;
+  return {
+    ...blog,
+    status: (blog.status || 'DRAFT').toLowerCase()
+  };
+}
+
 export async function getAllBlogs() {
-  return await prisma.blog.findMany({
+  const blogs = await prisma.blog.findMany({
     orderBy: { createdAt: 'desc' }
   });
+  return blogs.map(formatBlog);
 }
 
 export async function getPublishedBlogsCount(optionsOrQuery = '', categoryParam = 'All') {
@@ -19,7 +28,7 @@ export async function getPublishedBlogsCount(optionsOrQuery = '', categoryParam 
     category = categoryParam || 'All';
   }
 
-  const where = { status: 'published' };
+  const where = { status: 'PUBLISHED' };
 
   if (category && category !== 'All') {
     where.category = { equals: category, mode: 'insensitive' };
@@ -53,7 +62,7 @@ export async function getPublishedBlogs(optionsOrLimit = 10, queryParam = '', ca
     offset = offsetParam ?? 0;
   }
 
-  const where = { status: 'published' };
+  const where = { status: 'PUBLISHED' };
 
   if (category && category !== 'All') {
     where.category = { equals: category, mode: 'insensitive' };
@@ -66,45 +75,48 @@ export async function getPublishedBlogs(optionsOrLimit = 10, queryParam = '', ca
     ];
   }
 
-  return await prisma.blog.findMany({
+  const blogs = await prisma.blog.findMany({
     where,
     orderBy: { createdAt: 'desc' },
     take: limit,
     skip: offset
   });
+  return blogs.map(formatBlog);
 }
 
 export async function getBlogCategoryCountsQuery() {
   return await prisma.blog.groupBy({
     by: ['category'],
-    where: { status: 'published' },
+    where: { status: 'PUBLISHED' },
     _count: { id: true }
   });
 }
 
 export async function getFeaturedBlogs() {
-  return await prisma.blog.findMany({
+  const blogs = await prisma.blog.findMany({
     where: {
-      status: 'published',
+      status: 'PUBLISHED',
       isFeatured: true
     },
     orderBy: { publishedAt: 'desc' },
     take: 3
   });
+  return blogs.map(formatBlog);
 }
 
 export async function getRecentBlogs(limit = 10) {
-  return await prisma.blog.findMany({
-    where: { status: 'published' },
+  const blogs = await prisma.blog.findMany({
+    where: { status: 'PUBLISHED' },
     orderBy: { createdAt: 'desc' },
     take: limit
   });
+  return blogs.map(formatBlog);
 }
 
 export async function getBlogsBySearch(query) {
-  return await prisma.blog.findMany({
+  const blogs = await prisma.blog.findMany({
     where: {
-      status: 'published',
+      status: 'PUBLISHED',
       OR: [
         { title: { contains: query, mode: 'insensitive' } },
         { content: { contains: query, mode: 'insensitive' } },
@@ -113,14 +125,16 @@ export async function getBlogsBySearch(query) {
     },
     orderBy: { createdAt: 'desc' }
   });
+  return blogs.map(formatBlog);
 }
 
 export async function getTrendingBlogs(limit = 10) {
-  return await prisma.blog.findMany({
-    where: { status: 'published' },
+  const blogs = await prisma.blog.findMany({
+    where: { status: 'PUBLISHED' },
     orderBy: { viewCount: 'desc' },
     take: limit
   });
+  return blogs.map(formatBlog);
 }
 
 export async function getBlogsBySearchWithPagination(
@@ -130,7 +144,7 @@ export async function getBlogsBySearchWithPagination(
 ) {
   const skip = (page - 1) * limit;
   const where = {
-    status: 'published',
+    status: 'PUBLISHED',
     OR: [
       { title: { contains: query, mode: 'insensitive' } },
       { content: { contains: query, mode: 'insensitive' } },
@@ -148,13 +162,13 @@ export async function getBlogsBySearchWithPagination(
     prisma.blog.count({ where })
   ]);
 
-  return { blogs, total };
+  return { blogs: blogs.map(formatBlog), total };
 }
 
 export async function getBlogsByCategory(category, limit = 10) {
-  return await prisma.blog.findMany({
+  const blogs = await prisma.blog.findMany({
     where: {
-      status: 'published',
+      status: 'PUBLISHED',
       category: {
         equals: category,
         mode: 'insensitive'
@@ -163,53 +177,59 @@ export async function getBlogsByCategory(category, limit = 10) {
     orderBy: { createdAt: 'desc' },
     take: limit
   });
+  return blogs.map(formatBlog);
 }
 
 export async function getBlogById(id) {
   const parsedId = parseInt(id);
   if (isNaN(parsedId)) return null;
-  return await prisma.blog.findUnique({
+  const blog = await prisma.blog.findUnique({
     where: { id: parsedId }
   });
+  return formatBlog(blog);
 }
 
 export async function getPublishedBlogByIdQuery(id) {
   const parsedId = parseInt(id);
   if (isNaN(parsedId)) return null;
-  return await prisma.blog.findFirst({
-    where: { id: parsedId, status: 'published' }
+  const blog = await prisma.blog.findFirst({
+    where: { id: parsedId, status: 'PUBLISHED' }
   });
+  return formatBlog(blog);
 }
 
 export async function getBlogBySlugQuery(slug) {
   const blogs = await prisma.blog.findMany();
-  return blogs.find(b => generateBlogSlug(b.title) === slug || String(b.id) === String(slug)) || null;
+  const found = blogs.find(b => generateBlogSlug(b.title) === slug || String(b.id) === String(slug)) || null;
+  return formatBlog(found);
 }
 
 export async function getPublishedBlogBySlugQuery(slug) {
   const publishedBlogs = await prisma.blog.findMany({
-    where: { status: 'published' }
+    where: { status: 'PUBLISHED' }
   });
-  return publishedBlogs.find(b => generateBlogSlug(b.title) === slug || String(b.id) === String(slug)) || null;
+  const found = publishedBlogs.find(b => generateBlogSlug(b.title) === slug || String(b.id) === String(slug)) || null;
+  return formatBlog(found);
 }
 
 export async function getPublishedBlogsByIdsQuery(ids) {
   if (!Array.isArray(ids) || ids.length === 0) return [];
   const parsedIds = ids.map(id => parseInt(id)).filter(id => !isNaN(id));
   if (parsedIds.length === 0) return [];
-  return await prisma.blog.findMany({
+  const blogs = await prisma.blog.findMany({
     where: {
       id: { in: parsedIds },
-      status: 'published'
+      status: 'PUBLISHED'
     }
   });
+  return blogs.map(formatBlog);
 }
 
 export async function getRelatedBlogsQuery(currentBlog, limit = 3) {
   if (!currentBlog) return [];
   let related = await prisma.blog.findMany({
     where: {
-      status: 'published',
+      status: 'PUBLISHED',
       category: currentBlog.category,
       NOT: { id: currentBlog.id }
     },
@@ -222,7 +242,7 @@ export async function getRelatedBlogsQuery(currentBlog, limit = 3) {
     const relatedIds = related.map(b => b.id);
     const others = await prisma.blog.findMany({
       where: {
-        status: 'published',
+        status: 'PUBLISHED',
         NOT: { id: { in: [currentBlog.id, ...relatedIds] } }
       },
       orderBy: { createdAt: 'desc' },
@@ -230,20 +250,30 @@ export async function getRelatedBlogsQuery(currentBlog, limit = 3) {
     });
     related = [...related, ...others];
   }
-  return related;
+  return related.map(formatBlog);
 }
 
 export async function createBlogQuery(data) {
-  return await prisma.blog.create({
-    data
+  const payload = { ...data };
+  if (payload.status) {
+    payload.status = payload.status.toUpperCase();
+  }
+  const created = await prisma.blog.create({
+    data: payload
   });
+  return formatBlog(created);
 }
 
 export async function updateBlogById(id, data) {
-  return await prisma.blog.update({
+  const payload = { ...data };
+  if (payload.status) {
+    payload.status = payload.status.toUpperCase();
+  }
+  const updated = await prisma.blog.update({
     where: { id: parseInt(id) },
-    data
+    data: payload
   });
+  return formatBlog(updated);
 }
 
 export async function deleteBlogById(id) {
