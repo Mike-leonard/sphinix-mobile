@@ -14,6 +14,7 @@ export default function DeviceTabsRoute() {
     { name: 'Attributes', href: '/dashboard/phones/attributes' },
     { name: 'Filters', href: '/dashboard/phones/filters' },
     { name: 'Rating Bars', href: '/dashboard/phones/rating-bars' },
+    { name: 'Affiliate Countries', href: '/dashboard/phones/affiliate-country' },
   ];
 
   return (

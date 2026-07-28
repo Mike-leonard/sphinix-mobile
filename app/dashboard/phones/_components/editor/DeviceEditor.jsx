@@ -187,7 +187,7 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
             <div className="lg:col-span-3 bg-white dark:bg-slate-900 overflow-hidden w-full rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 pointer-events-none">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 mb-8">
                 <DeviceHero device={formData} />
-                <DeviceQuickInfo device={formData} />
+                <DeviceQuickInfo device={formData} allAttributes={allAttributes} />
               </div>
               <DeviceTabs device={formData} hideAds={true} />
             </div>
