@@ -161,3 +161,20 @@ model SiteSettings {
 
   updatedAt      DateTime @updatedAt
 }
+
+model AffiliateCountry {
+  id             String   @id @default(uuid())
+  name           String
+  code           String   @unique
+  flag           String
+  currencySymbol String   @default("$")
+  currencyCode   String   @default("USD")
+  isDefault      Boolean  @default(false)
+  enabled        Boolean  @default(true)
+  order          Int      @default(0)
+  stores         Json?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
