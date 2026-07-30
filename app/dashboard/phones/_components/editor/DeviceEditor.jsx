@@ -34,6 +34,7 @@ const DEFAULT_DEVICE = {
   description: '',
   expertRatings: {},
   images: ['', '', '', ''],
+  imageAlts: ['', '', '', ''],
   affiliates: {
     amazon: { url: '', price: '' },
     bestbuy: { url: '', price: '' },
