@@ -4,6 +4,17 @@ import { ANGLES } from './constants';
 import { Button } from "@/components/ui/button";
 
 export default function MainImageView({ device, activeIndex, handlePrevious, handleNext }) {
+  const customAlt = Array.isArray(device.imageAlts)
+    ? device.imageAlts[activeIndex]
+    : typeof device.imageAlts === 'object' && device.imageAlts !== null
+    ? device.imageAlts[activeIndex]
+    : null;
+
+  const altText =
+    customAlt && customAlt.trim() !== ''
+      ? customAlt.trim()
+      : `${device.brand || ''} ${device.name || ''} - ${ANGLES[activeIndex]?.label || ''}`.trim();
+
   return (
     <div className="w-full h-96 sm:h-[28rem] rounded-2xl bg-white dark:bg-slate-950 flex flex-col items-center justify-center relative overflow-hidden border-2 border-slate-200 dark:border-slate-700 shadow-sm group">
       <div className={`absolute w-72 h-72 rounded-full bg-gradient-to-tr ${device.imageColor} opacity-20 blur-3xl transition-transform duration-700`}></div>
@@ -27,7 +38,7 @@ export default function MainImageView({ device, activeIndex, handlePrevious, han
       {device.images && device.images[activeIndex] ? (
         <img 
           src={device.images[activeIndex]} 
-          alt={`${device.brand} ${device.name} - ${ANGLES[activeIndex].label}`}
+          alt={altText}
           className={`relative z-10 w-auto h-auto max-w-[80%] max-h-[85%] object-contain drop-shadow-2xl transition-all duration-500 ${ANGLES[activeIndex].scale}`}
         />
       ) : (
