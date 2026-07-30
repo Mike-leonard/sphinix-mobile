@@ -24,7 +24,14 @@ import {
 } from '@/queries/devices';
 
 /**
- * Admin action: fetch all devices regardless of status. Restricted to admin.
+ * -----------------------------------------------------------------------------
+ * DEVICE ACTION: getDevices
+ * -----------------------------------------------------------------------------
+ * @description Admin action: fetches all devices regardless of status (published, draft, trash).
+ * @why Powers the admin phone manager list page.
+ * @where Called by: `app/dashboard/phones/page.js`
+ * @security Restricted to authenticated admin sessions (`verifySession()`).
+ * @returns {Promise<Array>} Array of all device objects.
  */
 export async function getDevices() {
   try {
@@ -38,7 +45,15 @@ export async function getDevices() {
 }
 
 /**
- * Admin action: fetch device by ID regardless of status. Restricted to admin.
+ * -----------------------------------------------------------------------------
+ * DEVICE ACTION: getDeviceById
+ * -----------------------------------------------------------------------------
+ * @description Admin action: fetches a device by ID/slug regardless of status.
+ * @why Pre-populates the admin device editor when editing a phone record.
+ * @where Called by: `app/dashboard/phones/edit/[id]/page.js`
+ * @security Restricted to authenticated admin sessions (`verifySession()`).
+ * @param {string} id - Device ID / slug.
+ * @returns {Promise<object|null>} Device object or `null`.
  */
 export async function getDeviceById(id) {
   try {
@@ -52,7 +67,15 @@ export async function getDeviceById(id) {
 }
 
 /**
- * Public action: fetch published device by ID for public routes.
+ * -----------------------------------------------------------------------------
+ * DEVICE ACTION: getPublishedDeviceById
+ * -----------------------------------------------------------------------------
+ * @description Public action: fetches a published device by ID/slug for public view.
+ * @why Renders individual smartphone detail pages (`/phones/[brandSlug]/[deviceSlug]`).
+ * @where Called by: `app/(main)/phones/[brandSlug]/[deviceSlug]/page.js`
+ * @security Public read access (only returns status === "published").
+ * @param {string} id - Device ID / slug.
+ * @returns {Promise<object|null>} Published device object or `null`.
  */
 export async function getPublishedDeviceById(id) {
   try {
@@ -64,7 +87,15 @@ export async function getPublishedDeviceById(id) {
 }
 
 /**
- * Admin action: fetch devices by IDs regardless of status. Restricted to admin.
+ * -----------------------------------------------------------------------------
+ * DEVICE ACTION: getDevicesByIds
+ * -----------------------------------------------------------------------------
+ * @description Admin action: fetches multiple devices by IDs regardless of status.
+ * @why Used in administrative bulk management and comparison operations.
+ * @where Called by: Admin dashboard workflows.
+ * @security Restricted to authenticated admin sessions (`verifySession()`).
+ * @param {Array<string>} ids - Array of device IDs.
+ * @returns {Promise<Array>} Array of device objects.
  */
 export async function getDevicesByIds(ids) {
   try {
@@ -78,7 +109,15 @@ export async function getDevicesByIds(ids) {
 }
 
 /**
- * Public action: fetch published devices by IDs for public routes (e.g. comparison page).
+ * -----------------------------------------------------------------------------
+ * DEVICE ACTION: getPublishedDevicesByIds
+ * -----------------------------------------------------------------------------
+ * @description Public action: fetches published devices matching an array of IDs.
+ * @why Pre-populates side-by-side comparison tables on the public comparisons page.
+ * @where Called by: `app/(main)/comparisons/page.js`
+ * @security Public read access.
+ * @param {Array<string>} ids - Array of device IDs.
+ * @returns {Promise<Array>} Array of published device objects.
  */
 export async function getPublishedDevicesByIds(ids) {
   try {
@@ -89,6 +128,20 @@ export async function getPublishedDevicesByIds(ids) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ACTION: publishedDevices
+ * -----------------------------------------------------------------------------
+ * @description Public action: fetches paginated published devices with optional search query, brand, and spec filters.
+ * @why Powers public catalog listing pages with multi-attribute filtering.
+ * @where Called by: `app/(main)/phones/page.js`
+ * @security Public read access.
+ * @param {number|object} optionsOrLimit - Limit or options object.
+ * @param {string} queryParam - Search query term.
+ * @param {string} brandParam - Brand name filter.
+ * @param {number} offsetParam - Pagination offset.
+ * @returns {Promise<Array>} Array of matching published devices.
+ */
 export async function publishedDevices(optionsOrLimit = 10, queryParam = '', brandParam = 'All', offsetParam = 0) {
   try {
     return await getPublishedDevicesQuery(optionsOrLimit, queryParam, brandParam, offsetParam);
@@ -98,6 +151,18 @@ export async function publishedDevices(optionsOrLimit = 10, queryParam = '', bra
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ACTION: publishedDevicesCount
+ * -----------------------------------------------------------------------------
+ * @description Public action: calculates total count of published devices matching search and filters.
+ * @why Enables pagination calculation for public catalog listing pages.
+ * @where Called by: `app/(main)/phones/page.js`
+ * @security Public read access.
+ * @param {string|object} optionsOrQuery - Search query term or options object.
+ * @param {string} brandParam - Brand name filter.
+ * @returns {Promise<number>} Total count of published devices.
+ */
 export async function publishedDevicesCount(optionsOrQuery = '', brandParam = 'All') {
   try {
     return await getPublishedDevicesCountQuery(optionsOrQuery, brandParam);
@@ -107,6 +172,16 @@ export async function publishedDevicesCount(optionsOrQuery = '', brandParam = 'A
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ACTION: getDeviceBrandCounts
+ * -----------------------------------------------------------------------------
+ * @description Public action: fetches device counts grouped by manufacturer brand name.
+ * @why Displays count badges next to brand names in filter sidebars and footer links.
+ * @where Called by: `components/sidebar/RightSidebar.jsx`
+ * @security Public read access.
+ * @returns {Promise<object>} Object mapping brand names to count numbers (e.g. `{ "Apple": 12, "Samsung": 15 }`).
+ */
 export async function getDeviceBrandCounts() {
   try {
     return await getDeviceBrandCountsQuery();
@@ -116,6 +191,17 @@ export async function getDeviceBrandCounts() {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ACTION: getNewArrivals
+ * -----------------------------------------------------------------------------
+ * @description Public action: fetches recently released devices marked `isNew: true`.
+ * @why Renders the "New Arrivals" showcase carousel on the home page.
+ * @where Called by: `app/(main)/page.js`
+ * @security Public read access.
+ * @param {number} limit - Maximum devices to return (default 6).
+ * @returns {Promise<Array>} Array of new arrival device objects.
+ */
 export async function getNewArrivals(limit = 6) {
   try {
     return await getNewArrivalsQuery(limit);
@@ -125,6 +211,17 @@ export async function getNewArrivals(limit = 6) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ACTION: getTopRatedDevices
+ * -----------------------------------------------------------------------------
+ * @description Public action: fetches devices marked `isTopRated: true` ordered by rating score.
+ * @why Renders the "Top Rated Smartphones" section on the home page.
+ * @where Called by: `app/(main)/page.js`
+ * @security Public read access.
+ * @param {number} limit - Maximum devices to return (default 3).
+ * @returns {Promise<Array>} Array of top rated device objects.
+ */
 export async function getTopRatedDevices(limit = 3) {
   try {
     return await getTopRatedDevicesQuery(limit);
@@ -134,6 +231,17 @@ export async function getTopRatedDevices(limit = 3) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ACTION: createDevice
+ * -----------------------------------------------------------------------------
+ * @description Admin action: creates a new smartphone/device record in PostgreSQL.
+ * @why Saves new devices created manually or generated by AI in the dashboard.
+ * @where Called by: `app/dashboard/phones/new/page.js`, `app/dashboard/phones/_components/editor/DeviceEditor.jsx`
+ * @security Restricted to authenticated admin sessions (`verifySession()`).
+ * @param {object} formData - { name, brand, price, rating, imageColor, isNew, isTopRated, status, specs, affiliates, description, images, imageAlts, seo }
+ * @returns {Promise<{ success: boolean, message?: string, id?: string, error?: string }>}
+ */
 export async function createDevice(formData) {
   try {
     const user = await verifySession();
@@ -162,6 +270,7 @@ export async function createDevice(formData) {
       description: formData.description || '',
       expertRatings: formData.expertRatings || {},
       images: formData.images || ['', '', '', ''],
+      imageAlts: formData.imageAlts || ['', '', '', ''],
       allowReviews: formData.allowReviews ?? true,
       seo: formData.seo || { metaTitle: '', metaDescription: '', keywords: '' }
     };
@@ -191,6 +300,18 @@ export async function createDevice(formData) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ACTION: updateDevice
+ * -----------------------------------------------------------------------------
+ * @description Admin action: updates an existing device record in PostgreSQL.
+ * @why Saves edits to specs, affiliate links, gallery images, ratings, or status.
+ * @where Called by: `app/dashboard/phones/edit/[id]/page.js`, `app/dashboard/phones/_components/editor/DeviceEditor.jsx`
+ * @security Restricted to authenticated admin sessions (`verifySession()`).
+ * @param {string} id - Device ID / slug.
+ * @param {object} formData - Updated device fields.
+ * @returns {Promise<{ success: boolean, message?: string, error?: string }>}
+ */
 export async function updateDevice(id, formData) {
   try {
     const user = await verifySession();
@@ -216,6 +337,7 @@ export async function updateDevice(id, formData) {
       ...(formData.description !== undefined ? { description: formData.description } : {}),
       ...(formData.expertRatings !== undefined ? { expertRatings: formData.expertRatings } : {}),
       ...(formData.images !== undefined ? { images: formData.images } : {}),
+      ...(formData.imageAlts !== undefined ? { imageAlts: formData.imageAlts } : {}),
       ...(formData.allowReviews !== undefined ? { allowReviews: formData.allowReviews } : {}),
       ...(formData.seo !== undefined ? { seo: formData.seo } : {})
     };
@@ -235,6 +357,17 @@ export async function updateDevice(id, formData) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ACTION: deleteDevice
+ * -----------------------------------------------------------------------------
+ * @description Admin action: permanently deletes a device record from PostgreSQL.
+ * @why Removes a device permanently from the system.
+ * @where Called by: `app/dashboard/phones/_components/manager/DevicesManager.jsx`
+ * @security Restricted to authenticated admin sessions (`verifySession()`).
+ * @param {string} id - Target device ID / slug.
+ * @returns {Promise<{ success: boolean, message?: string, error?: string }>}
+ */
 export async function deleteDevice(id) {
   try {
     const user = await verifySession();
@@ -252,6 +385,17 @@ export async function deleteDevice(id) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ACTION: trashDevice
+ * -----------------------------------------------------------------------------
+ * @description Admin action: soft-deletes a device record by setting status to `'trash'`.
+ * @why Moves a device to trash allowing easy recovery.
+ * @where Called by: `app/dashboard/phones/_components/manager/DevicesManager.jsx`
+ * @security Restricted to authenticated admin sessions (`verifySession()`).
+ * @param {string} id - Target device ID / slug.
+ * @returns {Promise<{ success: boolean, message?: string, error?: string }>}
+ */
 export async function trashDevice(id) {
   try {
     const user = await verifySession();
@@ -269,6 +413,17 @@ export async function trashDevice(id) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ACTION: restoreDevice
+ * -----------------------------------------------------------------------------
+ * @description Admin action: restores a trashed device record by setting status to `'draft'`.
+ * @why Recovers a trashed device back into the catalog drafts.
+ * @where Called by: `app/dashboard/phones/_components/manager/DevicesManager.jsx`
+ * @security Restricted to authenticated admin sessions (`verifySession()`).
+ * @param {string} id - Target device ID / slug.
+ * @returns {Promise<{ success: boolean, message?: string, error?: string }>}
+ */
 export async function restoreDevice(id) {
   try {
     const user = await verifySession();
@@ -286,6 +441,18 @@ export async function restoreDevice(id) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ACTION: reassignDeviceBrand
+ * -----------------------------------------------------------------------------
+ * @description Admin action: updates all devices under an old brand name to a new brand name.
+ * @why Maintains relational consistency when a brand is renamed or merged.
+ * @where Called by: `actions/device-brands.js`
+ * @security Restricted to authenticated admin sessions (`verifySession()`).
+ * @param {string} oldBrand - Original brand name.
+ * @param {string} newBrand - Replacement brand name.
+ * @returns {Promise<{ success: boolean, error?: string }>}
+ */
 export async function reassignDeviceBrand(oldBrand, newBrand) {
   try {
     const user = await verifySession();
@@ -303,6 +470,17 @@ export async function reassignDeviceBrand(oldBrand, newBrand) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ACTION: setDeviceViewMode
+ * -----------------------------------------------------------------------------
+ * @description Saves user preference for catalog view mode ('grid' or 'list') in HTTP cookies.
+ * @why Remembers layout preference across page reloads without changing URL parameters.
+ * @where Called by: `app/(main)/phones/_components/SortingControl.jsx`
+ * @security Sets HTTP-only path cookie.
+ * @param {string} mode - 'grid' or 'list'.
+ * @returns {Promise<{ success: boolean }>}
+ */
 export async function setDeviceViewMode(mode) {
   try {
     const cookieStore = await cookies();
@@ -315,6 +493,16 @@ export async function setDeviceViewMode(mode) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ACTION: getDeviceViewMode
+ * -----------------------------------------------------------------------------
+ * @description Reads user catalog view mode preference ('grid' or 'list') from HTTP cookies on server render.
+ * @why Determines whether to render grid or list view on the server pass during page load.
+ * @where Called by: `app/(main)/phones/page.js`
+ * @security Reads HTTP cookie.
+ * @returns {Promise<string>} 'grid' or 'list'.
+ */
 export async function getDeviceViewMode() {
   try {
     const cookieStore = await cookies();
@@ -325,4 +513,3 @@ export async function getDeviceViewMode() {
     return 'grid';
   }
 }
-

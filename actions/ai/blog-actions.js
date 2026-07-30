@@ -6,7 +6,15 @@ import { getSettings } from '@/actions/settings';
 import { verifySession } from '@/actions/auth';
 
 /**
- * Generate a complete blog post HTML based on a title.
+ * -----------------------------------------------------------------------------
+ * AI BLOG ACTION: generateBlogFromTitle
+ * -----------------------------------------------------------------------------
+ * @description Generates full, structured HTML blog post content based on a given article title using AI.
+ * @why Enables admins to auto-write blog posts directly from title inputs without writing manual drafts.
+ * @where Called by: `app/dashboard/blogs/_components/editor/BlogEditor.jsx` (AI Title Generator button)
+ * @security Session authentication required (`verifySession()`). Admin/Editor access.
+ * @param {string} title - The blog post title (max 500 chars).
+ * @returns {Promise<{ success: boolean, data?: string, error?: string }>} Object containing raw HTML string on success.
  */
 export async function generateBlogFromTitle(title) {
   try {
@@ -45,7 +53,15 @@ export async function generateBlogFromTitle(title) {
 }
 
 /**
- * Generate a blog post by scraping an external URL.
+ * -----------------------------------------------------------------------------
+ * AI BLOG ACTION: generateBlogFromUrl
+ * -----------------------------------------------------------------------------
+ * @description Scrapes external article content via Jina Reader API and rewrites it into a new tech blog post.
+ * @why Allows admins to turn tech news URLs into original, structured blog posts for the website.
+ * @where Called by: `app/dashboard/blogs/_components/editor/BlogEditor.jsx` (AI URL Scraper modal)
+ * @security Session authentication required (`verifySession()`). Admin/Editor access.
+ * @param {string} url - Target webpage URL to scrape.
+ * @returns {Promise<{ success: boolean, data?: { title: string, content: string }, error?: string }>} Object containing extracted title & HTML content.
  */
 export async function generateBlogFromUrl(url) {
   try {

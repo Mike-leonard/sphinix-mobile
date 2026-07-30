@@ -5,7 +5,7 @@ import RightSidebar from '@/components/sidebar/RightSidebar';
 import SortingControl from './_components/SortingControl';
 import DeviceGrid from './_components/DeviceGrid';
 import { getDeviceFilters } from '@/actions/device-filters';
-import { publishedDevices, publishedDevicesCount } from '@/actions/devices';
+import { publishedDevices, publishedDevicesCount, getDeviceViewMode } from '@/actions/devices';
 import { getDeviceBrands } from '@/actions/device-brands';
 import { getSettings } from '@/actions/settings';
 
@@ -32,8 +32,13 @@ export default async function DevicesPage({ searchParams }) {
     });
   }
 
-  // 1. Fetch settings to determine ITEMS_PER_PAGE
-  const settings = await getSettings();
+  // 1. Fetch settings and current saved viewMode from cookies (pure cookie persistence without query params)
+  const [settings, cookieViewMode] = await Promise.all([
+    getSettings(),
+    getDeviceViewMode()
+  ]);
+
+  const viewMode = cookieViewMode || 'grid';
   const ITEMS_PER_PAGE = settings?.appearance?.phones?.deviceLimit ?? settings?.appearance?.devices?.deviceLimit ?? 12;
   const offset = Math.max(0, (page - 1) * ITEMS_PER_PAGE);
 
@@ -64,12 +69,13 @@ export default async function DevicesPage({ searchParams }) {
             selectedBrand={selectedBrand}
             BRANDS={BRANDS}
             filters={filtersData}
+            initialViewMode={viewMode}
           />
 
           {/* Products Grid/List */}
           <DeviceGrid
             currentProducts={devices}
-            viewMode="grid"
+            viewMode={viewMode}
           />
 
           {/* Pagination */}

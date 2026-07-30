@@ -7,11 +7,17 @@ import DeviceListCardCompare from './DeviceListCardCompare';
 export default function DeviceListCard({ product, isComparing, onToggleCompare }) {
   const slug = product.id;
   const brandSlug = generateBrandSlug(product.brand || 'unknown');
+  const deviceDetailUrl = `/phones/${brandSlug}/${slug}`;
+
   return (
     <Card className="group rounded-2xl border-slate-200 dark:border-slate-800 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/5 transition-all duration-300 flex flex-col sm:flex-row bg-white dark:bg-slate-900 overflow-hidden relative">
       
-      {/* Left side: Image and visual showcase */}
-      <div className="w-full sm:w-1/3 p-4 sm:p-6 sm:border-r border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/50 flex items-center justify-center relative overflow-hidden group-hover:bg-slate-100 dark:group-hover:bg-slate-900/80 transition-colors">
+      {/* Left side: Image and visual showcase (Wrapped in Link for UX & SEO) */}
+      <Link 
+        href={deviceDetailUrl}
+        aria-label={`View details for ${product.brand} ${product.name}`}
+        className="w-full sm:w-1/3 p-4 sm:p-6 sm:border-r border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/50 flex items-center justify-center relative overflow-hidden group-hover:bg-slate-100 dark:group-hover:bg-slate-900/80 transition-colors block cursor-pointer"
+      >
         <div className={`absolute w-32 h-32 rounded-full bg-gradient-to-tr ${product.imageColor} opacity-20 blur-2xl group-hover:scale-125 transition-transform duration-500`}></div>
         
         {/* SVG-based SmartPhone illustration */}
@@ -22,15 +28,22 @@ export default function DeviceListCard({ product, isComparing, onToggleCompare }
             <div className="text-xs text-white truncate font-extrabold leading-tight">{product.name}</div>
           </div>
         </div>
-      </div>
+      </Link>
 
       {/* Right side: Information and specs */}
       <div className="flex-1 p-6 flex flex-col justify-between">
         <div>
           <div className="flex justify-between items-start mb-2">
-            <h3 style={{fontSize: "var(--font-size-h3-section, var(--font-size-h3-default))"}} className="text-2xl font-bold text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
-              {product.name}
-            </h3>
+            {/* Device Name Header (Wrapped in Link for UX & SEO) */}
+            <Link href={deviceDetailUrl} className="hover:underline">
+              <h3 
+                style={{fontSize: "var(--font-size-h3-section, var(--font-size-h3-default))"}} 
+                className="text-2xl font-bold text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors"
+              >
+                {product.name}
+              </h3>
+            </Link>
+
             <span className="bg-slate-600 dark:bg-slate-700 text-white text-sm font-bold px-3 py-1 rounded-full shadow-sm">
               {product.rating}
             </span>
@@ -47,7 +60,11 @@ export default function DeviceListCard({ product, isComparing, onToggleCompare }
         </div>
 
         <div className="mt-6 flex items-center justify-between">
-          <Link href={`/phones/${brandSlug}/${slug}`} style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 text-sm font-semibold flex items-center gap-1 group/link">
+          <Link 
+            href={deviceDetailUrl} 
+            style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} 
+            className="text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 text-sm font-semibold flex items-center gap-1 group/link"
+          >
             View Details <span className="group-hover/link:translate-x-1 transition-transform">→</span>
           </Link>
           

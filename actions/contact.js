@@ -3,6 +3,17 @@
 import { sendSupportEmail } from '@/lib/mail/smtp';
 import { checkRateLimit } from '@/lib/rateLimit';
 
+/**
+ * -----------------------------------------------------------------------------
+ * CONTACT ACTION: submitContactForm
+ * -----------------------------------------------------------------------------
+ * @description Validates, rate-limits, and dispatches customer support messages via SMTP mailer.
+ * @why Handles user inquiries, bug reports, and business contact submissions from the public website.
+ * @where Called by: `app/(main)/contact/page.js`
+ * @security Rate-limited (max 5/10 min) + Cloudflare Turnstile captcha token check.
+ * @param {object} formData - { name, email, subject, category, message, turnstileToken }
+ * @returns {Promise<{ success: boolean, message: string }>}
+ */
 export async function submitContactForm(formData) {
   try {
     const { name, email, subject, category, message, turnstileToken } = formData || {};

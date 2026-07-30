@@ -3,6 +3,16 @@
 import { createClient } from '@/lib/supabase/server';
 import { getUserById, createUser, verifyUserEmail } from '@/queries/users';
 
+/**
+ * -----------------------------------------------------------------------------
+ * AUTH ACTION: verifySession
+ * -----------------------------------------------------------------------------
+ * @description Validates the active Supabase JWT session cookie and retrieves/syncs the user's role and profile from PostgreSQL.
+ * @why Primary security gate used across all server actions, layout routes, and admin pages to enforce RBAC permissions.
+ * @where Called by: `app/dashboard/layout.js`, and almost all server actions (`verifySession()`).
+ * @security Server-side session verification via Supabase Auth + Prisma user sync.
+ * @returns {Promise<{ id: string, email: string, name: string, role: string, emailVerified: boolean, createdAt: Date } | null>} User session object or `null` if unauthenticated.
+ */
 export async function verifySession() {
   try {
     const supabase = await createClient();
@@ -14,7 +24,6 @@ export async function verifySession() {
     if (!user) {
       return null;
     }
-    
     
     // Fetch the extended user profile from our Prisma database
     let dbUser = await getUserById(user.id);
@@ -49,6 +58,19 @@ export async function verifySession() {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * AUTH ACTION: loginAction
+ * -----------------------------------------------------------------------------
+ * @description Authenticates a user using email, password, and Cloudflare Turnstile captcha token.
+ * @why Enables user login and role-based redirecting (Admin/Moderator to dashboard, Normal to home).
+ * @where Called by: `app/(main)/login/page.js`
+ * @security Verified against Supabase Auth + Cloudflare Turnstile anti-bot token.
+ * @param {string} email - User email address.
+ * @param {string} password - User password.
+ * @param {string} turnstileToken - Turnstile captcha token.
+ * @returns {Promise<{ success: boolean, role?: string, message?: string }>}
+ */
 export async function loginAction(email, password, turnstileToken) {
   try {
     if (!turnstileToken) {
@@ -84,6 +106,20 @@ export async function loginAction(email, password, turnstileToken) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * AUTH ACTION: registerAction
+ * -----------------------------------------------------------------------------
+ * @description Registers a new account with email, password, name, and Cloudflare Turnstile verification.
+ * @why Allows new users to create accounts on Sphinix Mobile.
+ * @where Called by: `app/(main)/register/page.js`
+ * @security Turnstile captcha + Supabase Auth user creation + automatic Prisma profile sync.
+ * @param {string} email - User email.
+ * @param {string} password - Account password.
+ * @param {string} name - Full display name.
+ * @param {string} turnstileToken - Turnstile captcha token.
+ * @returns {Promise<{ success: boolean, message?: string, requireVerification?: boolean }>}
+ */
 export async function registerAction(email, password, name, turnstileToken) {
   try {
     if (!turnstileToken) {
@@ -139,12 +175,34 @@ export async function registerAction(email, password, name, turnstileToken) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * AUTH ACTION: logoutAction
+ * -----------------------------------------------------------------------------
+ * @description Signs out the current user session and clears authentication cookies.
+ * @why Enables user logout from navbar/dashboard headers.
+ * @where Called by: `components/Navbar.jsx`, `app/dashboard/_components/AdminSidebar.jsx`
+ * @security Destroys current Supabase session token.
+ * @returns {Promise<{ success: boolean }>}
+ */
 export async function logoutAction() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   return { success: true };
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * AUTH ACTION: forgotPasswordAction
+ * -----------------------------------------------------------------------------
+ * @description Sends a password reset recovery link to the specified email address.
+ * @why Allows users who forgot their password to trigger a recovery email.
+ * @where Called by: `app/(main)/forgot-password/page.js`
+ * @security Guarded by Cloudflare Turnstile captcha token.
+ * @param {string} email - Registered user email address.
+ * @param {string} turnstileToken - Turnstile captcha token.
+ * @returns {Promise<{ success: boolean, message: string }>}
+ */
 export async function forgotPasswordAction(email, turnstileToken) {
   try {
     if (!turnstileToken) {
@@ -173,6 +231,17 @@ export async function forgotPasswordAction(email, turnstileToken) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * AUTH ACTION: resetPasswordAction
+ * -----------------------------------------------------------------------------
+ * @description Updates the account password for an authenticated recovery session.
+ * @why Completes the password reset process after clicking the email link.
+ * @where Called by: `app/(main)/reset-password/page.js`
+ * @security Requires active recovery session cookie set via password reset callback link.
+ * @param {string} newPassword - New password to set.
+ * @returns {Promise<{ success: boolean, message: string }>}
+ */
 export async function resetPasswordAction(newPassword) {
   try {
     const supabase = await createClient();

@@ -10,6 +10,16 @@ import {
   reassignAttributeGroupQuery
 } from '@/queries/device-attributes';
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ATTRIBUTES ACTION: getDeviceAttributes
+ * -----------------------------------------------------------------------------
+ * @description Public action: fetches all registered spec attributes and group assignments from PostgreSQL.
+ * @why Pre-populates dynamic specification forms in the device editor and comparison tables.
+ * @where Called by: `app/dashboard/phones/_components/editor/DeviceSpecsInputs.jsx`, `actions/ai/device-actions.js`
+ * @security Public read access.
+ * @returns {Promise<Array>} Array of attribute objects ({ id, name, slug, terms, groupIds, order }).
+ */
 export async function getDeviceAttributes() {
   try {
     return await getDeviceAttributesQuery();
@@ -23,6 +33,19 @@ function generateSlug(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ATTRIBUTES ACTION: createDeviceAttribute
+ * -----------------------------------------------------------------------------
+ * @description Admin action: registers a new specification attribute (e.g. "Refresh Rate", "Battery Capacity").
+ * @why Enables admins to expand smartphone spec schemas dynamically without altering database columns.
+ * @where Called by: `app/dashboard/phones/attributes/page.js`
+ * @security Restricted to authenticated admin sessions (`verifySession()`).
+ * @param {string} name - Attribute label.
+ * @param {Array<string>} groupIds - List of associated spec group IDs.
+ * @param {string} customSlug - Optional custom slug.
+ * @returns {Promise<{ success: boolean, message?: string, attribute?: object, error?: string }>}
+ */
 export async function createDeviceAttribute(name, groupIds = ['General'], customSlug = '') {
   try {
     const user = await verifySession();
@@ -59,6 +82,20 @@ export async function createDeviceAttribute(name, groupIds = ['General'], custom
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ATTRIBUTES ACTION: updateDeviceAttribute
+ * -----------------------------------------------------------------------------
+ * @description Admin action: updates an existing attribute's name, group assignment, or slug.
+ * @why Allows admins to rename or re-group device specification fields.
+ * @where Called by: `app/dashboard/phones/attributes/page.js`
+ * @security Restricted to authenticated session (`verifySession()`).
+ * @param {string} id - Target attribute ID.
+ * @param {string} newName - New attribute label.
+ * @param {Array<string>} newGroupIds - Updated group IDs.
+ * @param {string} customSlug - Optional custom slug.
+ * @returns {Promise<{ success: boolean, message?: string, error?: string }>}
+ */
 export async function updateDeviceAttribute(id, newName, newGroupIds, customSlug = '') {
   try {
     const user = await verifySession();
@@ -98,6 +135,17 @@ export async function updateDeviceAttribute(id, newName, newGroupIds, customSlug
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ATTRIBUTES ACTION: deleteDeviceAttribute
+ * -----------------------------------------------------------------------------
+ * @description Admin action: deletes a specification attribute record from PostgreSQL.
+ * @why Removes unused or obsolete spec fields.
+ * @where Called by: `app/dashboard/phones/attributes/page.js`
+ * @security Restricted to authenticated session (`verifySession()`).
+ * @param {string} id - Target attribute ID.
+ * @returns {Promise<{ success: boolean, message?: string, error?: string }>}
+ */
 export async function deleteDeviceAttribute(id) {
   try {
     const user = await verifySession();
@@ -114,6 +162,18 @@ export async function deleteDeviceAttribute(id) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ATTRIBUTES ACTION: addAttributeTerm
+ * -----------------------------------------------------------------------------
+ * @description Admin action: adds a pre-set term option value to an attribute's allowed terms list.
+ * @why Provides pre-fill suggestions for values in device editors (e.g. "AMOLED", "LCD" for Screen type).
+ * @where Called by: `app/dashboard/phones/attributes/page.js`
+ * @security Restricted to authenticated session (`verifySession()`).
+ * @param {string} attributeId - Target attribute ID.
+ * @param {string} term - Value term string to append.
+ * @returns {Promise<{ success: boolean, message?: string, error?: string }>}
+ */
 export async function addAttributeTerm(attributeId, term) {
   try {
     const user = await verifySession();
@@ -149,6 +209,18 @@ export async function addAttributeTerm(attributeId, term) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ATTRIBUTES ACTION: deleteAttributeTerm
+ * -----------------------------------------------------------------------------
+ * @description Admin action: removes a pre-set term value from an attribute's terms list.
+ * @why Cleans up obsolete term options.
+ * @where Called by: `app/dashboard/phones/attributes/page.js`
+ * @security Restricted to authenticated session (`verifySession()`).
+ * @param {string} attributeId - Target attribute ID.
+ * @param {string} term - Term string to remove.
+ * @returns {Promise<{ success: boolean, message?: string, error?: string }>}
+ */
 export async function deleteAttributeTerm(attributeId, term) {
   try {
     const user = await verifySession();
@@ -174,6 +246,18 @@ export async function deleteAttributeTerm(attributeId, term) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ATTRIBUTES ACTION: reassignAttributeGroup
+ * -----------------------------------------------------------------------------
+ * @description Admin action: reassigns all attributes from an old group name to a new group name.
+ * @why Maintains spec relation integrity when an admin renames a spec group.
+ * @where Called by: `app/dashboard/phones/groups/page.js`
+ * @security Restricted to authenticated session (`verifySession()`).
+ * @param {string} oldGroup - Original group name.
+ * @param {string} newGroup - Replacement group name.
+ * @returns {Promise<{ success: boolean, error?: string }>}
+ */
 export async function reassignAttributeGroup(oldGroup, newGroup) {
   try {
     const user = await verifySession();
@@ -189,6 +273,17 @@ export async function reassignAttributeGroup(oldGroup, newGroup) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ATTRIBUTES ACTION: reorderDeviceAttributes
+ * -----------------------------------------------------------------------------
+ * @description Admin action: updates display order index for spec attributes.
+ * @why Enables drag-and-drop reordering of specification fields in the admin dashboard.
+ * @where Called by: `app/dashboard/phones/attributes/page.js`
+ * @security Restricted to authenticated session (`verifySession()`).
+ * @param {Array<string>} orderedIds - Array of attribute IDs in target display order.
+ * @returns {Promise<{ success: boolean, error?: string }>}
+ */
 export async function reorderDeviceAttributes(orderedIds) {
   try {
     const user = await verifySession();

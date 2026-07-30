@@ -9,6 +9,15 @@
 
 ## 2. Utility References
 
+### Module: `lib/affiliate-helpers.js`
+*   **Purpose:** Pure helper module for affiliate country normalization, store link state mutations, and active market counts.
+*   **Key Functions:**
+    *   `normalizeCountryRecord(c)`: Normalizes country database records, ensuring ISO code, flag, currency symbol, and lowercase store arrays are formatted consistently.
+    *   `normalizeAffiliates(affiliates, availableCountries)`: Guarantees active markets structure and default stores exist for every active country record.
+    *   `updateStoreInAffiliates(current, countryCode, storeId, field, value)`: Pure state updater for modifying store URL/price entries.
+    *   `deleteStoreFromAffiliates(current, countryCode, storeId)`: Pure state updater for removing a store from a country's affiliate links.
+    *   `countActiveMarkets(affiliates)`: Returns total count of countries with at least 1 configured store link.
+
 ### Module: `lib/utils.js`
 *   **Purpose:** Miscellaneous utility functions (formatting, class name concatenation, slug formatting).
 *   **Key Functions:**

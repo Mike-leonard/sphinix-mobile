@@ -10,6 +10,15 @@ function getPrisma() {
   return require('@/lib/prisma').default;
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: getSettingsRow
+ * -----------------------------------------------------------------------------
+ * @description Fetches or initializes the singleton `SiteSettings` row (ID 1) from PostgreSQL.
+ * @table `siteSettings`
+ * @where Called by: `actions/settings.js` -> `getCachedSettings()`
+ * @returns {Promise<object>} Singleton site settings database record.
+ */
 export async function getSettingsRow() {
   const client = getPrisma();
   return await client.siteSettings.upsert({
@@ -19,6 +28,16 @@ export async function getSettingsRow() {
   });
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: updateSettingsRow
+ * -----------------------------------------------------------------------------
+ * @description Updates the singleton `SiteSettings` row (ID 1) in PostgreSQL, incrementing version counter.
+ * @table `siteSettings`
+ * @where Called by: `actions/settings.js` -> `updateSettings()`
+ * @param {object} updatePayload - Updated settings categories payload.
+ * @returns {Promise<object>} Updated site settings database record.
+ */
 export async function updateSettingsRow(updatePayload) {
   const client = getPrisma();
   return await client.siteSettings.upsert({

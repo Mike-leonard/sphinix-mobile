@@ -6,15 +6,15 @@ import { getSettingsRow, updateSettingsRow } from '@/queries/settings';
 import { defaultSettings } from '@/config/default-settings';
 import { deepMerge, getEnvKeyAvailability, ENV_VAR_NAMES } from '@/lib/settings-helpers';
 
-// Step 3: Aggressive Caching with Next.js Data Cache
+/**
+ * Next.js Data Cache wrapper for site settings
+ */
 const getCachedSettings = unstable_cache(
   async () => {
     try {
-      // Step 4: Use Singleton helper
       const row = await getSettingsRow();
       if (!row) return defaultSettings;
 
-      // Step 2: Keep defaults in code -> DB -> deepMerge -> final settings
       const mergedSettings = {};
       for (const category of Object.keys(defaultSettings)) {
         mergedSettings[category] = deepMerge(
@@ -25,7 +25,6 @@ const getCachedSettings = unstable_cache(
 
       return {
         ...mergedSettings,
-        // Step 7: Versioning
         version: row.version || 1,
         updatedAt: row.updatedAt
       };
@@ -38,6 +37,16 @@ const getCachedSettings = unstable_cache(
   { tags: ['site-settings'] }
 );
 
+/**
+ * -----------------------------------------------------------------------------
+ * SETTINGS ACTION: getSettings
+ * -----------------------------------------------------------------------------
+ * @description Public action: fetches deep-merged site settings (SEO, Theme, Typography, Layout, AI, Ads).
+ * @why Provides global site configuration to root layouts, contexts, and components.
+ * @where Called by: `context/SettingsContext.jsx`, `app/layout.js`, `actions/devices.js`, `actions/ai/blog-actions.js`
+ * @security Public read access (sanitizes secret keys).
+ * @returns {Promise<object>} Complete site settings object.
+ */
 export async function getSettings() {
   const settings = await getCachedSettings();
 
@@ -58,7 +67,14 @@ export async function getSettings() {
 }
 
 /**
- * Resolves settings with secrets injected from .env and .env.local (Admin only)
+ * -----------------------------------------------------------------------------
+ * SETTINGS ACTION: getResolvedSettings
+ * -----------------------------------------------------------------------------
+ * @description Admin action: resolves settings with unmasked secrets injected from `.env` (API Keys, SMTP passwords).
+ * @why Pre-populates administrative configuration forms in the dashboard where secret keys are edited.
+ * @where Called by: `app/dashboard/settings/ai/page.js`, `app/dashboard/settings/security/page.js`
+ * @security Restricted strictly to Admin role (`verifySession()`).
+ * @returns {Promise<object>} Settings object containing resolved secret strings.
  */
 export async function getResolvedSettings() {
   const session = await verifySession();
@@ -100,9 +116,19 @@ export async function getResolvedSettings() {
   };
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * SETTINGS ACTION: updateSettings
+ * -----------------------------------------------------------------------------
+ * @description Admin action: updates site settings in PostgreSQL and invalidates Next.js data cache (`revalidateTag('site-settings')`).
+ * @why Saves updated settings categories and applies design/configuration changes immediately.
+ * @where Called by: Category-specific update helpers below.
+ * @security Restricted strictly to Admin role (`verifySession()`).
+ * @param {object} newSettings - Object containing section payload to update.
+ * @returns {Promise<{ success: boolean, error?: string }>}
+ */
 export async function updateSettings(newSettings) {
   try {
-    // Step 5: Validation before saving - Auth verification
     const session = await verifySession();
     if (!session || session.role !== 'Admin') {
       return { success: false, error: 'Unauthorized. Admin access required.' };
@@ -127,7 +153,6 @@ export async function updateSettings(newSettings) {
 
     await updateSettingsRow(updatePayload);
 
-    // Step 3: Cache Invalidation
     try {
       revalidateTag('site-settings');
       revalidatePath('/', 'layout');
@@ -142,7 +167,7 @@ export async function updateSettings(newSettings) {
   }
 }
 
-// Step 6: Think in modular server actions
+/** Modular Section Helper Actions */
 export async function updateSeoSettings(seoData) {
   return await updateSettings({ seo: seoData });
 }
@@ -174,4 +199,3 @@ export async function updateMediaSettings(mediaData) {
 export async function updateSmtpSettings(smtpData) {
   return await updateSettings({ smtp: smtpData });
 }
-

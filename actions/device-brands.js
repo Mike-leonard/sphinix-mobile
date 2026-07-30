@@ -10,6 +10,16 @@ import {
 } from '@/queries/device-brands';
 import { reassignDeviceBrand } from './devices';
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE BRANDS ACTION: getDeviceBrands
+ * -----------------------------------------------------------------------------
+ * @description Public action: fetches all registered smartphone brand names (e.g. "Apple", "Samsung", "Google") from PostgreSQL.
+ * @why Pre-populates brand selectors in device creation forms and public catalog brand filter dropdowns.
+ * @where Called by: `app/dashboard/phones/_components/editor/DeviceBasicInfo.jsx`, `app/(main)/phones/page.js`
+ * @security Public read access.
+ * @returns {Promise<Array<string>>} Array of brand name strings.
+ */
 export async function getDeviceBrands() {
   try {
     return await getAllDeviceBrandsQuery();
@@ -19,6 +29,17 @@ export async function getDeviceBrands() {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE BRANDS ACTION: createDeviceBrand
+ * -----------------------------------------------------------------------------
+ * @description Admin action: creates a new device brand entry in PostgreSQL.
+ * @why Allows admins to add new smartphone manufacturers (e.g. Nothing, OnePlus).
+ * @where Called by: `app/dashboard/phones/brands/_components/BrandForm.jsx`
+ * @security Restricted to authenticated admin sessions (`verifySession()`).
+ * @param {string} newBrand - Brand name string.
+ * @returns {Promise<{ success: boolean, message?: string, error?: string }>}
+ */
 export async function createDeviceBrand(newBrand) {
   try {
     const user = await verifySession();
@@ -52,6 +73,18 @@ export async function createDeviceBrand(newBrand) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE BRANDS ACTION: updateDeviceBrand
+ * -----------------------------------------------------------------------------
+ * @description Admin action: renames a device brand and updates associated devices in PostgreSQL.
+ * @why Allows admins to edit manufacturer brand names while keeping device catalog references linked.
+ * @where Called by: `app/dashboard/phones/brands/_components/BrandList.jsx`
+ * @security Restricted to authenticated admin sessions (`verifySession()`). Blocks renaming 'Other'.
+ * @param {string} oldBrand - Original brand name.
+ * @param {string} newBrand - Replacement brand name.
+ * @returns {Promise<{ success: boolean, message?: string, error?: string }>}
+ */
 export async function updateDeviceBrand(oldBrand, newBrand) {
   try {
     const user = await verifySession();
@@ -92,6 +125,17 @@ export async function updateDeviceBrand(oldBrand, newBrand) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE BRANDS ACTION: deleteDeviceBrand
+ * -----------------------------------------------------------------------------
+ * @description Admin action: deletes a brand entry and reassigns its devices to 'Other'.
+ * @why Removes brand categories without deleting existing devices.
+ * @where Called by: `app/dashboard/phones/brands/_components/BrandList.jsx`
+ * @security Restricted to authenticated admin sessions (`verifySession()`). Blocks deleting 'Other'.
+ * @param {string} brandToDelete - Brand name string to delete.
+ * @returns {Promise<{ success: boolean, message?: string, error?: string }>}
+ */
 export async function deleteDeviceBrand(brandToDelete) {
   try {
     const user = await verifySession();

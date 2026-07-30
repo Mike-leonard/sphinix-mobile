@@ -5,14 +5,17 @@
 ---
 
 ## 1. Modular Query Abstraction Layer (`queries/`)
-Database interactions are isolated from Server Actions inside dedicated query modules:
-*   `queries/settings.js`: Manages PostgreSQL `SiteSettings` Singleton fetches and updates.
-*   `queries/affiliate-countries.js`: Manages target country markets (`AffiliateCountry`), default target market seeding, and published country listings. Uses `getPrisma()` singleton accessor to prevent hot-reload caching errors.
+Database interactions are isolated from Server Actions inside dedicated query modules, complete with standardized JSDoc documentation headers (`@description`, `@table`, `@where`, `@param`, `@returns`):
+*   `queries/settings.js`: Manages PostgreSQL `SiteSettings` Singleton fetches and updates (`getSettingsRow`, `updateSettingsRow`).
+*   `queries/affiliate-countries.js`: Manages target country markets (`AffiliateCountry`), default target market seeding (7 ISO presets), and published country listings. Uses `getPrisma()` singleton accessor to prevent hot-reload caching errors.
 *   `queries/device-attributes.js`: Queries device spec attributes and group relations.
-*   `queries/device-brands.js`: Queries and manages brand records.
-*   `queries/device-groups.js`: Handles spec categories and groups.
-*   `queries/devices.js`: Fetches paginated devices, counts, search results, and localized affiliate link structures.
-*   `queries/blogs.js`: Manages blog articles, filtering by status (`published`, `draft`, `trash`), and pagination.
+*   `queries/device-brands.js`: Queries and manages brand records with auto-seeding.
+*   `queries/device-groups.js`: Handles spec categories and group reordering.
+*   `queries/device-filters.js`: Catalog search filter definition queries and batch upserts.
+*   `queries/rating-bars.js`: Expert rating bar criteria definitions and transaction reordering.
+*   `queries/devices.js`: Fetches paginated devices, counts, search results, `imageAlts` SEO arrays, and multi-attribute spec evaluation filters.
+*   `queries/blogs.js`: Manages blog articles, category counts, filtering by status (`published`, `draft`, `trash`), and pagination.
+*   `queries/categories.js`: Manages blog category CRUD operations and slugification.
 *   `queries/users.js`: User profiles and authentication query logic.
 
 ---

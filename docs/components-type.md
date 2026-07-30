@@ -98,7 +98,7 @@ This document outlines all components in the project and identifies whether they
 - 🖥️ **DeviceListCard.jsx** - Server Component
 - 🌐 **DeviceListCardCompare.jsx** - Client Component
 - 🖥️ **MobileFiltersSheet.jsx** - Server Component
-- 🖥️ **SortingControl.jsx** - Server Component
+- 🌐 **SortingControl.jsx** - Client Component
 
 ## `app/(main)/profile/`
 - 🖥️ **page.js** - Server Component
@@ -180,6 +180,7 @@ This document outlines all components in the project and identifies whether they
 - 🌐 **DeviceEditor.jsx** - Client Component
 - 🌐 **DeviceEditorSidebar.jsx** - Client Component
 - 🌐 **DeviceExpertRatings.jsx** - Client Component
+- 🌐 **DeviceGalleryInputs.jsx** - Client Component
 - 🌐 **DeviceOverviewEditor.jsx** - Client Component
 - 🌐 **DeviceQuickSpecs.jsx** - Client Component
 - 🌐 **StoreInputCard.jsx** - Client Component
