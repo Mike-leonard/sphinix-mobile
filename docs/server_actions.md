@@ -27,6 +27,18 @@
 
 ---
 
+### Affiliate Countries & Geo-Targeting (`actions/affiliate-countries.js` & `actions/geo.js`)
+*   `actions/affiliate-countries.js`:
+    *   `getAffiliateCountries()`: Fetches all target market records (triggers pre-seeding if table is empty).
+    *   `getPublishedAffiliateCountries()`: Fetches enabled country markets for public UI rendering.
+    *   `createAffiliateCountry(data)`: Creates a target market record (protected by `verifySession()`).
+    *   `updateAffiliateCountry(id, data)`: Updates market settings, default status, or store list (`verifySession()`).
+    *   `deleteAffiliateCountry(id)`: Removes a market record (`verifySession()`).
+*   `actions/geo.js`:
+    *   `detectVisitorCountry()`: Safe server action utilizing dynamic `require('geoip-lite')` inside an execution `try/catch` block. Inspects Vercel/Cloudflare headers (`x-vercel-ip-country`, `cf-ipcountry`, `x-country-code`) and client IP, returning the 2-letter ISO country code (defaults to `"US"`). Safe from Next.js server initialization crashes.
+
+---
+
 ### AI Integrations (`actions/ai.js` & `actions/ai/*`)
 Modularized into:
 *   `actions/ai/blog-actions.js`: `generateBlogFromTitle(title)`, `generateBlogFromUrl(url)`.

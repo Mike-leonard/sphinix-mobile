@@ -33,6 +33,23 @@ Database persistence is managed via **Prisma ORM** connecting to a PostgreSQL da
 
 ---
 
+### Model: `AffiliateCountry` (Table: `AffiliateCountry`)
+*   **Description:** Manages multi-country affiliate target markets, localized currency symbols, default retailer lists, and active status for Geo-IP target routing.
+*   **Fields:**
+    *   `id`: String (Primary Key, `cuid()`)
+    *   `name`: String (Country name e.g. `"Italy"`, `"United States"`)
+    *   `code`: String (Unique ISO country code e.g. `"IT"`, `"US"`, `"ES"`, `"BD"`)
+    *   `flag`: String (Flag emoji e.g. `"🇮🇹"`, `"🇺🇸"`)
+    *   `currencySymbol`: String (Localized symbol e.g. `"€"`, `"$"`, `"৳"`, `"CA$"`)
+    *   `currencyCode`: String (ISO currency code e.g. `"EUR"`, `"USD"`, `"BDT"`)
+    *   `isDefault`: Boolean (Default: `false`, fallback market indicator)
+    *   `enabled`: Boolean (Default: `true`)
+    *   `order`: Int (Default: `0`)
+    *   `stores`: Json? (Array of default store names e.g. `["Amazon Italy", "MediaWorld", "Unieuro"]`)
+    *   `createdAt`, `updatedAt`: DateTime
+
+---
+
 ### Model: `User` (Table: `User`)
 *   **Description:** Manages user profiles, credentials, role-based access control, and Supabase auth sync.
 *   **Fields:**
@@ -75,6 +92,7 @@ Database persistence is managed via **Prisma ORM** connecting to a PostgreSQL da
     *   `image`: String?
     *   `price`: String?
     *   `status`: String (Default: `"published"`)
+    *   `affiliates`: Json? (Multi-country store link mappings e.g. `{ US: { amazon: { url, price } }, IT: { ... } }`)
     *   `specs`: Json? (Quick specs and detailed grouped spec attributes)
     *   `ratings`: Json? (Expert rating breakdown numbers)
     *   `overview`: String? (HTML overview description)

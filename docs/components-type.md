@@ -82,7 +82,7 @@ This document outlines all components in the project and identifies whether they
 - 🖥️ **MainImageView.jsx** - Server Component
 
 ## `app/(main)/phones/[brandSlug]/[deviceSlug]/_components/quick-info/`
-- 🖥️ **AffiliateLinks.jsx** - Server Component
+- 🌐 **AffiliateLinks.jsx** - Client Component
 - 🖥️ **DeviceQuickInfoHeader.jsx** - Server Component
 - 🖥️ **DeviceSpecBlock.jsx** - Server Component
 
@@ -173,6 +173,8 @@ This document outlines all components in the project and identifies whether they
 - 🖥️ **page.js** - Server Component
 
 ## `app/dashboard/phones/_components/editor/`
+- 🌐 **AddRetailerModal.jsx** - Client Component
+- 🌐 **DeviceAffiliateInputs.jsx** - Client Component
 - 🌐 **DeviceBasicInfo.jsx** - Client Component
 - 🌐 **DeviceDetailedSpecs.jsx** - Client Component
 - 🌐 **DeviceEditor.jsx** - Client Component
@@ -180,6 +182,7 @@ This document outlines all components in the project and identifies whether they
 - 🌐 **DeviceExpertRatings.jsx** - Client Component
 - 🌐 **DeviceOverviewEditor.jsx** - Client Component
 - 🌐 **DeviceQuickSpecs.jsx** - Client Component
+- 🌐 **StoreInputCard.jsx** - Client Component
 
 ## `app/dashboard/phones/_components/manager/`
 - 🌐 **DevicesConfirmModal.jsx** - Client Component
@@ -188,6 +191,15 @@ This document outlines all components in the project and identifies whether they
 - 🌐 **DevicesTable.jsx** - Client Component
 - 🌐 **DevicesToolbar.jsx** - Client Component
 - 🌐 **DeviceTabsRoute.jsx** - Client Component
+
+## `app/dashboard/phones/affiliate-country/`
+- 🖥️ **page.js** - Server Component
+
+## `app/dashboard/phones/affiliate-country/_components/`
+- 🌐 **AffiliateCountryForm.jsx** - Client Component
+- 🌐 **AffiliateCountryList.jsx** - Client Component
+- 🌐 **AffiliateCountryManager.jsx** - Client Component
+- 🖥️ **constants.js** - Server Component
 
 ## `app/dashboard/phones/attributes/`
 - 🖥️ **page.js** - Server Component

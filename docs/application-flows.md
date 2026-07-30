@@ -11,13 +11,13 @@ This document provides a comprehensive guide detailing all **Public Visitor User
    - [1.1 Homepage Navigation & Overview](#11-homepage-navigation--overview)
    - [1.2 Smartphone Catalog & Advanced Search](#12-smartphone-catalog--advanced-search)
    - [1.3 Side-by-Side Device Comparison Tool](#13-side-by-side-device-comparison-tool)
-   - [1.4 Device Specification Details](#14-device-specification-details)
+   - [1.4 Device Specification Details & Geo-Targeted Buy Links](#14-device-specification-details--geo-targeted-buy-links)
    - [1.5 Tech Blog & Articles](#15-tech-blog--articles)
    - [1.6 Theme Customization (Light / Dark Mode)](#16-theme-customization-light--dark-mode)
 2. [Administrator Dashboard Guide](#2-administrator-dashboard-guide)
    - [2.1 Authentication & Dashboard Overview](#21-authentication--dashboard-overview)
-   - [2.2 Smartphone Management](#22-smartphone-management)
-   - [2.3 Dynamic Attributes, Groups, Brands & Filters](#23-dynamic-attributes-groups-brands--filters)
+   - [2.2 Smartphone Management & Multi-Country Affiliate Links](#22-smartphone-management--multi-country-affiliate-links)
+   - [2.3 Dynamic Attributes, Groups, Brands, Filters & Affiliate Countries](#23-dynamic-attributes-groups-brands-filters--affiliate-countries)
    - [2.4 Tech Articles & Category Management](#24-tech-articles--category-management)
    - [2.5 AI Assistant Workflows](#25-ai-assistant-workflows)
    - [2.6 Global Site Settings Configuration](#26-global-site-settings-configuration)
@@ -50,8 +50,11 @@ This document provides a comprehensive guide detailing all **Public Visitor User
 
 ---
 
-### 1.4 Device Specification Details (`/phones/[brandSlug]/[deviceSlug]`)
+### 1.4 Device Specification Details & Geo-Targeted Buy Links (`/phones/[brandSlug]/[deviceSlug]`)
 - **Quick Info Header:** Device launch image, price, key specs, and buy links.
+- **Geo-IP Targeted Buy Links:** Automatically detects the visitor's country (e.g. 🇮🇹 Italy, 🇺🇸 US, 🇪🇸 Spain, 🇧🇩 Bangladesh) via Vercel/Cloudflare headers and client IP lookups:
+  - Renders country-specific store affiliate buttons (e.g. MediaWorld, Fnac, Daraz, Amazon) with localized currency symbols (`$`, `€`, `৳`, `CA$`, `£`, `₹`, `A$`, `R$`, `¥`).
+  - Falls back to US global default store links if visitor country links are unconfigured.
 - **Interactive Tabs:**
   - **Overview:** Engaging HTML summary of the device.
   - **Detailed Specs:** Grouped specs (Display, Platform, Camera, Battery, Connectivity).
@@ -84,22 +87,27 @@ Access the admin suite at `/dashboard` (authentication required).
 
 ---
 
-### 2.2 Smartphone Management (`/dashboard/phones`)
+### 2.2 Smartphone Management & Multi-Country Affiliate Links (`/dashboard/phones`)
 - **Viewing Catalog:** Search, filter, and manage published devices.
 - **Adding a New Device:** Click **"Add Device"** (`/dashboard/phones/new`).
 - **AI Spec Auto-Filler:**
   - Enter brand and device name (e.g. `Samsung Galaxy S24 Ultra`), then click **"AI Generate Specs"**.
   - Or paste a URL (e.g. GSMArena product page) into **"Extract Specs from URL"** to automatically scrape and populate price, description, quick specs, and detailed specifications.
-- **Editing Device:** Modify specifications, images, pricing, and expert ratings.
+- **Multi-Country Affiliate Manager (`DeviceAffiliateInputs`):**
+  - Select country tabs (🇺🇸 US, 🇮🇹 IT, 🇪🇸 ES, 🇧🇩 BD, 🇫🇷 FR, 🇨🇦 CA, 🇩🇪 DE).
+  - Populate URLs and prices for pre-configured retailers.
+  - Click **"+ Add Retailer"** to open a modal dialog for adding custom stores on-the-fly.
+  - Delete store cards per country with the inline trash button.
 
 ---
 
-### 2.3 Dynamic Attributes, Groups, Brands & Filters
+### 2.3 Dynamic Attributes, Groups, Brands, Filters & Affiliate Countries
 - **Attributes (`/dashboard/phones/attributes`):** Define dynamic technical specification keys (e.g. `Processor`, `Battery Capacity`).
 - **Groups (`/dashboard/phones/groups`):** Organize attributes into logical sections (`Display`, `Platform`, `Camera`, `Battery`).
 - **Brands (`/dashboard/phones/brands`):** Manage manufacturer listings and logos.
 - **Filters (`/dashboard/phones/filters`):** Configure which attributes appear in the `/phones` page sidebar filter widget. Drag-and-drop to reorder.
 - **Rating Bars (`/dashboard/phones/rating-bars`):** Define custom scoring criteria for device expert ratings.
+- **Affiliate Countries (`/dashboard/phones/affiliate-country`):** Configure target country markets, currency symbols, flag emojis, and default retailer templates. Toggle active status and set global default market.
 
 ---
 

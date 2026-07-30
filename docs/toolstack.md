@@ -22,6 +22,7 @@
 *   **Caching Strategy:** Next.js `unstable_cache` with tag invalidation (`revalidateTag`) and `revalidatePath`
 
 ## 4. Advanced Features & Integrations
+*   **Geo-IP Location Detection:** `geoip-lite` (Dynamic safe runtime execution for visitor country code lookup, combined with Vercel `x-vercel-ip-country` & Cloudflare `cf-ipcountry` headers)
 *   **Rich Text Editor:** `@tiptap/react` and `@tiptap/starter-kit` (Headless content editing in admin panel)
 *   **Data Visualization:** `recharts` (Admin dashboard analytics charts)
 *   **Analytics APIs:** `@google-analytics/data` (GA4 Data API) and `googleapis` (Search Console API)
