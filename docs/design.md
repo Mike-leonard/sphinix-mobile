@@ -9,7 +9,7 @@
     *   **Primary (Brand):** Vibrant Purples. `brand-400` (#a855f7) used heavily in dark mode for a glowing effect, and a deeper `brand-600` (#7c3aed) used in light mode for strict high-contrast legibility.
     *   **Background (Dark):** Deep premium navy/black. Base background is `#090d16`, with `slate-900` (#0f172a) and `slate-950` used for layered surfaces and cards.
     *   **Background (Light):** Clean, spacious whites. Base background is `slate-50` (#f8fafc) with pure `white` (#ffffff) used for elevated surfaces.
-    *   **Button Text States:** public action buttons (e.g. "View All Phones" and "Read More Blogs") implement explicit light/dark contrast (`text-slate-900 dark:text-white`) with active hover states returning to brand accents (`hover:text-brand-600 dark:hover:text-brand-400`).
+    *   **Button Text States:** Public action buttons (e.g. "View All Phones" and "Read More Blogs") implement explicit light/dark contrast (`text-slate-900 dark:text-white`) with active hover states returning to brand accents (`hover:text-brand-600 dark:hover:text-brand-400`).
 *   **Typography:**
     *   **Family:** `Plus Jakarta Sans`, falling back to standard sans-serif system fonts.
     *   **Usage:** Features tight tracking (`tracking-tight`) for headings to give a modern tech feel, and wider tracking (`tracking-wider`) for small uppercase eyebrow labels. Global sizes are dynamic and managed via `SettingsContext` and injected CSS variables (`--font-size-h1-default`, etc.).
@@ -31,13 +31,14 @@
     *   The `/phones` grid layout (items per page, spec card badge limit) and home page section limits are dynamically governed by admin settings stored in PostgreSQL (`settings.appearance.phones` and `settings.appearance.home`).
 
 ## 3. UI Component System
-*   **State Orchestrator Pattern:** Complex features (e.g., `BlogsManager`, `BlogEditor`, `CategoryManager`, and all `SettingsForm` variants) use the Orchestrator pattern. A parent component manages top-level state and API interactions, while modular child components handle UI rendering.
+*   **State Orchestrator Pattern:** Complex features (e.g., `BlogsManager`, `BlogEditor`, `CategoryManager`, `AffiliateCountryManager`, `DeviceAffiliateInputs`, and all `SettingsForm` variants) use the Orchestrator pattern. A parent component manages top-level state and API interactions, while modular child components handle UI rendering.
 *   **Base Library:** `shadcn/ui` components are heavily integrated to handle accessibility and logic, while strictly preserving custom Tailwind brand aesthetics.
 *   **Modals & Dialogs:**
     *   Sliding drawers (Compare Drawer, Mobile Nav) use Shadcn's `<Sheet>`.
-    *   **Custom Modals:** Critical administrative actions (e.g., Delete, Trash, Unsaved Changes) bypass native `window.confirm()` and `window.alert()` in favor of custom backdrop-blurred modals (`DeleteCategoryModal`, `BlogsConfirmModal`, `LeaveConfirmationModal`).
+    *   **Custom Modals:** Critical administrative actions (e.g., Delete, Trash, Unsaved Changes, Add Retailer) bypass native `window.confirm()` and `window.prompt()` in favor of custom backdrop-blurred dialog modals (`DeleteCategoryModal`, `BlogsConfirmModal`, `LeaveConfirmationModal`, `AddRetailerModal`).
 *   **Cards & Lists:**
     *   `ProductCard` and `BlogCard` are built using Shadcn's `<Card>` and `<CardContent>`.
+    *   `StoreInputCard` renders individual store link and price input fields with localized currency symbols and trash icons.
 *   **Admin Data Tables:**
     *   Data tables rely on conditional hover AND click states to display row actions (Edit, Trash, View), catering to both desktop mouse users and mobile touch users.
 *   **Rich Text Integration:**

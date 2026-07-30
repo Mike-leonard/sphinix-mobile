@@ -7,10 +7,11 @@
 ## 1. Modular Query Abstraction Layer (`queries/`)
 Database interactions are isolated from Server Actions inside dedicated query modules:
 *   `queries/settings.js`: Manages PostgreSQL `SiteSettings` Singleton fetches and updates.
+*   `queries/affiliate-countries.js`: Manages target country markets (`AffiliateCountry`), default target market seeding, and published country listings. Uses `getPrisma()` singleton accessor to prevent hot-reload caching errors.
 *   `queries/device-attributes.js`: Queries device spec attributes and group relations.
 *   `queries/device-brands.js`: Queries and manages brand records.
 *   `queries/device-groups.js`: Handles spec categories and groups.
-*   `queries/devices.js`: Fetches paginated devices, counts, and search results.
+*   `queries/devices.js`: Fetches paginated devices, counts, search results, and localized affiliate link structures.
 *   `queries/blogs.js`: Manages blog articles, filtering by status (`published`, `draft`, `trash`), and pagination.
 *   `queries/users.js`: User profiles and authentication query logic.
 
@@ -28,7 +29,20 @@ Database interactions are isolated from Server Actions inside dedicated query mo
     );
     ```
 *   **Targeted Revalidation:** On setting updates, `revalidateTag('site-settings')` purges the stale cache immediately so administrative changes reflect instant site-wide updates.
-*   **Path Revalidation:** Server Actions trigger `revalidatePath(...)` on dynamic routes (e.g. `/phones`, `/blogs`, `/dashboard/settings/...`).
+*   **Path Revalidation:** Server Actions trigger `revalidatePath(...)` on dynamic routes (e.g. `/phones`, `/blogs`, `/dashboard/phones/affiliate-country`, `/dashboard/settings/...`).
+
+### 2. Hot-Reload Prisma Client Accessor (`getPrisma()`)
+To prevent `TypeError: Cannot read properties of undefined` during Next.js Turbopack hot-reloads when models are generated dynamically, query modules use `getPrisma()`:
+```javascript
+function getPrisma() {
+  if (globalThis.prisma && globalThis.prisma.affiliateCountry) {
+    return globalThis.prisma;
+  }
+  const client = new PrismaClient({ adapter });
+  globalThis.prisma = client;
+  return client;
+}
+```
 
 ---
 
