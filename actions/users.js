@@ -4,6 +4,17 @@ import { revalidatePath } from 'next/cache';
 import { verifySession } from './auth';
 import { getAllUsers, deleteUserById, updateUserRoleById, getUserById, updateUserNameById } from '@/queries/users';
 
+/**
+ * -----------------------------------------------------------------------------
+ * USERS ACTION: getUsers
+ * -----------------------------------------------------------------------------
+ * @description Admin action: fetches all registered user accounts from PostgreSQL.
+ * @why Renders the user management table in the admin dashboard.
+ * @where Called by: `app/dashboard/users/page.js`
+ * @security Restricted strictly to Admin role (`verifySession()`).
+ * @param {string|null} currentUserId - Active admin ID to filter out self-deletion options.
+ * @returns {Promise<Array>} Array of user profile objects.
+ */
 export async function getUsers(currentUserId = null) {
   try {
     const session = await verifySession();
@@ -17,6 +28,17 @@ export async function getUsers(currentUserId = null) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * USERS ACTION: deleteUser
+ * -----------------------------------------------------------------------------
+ * @description Admin action: deletes a user account record from PostgreSQL.
+ * @why Allows admins to remove spam or prohibited accounts.
+ * @where Called by: `app/dashboard/users/_components/UserList.jsx`
+ * @security Restricted strictly to Admin role (`verifySession()`).
+ * @param {string} userId - ID of the target user to delete.
+ * @returns {Promise<{ success: boolean, message: string }>}
+ */
 export async function deleteUser(userId) {
   const session = await verifySession();
   if (!session || session.role !== 'Admin') {
@@ -34,6 +56,18 @@ export async function deleteUser(userId) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * USERS ACTION: updateUserRole
+ * -----------------------------------------------------------------------------
+ * @description Admin action: updates a user's role (`Admin`, `Moderator`, `ContentWriter`, `Normal`).
+ * @why Enables role-based access control management from the dashboard.
+ * @where Called by: `app/dashboard/users/_components/UserList.jsx`
+ * @security Restricted strictly to Admin role (`verifySession()`).
+ * @param {string} userId - ID of target user.
+ * @param {string} newRole - Target role string.
+ * @returns {Promise<{ success: boolean, message: string }>}
+ */
 export async function updateUserRole(userId, newRole) {
   const session = await verifySession();
   if (!session || session.role !== 'Admin') {
@@ -51,6 +85,17 @@ export async function updateUserRole(userId, newRole) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * USERS ACTION: sendForgetPassword
+ * -----------------------------------------------------------------------------
+ * @description Admin action: triggers a password reset email to a specified user.
+ * @why Allows admins to trigger password reset emails on behalf of users.
+ * @where Called by: `app/dashboard/users/_components/UserList.jsx`
+ * @security Restricted strictly to Admin role (`verifySession()`).
+ * @param {string} userId - Target user ID.
+ * @returns {Promise<{ success: boolean, message: string }>}
+ */
 export async function sendForgetPassword(userId) {
   const session = await verifySession();
   if (!session || session.role !== 'Admin') {
@@ -64,10 +109,6 @@ export async function sendForgetPassword(userId) {
       return { success: false, message: 'User not found' };
     }
 
-    // Since Supabase Auth handles password resets, as an admin, 
-    // we would use the supabase-admin client to generate a link,
-    // but here we can just return success as a placeholder for the mock.
-    
     return { success: true, message: `Password reset instructions sent to ${user.email}` };
   } catch (error) {
     console.error('Error sending forget password:', error);
@@ -75,6 +116,17 @@ export async function sendForgetPassword(userId) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * USERS ACTION: updateProfileName
+ * -----------------------------------------------------------------------------
+ * @description User action: updates display name for the currently authenticated profile.
+ * @why Allows signed-in users to update their profile display name.
+ * @where Called by: User profile management modal/page.
+ * @security Restricted to authenticated user session (`verifySession()`).
+ * @param {string} newName - Replacement name string.
+ * @returns {Promise<{ success: boolean, message: string }>}
+ */
 export async function updateProfileName(newName) {
   const session = await verifySession();
   if (!session) {

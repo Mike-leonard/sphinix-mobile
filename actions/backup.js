@@ -4,7 +4,14 @@ import { verifySession } from './auth';
 import { getSettings, updateSettings } from './settings';
 
 /**
- * Creates a backup object from PostgreSQL siteSettings (using config/default-settings.js as fallback)
+ * -----------------------------------------------------------------------------
+ * BACKUP ACTION: createBackup
+ * -----------------------------------------------------------------------------
+ * @description Exports the entire PostgreSQL `SiteSettings` configuration as a downloadable JSON object.
+ * @why Enables admins to take snapshots of site settings, AI prompts, theme colors, and layout options.
+ * @where Called by: `app/dashboard/settings/backup/page.js`
+ * @security Restricted strictly to Admin role (`verifySession()`).
+ * @returns {Promise<{ success: boolean, fileName?: string, data?: object, message?: string, error?: string }>}
  */
 export async function createBackup() {
   try {
@@ -30,7 +37,15 @@ export async function createBackup() {
 }
 
 /**
- * Restores siteSettings into PostgreSQL database
+ * -----------------------------------------------------------------------------
+ * BACKUP ACTION: restoreBackup
+ * -----------------------------------------------------------------------------
+ * @description Uploads and restores a previously exported JSON backup file into PostgreSQL `SiteSettings`.
+ * @why Allows admins to restore previous site configurations or migrate settings across environments.
+ * @where Called by: `app/dashboard/settings/backup/page.js`
+ * @security Restricted strictly to Admin role (`verifySession()`). Validates uploaded JSON format.
+ * @param {FormData} formData - Multipart form containing the uploaded `.json` backup file.
+ * @returns {Promise<{ success: boolean, message?: string, error?: string }>}
  */
 export async function restoreBackup(formData) {
   try {

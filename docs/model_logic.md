@@ -93,7 +93,7 @@ Database persistence is managed via **Prisma ORM** connecting to a PostgreSQL da
     *   `price`: String?
     *   `status`: String (Default: `"published"`)
     *   `affiliates`: Json? (Multi-country store link mappings e.g. `{ US: { amazon: { url, price } }, IT: { ... } }`)
-    *   `specs`: Json? (Quick specs and detailed grouped spec attributes)
+    *   `specs`: Json? (Quick specs, detailed grouped spec attributes, gallery images, and `imageAlts` SEO array)
     *   `ratings`: Json? (Expert rating breakdown numbers)
     *   `overview`: String? (HTML overview description)
     *   `createdAt`, `updatedAt`: DateTime

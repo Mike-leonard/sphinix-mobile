@@ -1,5 +1,8 @@
 import prisma from '@/lib/prisma';
 
+/**
+ * Formats DB device record, normalizing specs, pricing, and status.
+ */
 export function formatDevice(device) {
   if (!device) return null;
   const specsObj = (device.specs && typeof device.specs === 'object') ? device.specs : {};
@@ -25,6 +28,15 @@ export function formatDevice(device) {
   };
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: getAllDevicesQuery
+ * -----------------------------------------------------------------------------
+ * @description Admin query: fetches all devices regardless of status ordered by creation timestamp.
+ * @table `device`
+ * @where Called by: `actions/devices.js` -> `getDevices()`, `createDevice()`
+ * @returns {Promise<Array>} List of formatted device records.
+ */
 export async function getAllDevicesQuery() {
   const devices = await prisma.device.findMany({
     orderBy: { createdAt: 'desc' },
@@ -33,6 +45,16 @@ export async function getAllDevicesQuery() {
   return devices.map(formatDevice);
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: getDeviceByIdQuery
+ * -----------------------------------------------------------------------------
+ * @description Admin query: fetches single device by ID/slug.
+ * @table `device`
+ * @where Called by: `actions/devices.js` -> `getDeviceById()`, `updateDevice()`
+ * @param {string} id - Device ID / slug.
+ * @returns {Promise<object|null>}
+ */
 export async function getDeviceByIdQuery(id) {
   const device = await prisma.device.findUnique({
     where: { id },
@@ -41,6 +63,16 @@ export async function getDeviceByIdQuery(id) {
   return formatDevice(device);
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: getPublishedDeviceByIdQuery
+ * -----------------------------------------------------------------------------
+ * @description Public query: fetches single published device by ID/slug.
+ * @table `device`
+ * @where Called by: `actions/devices.js` -> `getPublishedDeviceById()`
+ * @param {string} id - Device ID / slug.
+ * @returns {Promise<object|null>}
+ */
 export async function getPublishedDeviceByIdQuery(id) {
   const device = await prisma.device.findFirst({
     where: {
@@ -52,6 +84,16 @@ export async function getPublishedDeviceByIdQuery(id) {
   return formatDevice(device);
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: getDevicesByIdsQuery
+ * -----------------------------------------------------------------------------
+ * @description Admin query: fetches multiple devices by array of IDs.
+ * @table `device`
+ * @where Called by: `actions/devices.js` -> `getDevicesByIds()`
+ * @param {Array<string>} ids - Array of IDs.
+ * @returns {Promise<Array>}
+ */
 export async function getDevicesByIdsQuery(ids) {
   if (!Array.isArray(ids) || ids.length === 0) return [];
   const devices = await prisma.device.findMany({
@@ -63,6 +105,16 @@ export async function getDevicesByIdsQuery(ids) {
   return devices.map(formatDevice);
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: getPublishedDevicesByIdsQuery
+ * -----------------------------------------------------------------------------
+ * @description Public query: fetches published devices matching array of IDs (e.g. for comparison tables).
+ * @table `device`
+ * @where Called by: `actions/devices.js` -> `getPublishedDevicesByIds()`
+ * @param {Array<string>} ids - Array of IDs.
+ * @returns {Promise<Array>}
+ */
 export async function getPublishedDevicesByIdsQuery(ids) {
   if (!Array.isArray(ids) || ids.length === 0) return [];
   const devices = await prisma.device.findMany({
@@ -116,7 +168,6 @@ function evaluateFilterOption(specVal, optStr) {
   const valStr = String(specVal).toLowerCase().trim();
   const option = String(optStr).toLowerCase().trim();
 
-  // 1. Direct or partial string inclusion
   if (valStr.replace(/\s+/g, '').includes(option.replace(/\s+/g, ''))) return true;
 
   const extractNum = (str) => {
@@ -127,19 +178,16 @@ function evaluateFilterOption(specVal, optStr) {
   const valNum = extractNum(valStr);
   if (valNum === null) return false;
 
-  // 2. "Under X" or "< X"
   if (option.includes('under') || option.includes('<')) {
     const limit = extractNum(option);
     return limit !== null && valNum < limit;
   }
 
-  // 3. "Above X" or "> X"
   if (option.includes('above') || option.includes('>')) {
     const limit = extractNum(option);
     return limit !== null && valNum > limit;
   }
 
-  // 4. "Min - Max" Range (e.g. "$801 - $1000", "6001 - 10000 mAh", "8 GB - 12 GB")
   if (option.includes('-')) {
     const parts = option.split('-');
     const min = extractNum(parts[0]);
@@ -152,6 +200,19 @@ function evaluateFilterOption(specVal, optStr) {
   return false;
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: getPublishedDevicesQuery
+ * -----------------------------------------------------------------------------
+ * @description Public query: fetches paginated published devices with brand, query, and spec filter evaluation.
+ * @table `device`
+ * @where Called by: `actions/devices.js` -> `publishedDevices()`
+ * @param {number|object} optionsOrLimit - Limit or options object.
+ * @param {string} queryParam - Search query string.
+ * @param {string} brandParam - Brand name filter.
+ * @param {number} offsetParam - Pagination offset.
+ * @returns {Promise<Array>} Array of published devices.
+ */
 export async function getPublishedDevicesQuery(optionsOrLimit = 10, queryParam = '', brandParam = 'All', offsetParam = 0) {
   let limit = 10;
   let query = '';
@@ -187,7 +248,7 @@ export async function getPublishedDevicesQuery(optionsOrLimit = 10, queryParam =
 
   const rawMatching = await prisma.device.findMany({
     where,
-    orderBy: { createdAt: 'desc' },
+    orderBy: { createdAt: 'asc' },
     include: { deviceBrand: true }
   });
 
@@ -209,6 +270,17 @@ export async function getPublishedDevicesQuery(optionsOrLimit = 10, queryParam =
   return allMatching.slice(offset, offset + limit);
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: getPublishedDevicesCountQuery
+ * -----------------------------------------------------------------------------
+ * @description Public query: counts published devices matching search query, brand, and spec filters.
+ * @table `device`
+ * @where Called by: `actions/devices.js` -> `publishedDevicesCount()`
+ * @param {string|object} optionsOrQuery - Search query term or options object.
+ * @param {string} brandParam - Brand name filter.
+ * @returns {Promise<number>} Count of published devices.
+ */
 export async function getPublishedDevicesCountQuery(optionsOrQuery = '', brandParam = 'All') {
   let query = '';
   let brand = 'All';
@@ -253,6 +325,15 @@ export async function getPublishedDevicesCountQuery(optionsOrQuery = '', brandPa
   return await prisma.device.count({ where });
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: getDeviceBrandCountsQuery
+ * -----------------------------------------------------------------------------
+ * @description Aggregates published device counts grouped by brand name.
+ * @table `device`
+ * @where Called by: `actions/devices.js` -> `getDeviceBrandCounts()`
+ * @returns {Promise<object>} Object mapping brand names to count numbers.
+ */
 export async function getDeviceBrandCountsQuery() {
   const publishedDevices = await prisma.device.findMany({
     where: { status: 'PUBLISHED' }
@@ -269,6 +350,16 @@ export async function getDeviceBrandCountsQuery() {
   return counts;
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: getNewArrivalsQuery
+ * -----------------------------------------------------------------------------
+ * @description Fetches recently added devices marked `isNew: true`.
+ * @table `device`
+ * @where Called by: `actions/devices.js` -> `getNewArrivals()`
+ * @param {number} limit - Limit (default 6).
+ * @returns {Promise<Array>}
+ */
 export async function getNewArrivalsQuery(limit = 6) {
   const devices = await prisma.device.findMany({
     where: { status: 'PUBLISHED', isNew: true },
@@ -278,6 +369,16 @@ export async function getNewArrivalsQuery(limit = 6) {
   return devices.map(formatDevice);
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: getTopRatedDevicesQuery
+ * -----------------------------------------------------------------------------
+ * @description Fetches top-rated devices marked `isTopRated: true` ordered by rating score descending.
+ * @table `device`
+ * @where Called by: `actions/devices.js` -> `getTopRatedDevices()`
+ * @param {number} limit - Limit (default 3).
+ * @returns {Promise<Array>}
+ */
 export async function getTopRatedDevicesQuery(limit = 3) {
   const devices = await prisma.device.findMany({
     where: { status: 'PUBLISHED', isTopRated: true },
@@ -287,6 +388,16 @@ export async function getTopRatedDevicesQuery(limit = 3) {
   return devices.map(formatDevice);
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: createDeviceQuery
+ * -----------------------------------------------------------------------------
+ * @description Inserts a new smartphone device record into PostgreSQL.
+ * @table `device`
+ * @where Called by: `actions/devices.js` -> `createDevice()`
+ * @param {object} data - Device payload.
+ * @returns {Promise<object>} Created device record.
+ */
 export async function createDeviceQuery(data) {
   const payload = { ...data };
   if (payload.status) {
@@ -300,6 +411,17 @@ export async function createDeviceQuery(data) {
   return formatDevice(created);
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: updateDeviceQuery
+ * -----------------------------------------------------------------------------
+ * @description Updates an existing device record by ID in PostgreSQL.
+ * @table `device`
+ * @where Called by: `actions/devices.js` -> `updateDevice()`
+ * @param {string} id - Device ID / slug.
+ * @param {object} data - Updated device fields.
+ * @returns {Promise<object>} Updated device record.
+ */
 export async function updateDeviceQuery(id, data) {
   const payload = { ...data };
   if (payload.status) {
@@ -316,12 +438,32 @@ export async function updateDeviceQuery(id, data) {
   return formatDevice(updated);
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: deleteDeviceQuery
+ * -----------------------------------------------------------------------------
+ * @description Permanently deletes a device record from PostgreSQL by ID.
+ * @table `device`
+ * @where Called by: `actions/devices.js` -> `deleteDevice()`
+ * @param {string} id - Device ID / slug.
+ * @returns {Promise<object>} Deleted Prisma record.
+ */
 export async function deleteDeviceQuery(id) {
   return await prisma.device.delete({
     where: { id }
   });
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: trashDeviceQuery
+ * -----------------------------------------------------------------------------
+ * @description Soft-deletes a device record by setting status to `'TRASHED'`.
+ * @table `device`
+ * @where Called by: `actions/devices.js` -> `trashDevice()`
+ * @param {string} id - Device ID / slug.
+ * @returns {Promise<object>}
+ */
 export async function trashDeviceQuery(id) {
   const updated = await prisma.device.update({
     where: { id },
@@ -330,6 +472,16 @@ export async function trashDeviceQuery(id) {
   return formatDevice(updated);
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: restoreDeviceQuery
+ * -----------------------------------------------------------------------------
+ * @description Restores a trashed device record by setting status to `'DRAFT'`.
+ * @table `device`
+ * @where Called by: `actions/devices.js` -> `restoreDevice()`
+ * @param {string} id - Device ID / slug.
+ * @returns {Promise<object>}
+ */
 export async function restoreDeviceQuery(id) {
   const updated = await prisma.device.update({
     where: { id },
@@ -338,6 +490,17 @@ export async function restoreDeviceQuery(id) {
   return formatDevice(updated);
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: reassignDeviceBrandQuery
+ * -----------------------------------------------------------------------------
+ * @description Reassigns brand column values across devices from old brand to new brand.
+ * @table `device`
+ * @where Called by: `actions/devices.js` -> `reassignDeviceBrand()`
+ * @param {string} oldBrand - Original brand name.
+ * @param {string} newBrand - Replacement brand name.
+ * @returns {Promise<object>} Prisma updateMany result object `{ count: number }`.
+ */
 export async function reassignDeviceBrandQuery(oldBrand, newBrand) {
   return await prisma.device.updateMany({
     where: { brandName: oldBrand },

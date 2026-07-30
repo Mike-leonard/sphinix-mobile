@@ -10,6 +10,16 @@ import {
   deleteCategoryQuery
 } from '@/queries/categories';
 
+/**
+ * -----------------------------------------------------------------------------
+ * CATEGORIES ACTION: getCategories
+ * -----------------------------------------------------------------------------
+ * @description Public action: fetches all blog category names from PostgreSQL.
+ * @why Pre-populates category selects in blog creation forms and category filter lists.
+ * @where Called by: `app/dashboard/blogs/_components/editor/BlogEditor.jsx`, `app/(main)/blogs/page.js`
+ * @security Public read access.
+ * @returns {Promise<Array<string>>} Array of category name strings.
+ */
 export async function getCategories() {
   try {
     const categories = await getAllCategoriesQuery();
@@ -20,6 +30,16 @@ export async function getCategories() {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * CATEGORIES ACTION: getCategoryListWithCounts
+ * -----------------------------------------------------------------------------
+ * @description Public action: builds a category list with post count totals (e.g. `[{ name: "All", count: 12 }, { name: "Tech", count: 8 }]`).
+ * @why Renders public blog category filter tabs and badges.
+ * @where Called by: `app/(main)/blogs/page.js`
+ * @security Public read access.
+ * @returns {Promise<Array<{ name: string, count: number }>>}
+ */
 export async function getCategoryListWithCounts() {
   try {
     const { blogCategoryCounts } = await import('./blogs.js');
@@ -54,6 +74,17 @@ export async function getCategoryListWithCounts() {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * CATEGORIES ACTION: createCategory
+ * -----------------------------------------------------------------------------
+ * @description Admin action: creates a new blog category in PostgreSQL.
+ * @why Allows admins to create new blog categorization taxonomies.
+ * @where Called by: `app/dashboard/blogs/categories/_components/CategoryForm.jsx`
+ * @security Restricted to authenticated session (`verifySession()`).
+ * @param {string} newCategory - New category name string.
+ * @returns {Promise<{ success: boolean, message?: string, error?: string }>}
+ */
 export async function createCategory(newCategory) {
   try {
     const user = await verifySession();
@@ -83,6 +114,18 @@ export async function createCategory(newCategory) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * CATEGORIES ACTION: updateCategory
+ * -----------------------------------------------------------------------------
+ * @description Admin action: renames an existing category and re-links existing blog posts.
+ * @why Allows admins to edit category names while keeping blog posts linked.
+ * @where Called by: `app/dashboard/blogs/categories/_components/CategoryList.jsx`
+ * @security Restricted to authenticated session (`verifySession()`). Blocks renaming 'Uncategorized'.
+ * @param {string} oldCategory - Old category name.
+ * @param {string} newCategory - New category name.
+ * @returns {Promise<{ success: boolean, message?: string, error?: string }>}
+ */
 export async function updateCategory(oldCategory, newCategory) {
   try {
     const user = await verifySession();
@@ -122,6 +165,17 @@ export async function updateCategory(oldCategory, newCategory) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * CATEGORIES ACTION: deleteCategory
+ * -----------------------------------------------------------------------------
+ * @description Admin action: deletes a category and reassigns its blogs to 'Uncategorized'.
+ * @why Removes unwanted categories without breaking existing blog post relations.
+ * @where Called by: `app/dashboard/blogs/categories/_components/CategoryList.jsx`
+ * @security Restricted to authenticated session (`verifySession()`). Blocks deleting 'Uncategorized'.
+ * @param {string} categoryToDelete - Category name to delete.
+ * @returns {Promise<{ success: boolean, message?: string, error?: string }>}
+ */
 export async function deleteCategory(categoryToDelete) {
   try {
     const user = await verifySession();

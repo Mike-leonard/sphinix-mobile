@@ -4,7 +4,16 @@ import { generateText } from '@/lib/ai/text-generator';
 import { verifySession } from '@/actions/auth';
 
 /**
- * Generate SEO metadata (Title, Description, Keywords) based on blog HTML content.
+ * -----------------------------------------------------------------------------
+ * AI SEO ACTION: generateSEOFromContent
+ * -----------------------------------------------------------------------------
+ * @description Analyzes blog post content and title to auto-generate optimized Meta Title, Meta Description, and Keywords.
+ * @why Automates SEO metadata creation for blogs to maximize Google SERP click-through rates.
+ * @where Called by: `components/SeoMetadataForm.jsx` (AI Generate SEO button on blog editor)
+ * @security Session authentication required (`verifySession()`). Admin/Editor access.
+ * @param {string} htmlContent - Blog article HTML body text.
+ * @param {string} currentTitle - Current blog title.
+ * @returns {Promise<{ success: boolean, data?: { metaTitle: string, metaDescription: string, keywords: string }, error?: string }>}
  */
 export async function generateSEOFromContent(htmlContent, currentTitle) {
   try {
@@ -48,7 +57,17 @@ export async function generateSEOFromContent(htmlContent, currentTitle) {
 }
 
 /**
- * Generate SEO metadata (Title, Description, Keywords) based on device details.
+ * -----------------------------------------------------------------------------
+ * AI SEO ACTION: generateDeviceSEO
+ * -----------------------------------------------------------------------------
+ * @description Analyzes device specifications and overview text to auto-generate product page Meta Title, Meta Description, and Keywords.
+ * @why Automates device product page SEO optimization for search engines.
+ * @where Called by: `components/SeoMetadataForm.jsx` (AI Generate SEO button on device editor)
+ * @security Session authentication required (`verifySession()`). Admin access.
+ * @param {string} deviceName - Name of the device.
+ * @param {string} brand - Brand manufacturer.
+ * @param {string} description - Overview HTML text.
+ * @returns {Promise<{ success: boolean, data?: { metaTitle: string, metaDescription: string, keywords: string }, error?: string }>}
  */
 export async function generateDeviceSEO(deviceName, brand, description) {
   try {

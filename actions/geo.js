@@ -2,6 +2,16 @@
 
 import { headers } from 'next/headers';
 
+/**
+ * -----------------------------------------------------------------------------
+ * GEO-IP ACTION: detectVisitorCountry
+ * -----------------------------------------------------------------------------
+ * @description Detects visitor ISO 2-letter country code using CDN headers (Vercel, Cloudflare, CloudFront) or local Geo-IP lookup.
+ * @why Resolves user location on public device pages to automatically highlight country-specific buy links and local currencies.
+ * @where Called by: `app/(main)/phones/[brandSlug]/[deviceSlug]/_components/quick-info/AffiliateLinks.jsx`
+ * @security Server-side IP header reading with local fallback to 'US'.
+ * @returns {Promise<string>} ISO 2-letter uppercase country code (e.g. 'US', 'IT', 'BD').
+ */
 export async function detectVisitorCountry() {
   try {
     const headerList = await headers();

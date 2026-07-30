@@ -12,6 +12,15 @@ function getPrisma() {
   return freshPrisma;
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: getDeviceFiltersQuery
+ * -----------------------------------------------------------------------------
+ * @description Fetches all catalog search filter definitions from PostgreSQL ordered by display index.
+ * @table `deviceFilter`
+ * @where Called by: `actions/device-filters.js` -> `getDeviceFilters()`
+ * @returns {Promise<Array>} Array of filter group records.
+ */
 export async function getDeviceFiltersQuery() {
   const client = getPrisma();
   if (!client || !client.deviceFilter) return [];
@@ -20,6 +29,15 @@ export async function getDeviceFiltersQuery() {
   });
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: getDeviceFilterByIdQuery
+ * -----------------------------------------------------------------------------
+ * @description Fetches a single device filter rule by ID.
+ * @table `deviceFilter`
+ * @param {string} id - Filter ID.
+ * @returns {Promise<object|null>}
+ */
 export async function getDeviceFilterByIdQuery(id) {
   const client = getPrisma();
   if (!client || !client.deviceFilter) return null;
@@ -28,6 +46,16 @@ export async function getDeviceFilterByIdQuery(id) {
   });
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: upsertDeviceFilterQuery
+ * -----------------------------------------------------------------------------
+ * @description Creates or updates a single search filter rule in PostgreSQL.
+ * @table `deviceFilter`
+ * @param {string} id - Filter ID.
+ * @param {object} data - { title, attributeSlug, options, order }
+ * @returns {Promise<object>}
+ */
 export async function upsertDeviceFilterQuery(id, data) {
   const client = getPrisma();
   return await client.deviceFilter.upsert({
@@ -48,6 +76,16 @@ export async function upsertDeviceFilterQuery(id, data) {
   });
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: saveDeviceFiltersBatchQuery
+ * -----------------------------------------------------------------------------
+ * @description Batch upserts multiple catalog filter rules and updates their ordering indexes in PostgreSQL.
+ * @table `deviceFilter`
+ * @where Called by: `actions/device-filters.js` -> `saveDeviceFilters()`
+ * @param {Array<object>} filters - Batch list of filter definitions.
+ * @returns {Promise<Array>} Array of upserted filter records.
+ */
 export async function saveDeviceFiltersBatchQuery(filters) {
   if (!Array.isArray(filters)) return [];
 
@@ -77,6 +115,15 @@ export async function saveDeviceFiltersBatchQuery(filters) {
   return results;
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: deleteDeviceFilterQuery
+ * -----------------------------------------------------------------------------
+ * @description Deletes a search filter definition from PostgreSQL by ID.
+ * @table `deviceFilter`
+ * @param {string} id - Filter ID.
+ * @returns {Promise<object>}
+ */
 export async function deleteDeviceFilterQuery(id) {
   const client = getPrisma();
   return await client.deviceFilter.delete({

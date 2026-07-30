@@ -7,6 +7,16 @@ import { verifySession } from './auth';
 
 export { getDummySiteKitData };
 
+/**
+ * -----------------------------------------------------------------------------
+ * ANALYTICS ACTION: getGoogleMetrics
+ * -----------------------------------------------------------------------------
+ * @description Fetches 28-day active users, page views, search clicks, and impressions from Google Analytics 4 & Search Console APIs.
+ * @why Powers the admin Site Kit overview metrics widget on the dashboard home page.
+ * @where Called by: `app/dashboard/_components/widgets/GoogleSiteKitWidget.jsx`
+ * @security Restricted to authenticated admin sessions (`verifySession()`).
+ * @returns {Promise<{ setupRequired: boolean, data?: { activeUsers: number, pageViews: number, clicks: number, impressions: number }, error?: string }>}
+ */
 export async function getGoogleMetrics() {
   try {
     const session = await verifySession();

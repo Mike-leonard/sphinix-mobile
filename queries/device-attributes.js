@@ -10,6 +10,15 @@ function getPrisma() {
   return require('@/lib/prisma').default;
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: getDeviceAttributesQuery
+ * -----------------------------------------------------------------------------
+ * @description Fetches all smartphone spec attributes ordered by display position index.
+ * @table `deviceAttribute`
+ * @where Called by: `actions/device-attributes.js` -> `getDeviceAttributes()`
+ * @returns {Promise<Array>} Array of attribute objects ({ id, name, slug, terms, group, groupIds, order }).
+ */
 export async function getDeviceAttributesQuery() {
   const client = getPrisma();
   if (!client || !client.deviceAttribute) return [];
@@ -24,6 +33,16 @@ export async function getDeviceAttributesQuery() {
   }));
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: createDeviceAttributeQuery
+ * -----------------------------------------------------------------------------
+ * @description Inserts a new spec attribute record into PostgreSQL.
+ * @table `deviceAttribute`
+ * @where Called by: `actions/device-attributes.js` -> `createDeviceAttribute()`
+ * @param {object} data - { id, name, slug, terms, groupIds, group, placeholder }
+ * @returns {Promise<object>} Created attribute record.
+ */
 export async function createDeviceAttributeQuery(data) {
   const client = getPrisma();
   const count = await client.deviceAttribute.count();
@@ -55,6 +74,17 @@ export async function createDeviceAttributeQuery(data) {
   };
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: updateDeviceAttributeQuery
+ * -----------------------------------------------------------------------------
+ * @description Updates an existing spec attribute record by ID in PostgreSQL.
+ * @table `deviceAttribute`
+ * @where Called by: `actions/device-attributes.js` -> `updateDeviceAttribute()`, `addAttributeTerm()`, `deleteAttributeTerm()`, `reorderDeviceAttributes()`
+ * @param {string} id - Target attribute ID.
+ * @param {object} data - Updated attribute fields payload.
+ * @returns {Promise<object>} Updated attribute record.
+ */
 export async function updateDeviceAttributeQuery(id, data) {
   const client = getPrisma();
   const groupName = (data.groupIds && data.groupIds[0]) || data.group;
@@ -87,6 +117,16 @@ export async function updateDeviceAttributeQuery(id, data) {
   };
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: deleteDeviceAttributeQuery
+ * -----------------------------------------------------------------------------
+ * @description Deletes a spec attribute record by ID from PostgreSQL.
+ * @table `deviceAttribute`
+ * @where Called by: `actions/device-attributes.js` -> `deleteDeviceAttribute()`
+ * @param {string} id - Target attribute ID.
+ * @returns {Promise<object>} Deleted Prisma record.
+ */
 export async function deleteDeviceAttributeQuery(id) {
   const client = getPrisma();
   return await client.deviceAttribute.delete({
@@ -94,6 +134,17 @@ export async function deleteDeviceAttributeQuery(id) {
   });
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: reassignAttributeGroupQuery
+ * -----------------------------------------------------------------------------
+ * @description Reassigns spec attributes under an old group name to a new group name in PostgreSQL.
+ * @table `deviceAttribute`
+ * @where Called by: `actions/device-attributes.js` -> `reassignAttributeGroup()`
+ * @param {string} oldGroup - Original group name.
+ * @param {string} newGroup - Replacement group name (default 'General').
+ * @returns {Promise<Array>} Array of updated attribute objects.
+ */
 export async function reassignAttributeGroupQuery(oldGroup, newGroup = 'General') {
   const client = getPrisma();
   let targetGroup = await client.deviceGroup.findUnique({ where: { name: newGroup } });

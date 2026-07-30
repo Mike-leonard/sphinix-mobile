@@ -127,6 +127,15 @@ const DEFAULT_AFFILIATE_COUNTRIES = [
   }
 ];
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: seedDefaultAffiliateCountriesIfNeeded
+ * -----------------------------------------------------------------------------
+ * @description Seeds standard 7 affiliate country presets into PostgreSQL if `affiliateCountry` table is empty.
+ * @table `affiliateCountry`
+ * @where Called by: `getAllAffiliateCountriesQuery`, `getEnabledAffiliateCountriesQuery`
+ * @returns {Promise<void>}
+ */
 export async function seedDefaultAffiliateCountriesIfNeeded() {
   try {
     const client = getPrisma();
@@ -143,6 +152,15 @@ export async function seedDefaultAffiliateCountriesIfNeeded() {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: getAllAffiliateCountriesQuery
+ * -----------------------------------------------------------------------------
+ * @description Fetches all affiliate country definitions from PostgreSQL ordered by display index.
+ * @table `affiliateCountry`
+ * @where Called by: `actions/affiliate-countries.js` -> `getAffiliateCountries()`
+ * @returns {Promise<Array>} List of all affiliate country records.
+ */
 export async function getAllAffiliateCountriesQuery() {
   await seedDefaultAffiliateCountriesIfNeeded();
   const client = getPrisma();
@@ -151,6 +169,15 @@ export async function getAllAffiliateCountriesQuery() {
   });
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: getEnabledAffiliateCountriesQuery
+ * -----------------------------------------------------------------------------
+ * @description Fetches active affiliate countries (`enabled: true`) from PostgreSQL.
+ * @table `affiliateCountry`
+ * @where Called by: `actions/affiliate-countries.js` -> `getPublishedAffiliateCountries()`
+ * @returns {Promise<Array>} List of enabled affiliate country records.
+ */
 export async function getEnabledAffiliateCountriesQuery() {
   await seedDefaultAffiliateCountriesIfNeeded();
   const client = getPrisma();
@@ -160,6 +187,16 @@ export async function getEnabledAffiliateCountriesQuery() {
   });
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: createAffiliateCountryQuery
+ * -----------------------------------------------------------------------------
+ * @description Inserts a new affiliate country record into PostgreSQL.
+ * @table `affiliateCountry`
+ * @where Called by: `actions/affiliate-countries.js` -> `createAffiliateCountry()`
+ * @param {object} data - { name, code, flag, currencySymbol, currencyCode, isDefault, enabled, order, stores }
+ * @returns {Promise<object>} Newly created Prisma record.
+ */
 export async function createAffiliateCountryQuery(data) {
   const client = getPrisma();
   const code = (data.code || '').trim().toUpperCase();
@@ -185,6 +222,17 @@ export async function createAffiliateCountryQuery(data) {
   });
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: updateAffiliateCountryQuery
+ * -----------------------------------------------------------------------------
+ * @description Updates an existing affiliate country record by ID in PostgreSQL.
+ * @table `affiliateCountry`
+ * @where Called by: `actions/affiliate-countries.js` -> `updateAffiliateCountry()`
+ * @param {string} id - Country record ID.
+ * @param {object} data - Updated country fields payload.
+ * @returns {Promise<object>} Updated Prisma record.
+ */
 export async function updateAffiliateCountryQuery(id, data) {
   const client = getPrisma();
   if (data.isDefault) {
@@ -204,6 +252,16 @@ export async function updateAffiliateCountryQuery(id, data) {
   });
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * QUERY: deleteAffiliateCountryQuery
+ * -----------------------------------------------------------------------------
+ * @description Deletes an affiliate country record by ID from PostgreSQL.
+ * @table `affiliateCountry`
+ * @where Called by: `actions/affiliate-countries.js` -> `deleteAffiliateCountry()`
+ * @param {string} id - Country record ID.
+ * @returns {Promise<object>} Deleted Prisma record.
+ */
 export async function deleteAffiliateCountryQuery(id) {
   const client = getPrisma();
   return await client.affiliateCountry.delete({

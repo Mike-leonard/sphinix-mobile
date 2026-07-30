@@ -93,6 +93,11 @@ Access the admin suite at `/dashboard` (authentication required).
 - **AI Spec Auto-Filler:**
   - Enter brand and device name (e.g. `Samsung Galaxy S24 Ultra`), then click **"AI Generate Specs"**.
   - Or paste a URL (e.g. GSMArena product page) into **"Extract Specs from URL"** to automatically scrape and populate price, description, quick specs, and detailed specifications.
+- **Expandable Accordion Sections:**
+  - `DeviceGalleryInputs` & `DeviceAffiliateInputs` feature collapsible headers with live badges (e.g., `2 / 4 Images` and `3 Active Markets`).
+- **Gallery Images & SEO Alt Texts (`DeviceGalleryInputs`):**
+  - Enter image URLs for Front, Back, Camera, and Side profile angles.
+  - Custom SEO Alt Text fields for each image angle with an **Auto Alt** AI auto-fill button to generate descriptive, accessible image alt tags automatically.
 - **Multi-Country Affiliate Manager (`DeviceAffiliateInputs`):**
   - Select country tabs (🇺🇸 US, 🇮🇹 IT, 🇪🇸 ES, 🇧🇩 BD, 🇫🇷 FR, 🇨🇦 CA, 🇩🇪 DE).
   - Populate URLs and prices for pre-configured retailers.

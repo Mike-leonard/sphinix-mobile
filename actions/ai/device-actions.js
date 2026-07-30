@@ -27,7 +27,16 @@ async function getDeviceAttributesSchema() {
 }
 
 /**
- * Generate full device data (Price, Quick Specs, Detailed Specs, Description)
+ * -----------------------------------------------------------------------------
+ * AI DEVICE ACTION: generateDeviceData
+ * -----------------------------------------------------------------------------
+ * @description Auto-generates full smartphone specifications, estimated launch price, quick specs, and HTML overview using AI.
+ * @why Saves administrative data entry time when adding a new phone model to the catalog.
+ * @where Called by: `app/dashboard/phones/_components/editor/DeviceBasicInfo.jsx` (AI Auto-Fill button)
+ * @security Session authentication required (`verifySession()`). Admin access.
+ * @param {string} deviceName - Target device model name (e.g. "Galaxy S25 Ultra").
+ * @param {string} brand - Device manufacturer brand (e.g. "Samsung").
+ * @returns {Promise<{ success: boolean, data?: { price: string, description: string, quickSpecs: object, detailedSpecs: object }, error?: string }>}
  */
 export async function generateDeviceData(deviceName, brand) {
   try {
@@ -111,7 +120,15 @@ export async function generateDeviceData(deviceName, brand) {
 }
 
 /**
- * Generate full device data (Price, Quick Specs, Detailed Specs, Description) from an external URL
+ * -----------------------------------------------------------------------------
+ * AI DEVICE ACTION: generateDeviceDataFromUrl
+ * -----------------------------------------------------------------------------
+ * @description Scrapes an external GSMArena or spec page URL via Jina Reader and parses full device specs into schema format.
+ * @why Enables admins to instantly import specifications from external product announcement URLs.
+ * @where Called by: `app/dashboard/phones/_components/editor/DeviceBasicInfo.jsx` (Import from URL button)
+ * @security Session authentication required (`verifySession()`). Admin access.
+ * @param {string} url - External webpage URL to scrape specs from.
+ * @returns {Promise<{ success: boolean, data?: { extractedName: string, price: string, description: string, quickSpecs: object, detailedSpecs: object }, error?: string }>}
  */
 export async function generateDeviceDataFromUrl(url) {
   try {

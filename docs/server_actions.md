@@ -7,6 +7,7 @@
 ## 1. Design & Security Patterns
 *   **Directive:** Declared with `"use server"` at the top of action files.
 *   **Security & Authorization:** All administrative server actions verify the user session via `verifySession()` from `actions/auth.js`.
+*   **JSDoc Standardized Hints:** Every Server Action file contains standardized JSDoc headers (`@description`, `@why`, `@where`, `@security`, `@param`, `@returns`) documenting execution behavior and call sites.
 *   **Data Persistence:** PostgreSQL database persistence executed via `queries/` layer using Prisma ORM.
 *   **100% Backward Compatibility Re-exports:** Large Server Action modules (like `actions/ai.js`) are modularized into domain sub-modules while re-exporting all functions from the root file for seamless compatibility across the codebase.
 
@@ -43,7 +44,7 @@
 Modularized into:
 *   `actions/ai/blog-actions.js`: `generateBlogFromTitle(title)`, `generateBlogFromUrl(url)`.
 *   `actions/ai/seo-actions.js`: `generateSEOFromContent(content, title)`, `generateDeviceSEO(deviceName, brand, description)`.
-*   `actions/ai/device-actions.js`: `generateDeviceData(deviceName, brand)`, `generateDeviceDataFromUrl(url)`. Fetches `DeviceAttribute` spec schema dynamically from PostgreSQL (`getDeviceAttributesQuery()`).
+*   `actions/ai/device-actions.js`: `generateDeviceData(deviceName, brand)`, `generateDeviceDataFromUrl(url)`, `generateGalleryImageAltsAction(deviceName, brand, images)`. Fetches `DeviceAttribute` spec schema dynamically from PostgreSQL (`getDeviceAttributesQuery()`).
 
 ---
 
@@ -64,7 +65,9 @@ Modularized into:
 ### Devices & Catalog (`actions/devices.js`)
 *   `publishedDevices({ limit, offset, query, brand, filters })`: Fetches published smartphone products.
 *   `publishedDevicesCount(...)`: Calculates total matching device count for pagination.
-*   `createDevice(...)`, `updateDevice(...)`, `deleteDevice(...)`: Smartphone entity CRUD operations.
+*   `createDevice(...)`, `updateDevice(...)`, `deleteDevice(...)`: Smartphone entity CRUD operations with `imageAlts` SEO array support.
+*   `setDeviceViewMode(mode)`: Sets user view mode preference (`'grid'` or `'list'`) in HTTP cookie `deviceViewMode` and revalidates `/phones`.
+*   `getDeviceViewMode()`: Reads user view mode preference from HTTP cookies on server render pass.
 
 ---
 

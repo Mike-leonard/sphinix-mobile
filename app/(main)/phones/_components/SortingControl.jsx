@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { LayoutGrid, List } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -10,18 +10,24 @@ import MobileFiltersSheet from './MobileFiltersSheet';
 export default function SortingControl({ 
   selectedBrand = "All", 
   BRANDS = [],
-  filters = []
+  filters = [],
+  initialViewMode = "grid"
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [viewMode, setViewMode] = useState('grid');
+  const [viewMode, setViewMode] = useState(initialViewMode);
   const [sortOption, setSortOption] = useState('Date (default)');
   const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    setViewMode(initialViewMode);
+  }, [initialViewMode]);
 
   const handleViewModeToggle = async (mode) => {
     setViewMode(mode);
     await setDeviceViewMode(mode);
+    router.refresh();
   };
 
   const handleBrandChange = (newBrand) => {

@@ -11,6 +11,16 @@ import {
   reorderRatingBarsQuery
 } from '@/queries/rating-bars';
 
+/**
+ * -----------------------------------------------------------------------------
+ * RATING BARS ACTION: getRatingBars
+ * -----------------------------------------------------------------------------
+ * @description Public action: fetches configured expert rating criteria bars (e.g. "Performance", "Display", "Camera", "Battery Life") from PostgreSQL.
+ * @why Renders expert rating score bars on public device detail pages and rating input sliders in device editor.
+ * @where Called by: `app/(main)/phones/[brandSlug]/[deviceSlug]/_components/tabs/ReviewsTab.jsx`, `app/dashboard/phones/rating-bars/page.js`
+ * @security Public read access.
+ * @returns {Promise<Array>} Array of rating bar objects.
+ */
 export async function getRatingBars() {
   try {
     return await getRatingBarsQuery();
@@ -20,6 +30,17 @@ export async function getRatingBars() {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * RATING BARS ACTION: createRatingBar
+ * -----------------------------------------------------------------------------
+ * @description Admin action: creates a new expert rating criteria bar definition in PostgreSQL.
+ * @why Enables admins to add new rating metrics (e.g. "Gaming", "Build Quality").
+ * @where Called by: `app/dashboard/phones/rating-bars/_components/RatingBarsManager.jsx`
+ * @security Restricted to authenticated admin sessions (`verifySession()`).
+ * @param {object} data - { name, slug, description, defaultValue }
+ * @returns {Promise<{ success: boolean, data?: object, error?: string }>}
+ */
 export async function createRatingBar(data) {
   try {
     const user = await verifySession();
@@ -49,6 +70,18 @@ export async function createRatingBar(data) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * RATING BARS ACTION: updateRatingBar
+ * -----------------------------------------------------------------------------
+ * @description Admin action: updates an existing rating bar definition (name, slug, description, default score).
+ * @why Allows admins to re-label rating criteria or adjust default scores.
+ * @where Called by: `app/dashboard/phones/rating-bars/_components/RatingBarsManager.jsx`
+ * @security Restricted to authenticated admin sessions (`verifySession()`).
+ * @param {string} id - Target rating bar ID.
+ * @param {object} data - Updated rating bar fields.
+ * @returns {Promise<{ success: boolean, data?: object, error?: string }>}
+ */
 export async function updateRatingBar(id, data) {
   try {
     const user = await verifySession();
@@ -79,6 +112,17 @@ export async function updateRatingBar(id, data) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * RATING BARS ACTION: deleteRatingBar
+ * -----------------------------------------------------------------------------
+ * @description Admin action: deletes a rating criteria bar record from PostgreSQL.
+ * @why Removes unwanted rating criteria.
+ * @where Called by: `app/dashboard/phones/rating-bars/_components/RatingBarsManager.jsx`
+ * @security Restricted to authenticated admin sessions (`verifySession()`).
+ * @param {string} id - Target rating bar ID.
+ * @returns {Promise<{ success: boolean, error?: string }>}
+ */
 export async function deleteRatingBar(id) {
   try {
     const user = await verifySession();
@@ -94,6 +138,17 @@ export async function deleteRatingBar(id) {
   }
 }
 
+/**
+ * -----------------------------------------------------------------------------
+ * RATING BARS ACTION: reorderRatingBars
+ * -----------------------------------------------------------------------------
+ * @description Admin action: re-indexes display order for expert rating criteria bars.
+ * @why Enables drag-and-drop ordering of rating bars in the admin panel and public reviews.
+ * @where Called by: `app/dashboard/phones/rating-bars/_components/RatingBarsManager.jsx`
+ * @security Restricted to authenticated admin sessions (`verifySession()`).
+ * @param {Array<string>} orderedIds - Array of rating bar IDs in target order.
+ * @returns {Promise<{ success: boolean, error?: string }>}
+ */
 export async function reorderRatingBars(orderedIds) {
   try {
     const user = await verifySession();
