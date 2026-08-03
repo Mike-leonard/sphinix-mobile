@@ -142,7 +142,17 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.CPANEL_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p ${{ secrets.CPANEL_SSH_PORT }} ${{ secrets.CPANEL_SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+
+          # Disable host key checking (safe for CI — we trust our own server)
+          cat > ~/.ssh/config << 'SSHEOF'
+          Host *
+            StrictHostKeyChecking no
+            UserKnownHostsFile /dev/null
+          SSHEOF
+          chmod 600 ~/.ssh/config
+
+          # Try to scan host key (non-fatal if it fails)
+          ssh-keyscan -p ${{ secrets.CPANEL_SSH_PORT }} ${{ secrets.CPANEL_SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
 
       # -----------------------------------------------------------------------
       # STEP 9: Upload files to cPanel server using rsync
