@@ -110,7 +110,6 @@ jobs:
           # Production-required files
           cp -r .next deploy/.next
           cp -r public deploy/public
-          cp -r data deploy/data
           cp -r prisma deploy/prisma
           cp package.json deploy/package.json
           cp package-lock.json deploy/package-lock.json
