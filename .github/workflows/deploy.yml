@@ -1,0 +1,197 @@
+# =============================================================================
+# CI/CD Pipeline: Auto-deploy Next.js app to cPanel shared hosting
+# =============================================================================
+# Trigger: Runs on every push to 'main' branch, or manually via GitHub UI
+# Flow:    Checkout → Install → Build → Upload via SSH → Restart server
+# =============================================================================
+
+name: Deploy to cPanel
+
+on:
+  push:
+    branches: [main]     # Auto-deploy when code is pushed/merged to main
+  workflow_dispatch:     # Allow manual trigger from GitHub Actions tab
+
+env:
+  NODE_VERSION: '24'     # Must match your local & cPanel Node.js version
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+      # -----------------------------------------------------------------------
+      # STEP 1: Pull the latest code from the repository
+      # -----------------------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # -----------------------------------------------------------------------
+      # STEP 2: Install Node.js with npm caching for faster builds
+      # -----------------------------------------------------------------------
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'   # Caches node_modules between runs for speed
+
+      # -----------------------------------------------------------------------
+      # STEP 3: Install all dependencies using the lockfile (clean install)
+      # 'npm ci' is faster & stricter than 'npm install' for CI environments
+      # -----------------------------------------------------------------------
+      - name: Install dependencies
+        run: npm ci
+
+      # -----------------------------------------------------------------------
+      # STEP 4: Create .env and .env.local files from GitHub Secrets
+      # These files are NOT in the repo (gitignored), so we recreate them
+      # here for the build process. They also get deployed to the server.
+      # -----------------------------------------------------------------------
+      - name: Create environment files
+        run: |
+          cat > .env << 'ENVEOF'
+          BASE_URL=${{ secrets.BASE_URL }}
+          SESSION_SECRET=${{ secrets.SESSION_SECRET }}
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          DIRECT_URL=${{ secrets.DIRECT_URL }}
+          AUTH_REDIRECT_URL=${{ secrets.AUTH_REDIRECT_URL }}
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+          NEXT_PUBLIC_TURNSTILE_SITE_SECRET=${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_SECRET }}
+          GOOGLE_CLIENT_EMAIL=${{ secrets.GOOGLE_CLIENT_EMAIL }}
+          GOOGLE_PRIVATE_KEY=${{ secrets.GOOGLE_PRIVATE_KEY }}
+          GA4_PROPERTY_ID=${{ secrets.GA4_PROPERTY_ID }}
+          SEARCH_CONSOLE_SITE_URL=${{ secrets.SEARCH_CONSOLE_SITE_URL }}
+          SMTP_HOST=${{ secrets.SMTP_HOST }}
+          SMTP_PORT=${{ secrets.SMTP_PORT }}
+          SMTP_USER=${{ secrets.SMTP_USER }}
+          SMTP_PASS=${{ secrets.SMTP_PASS }}
+          SMTP_FROM=${{ secrets.SMTP_FROM }}
+          CONTACT_RECEIVER_EMAIL=${{ secrets.CONTACT_RECEIVER_EMAIL }}
+          ENVEOF
+
+          cat > .env.local << 'ENVLOCALEOF'
+          GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+          CHAT_GPT_API_KEY=${{ secrets.CHAT_GPT_API_KEY }}
+          CLAUDE_API_KEY=${{ secrets.CLAUDE_API_KEY }}
+          OPEN_ROUTER_API_KEY=${{ secrets.OPEN_ROUTER_API_KEY }}
+          KILO_CODE_API_KEY=${{ secrets.KILO_CODE_API_KEY }}
+          OLLAMA_API_KEY=${{ secrets.OLLAMA_API_KEY }}
+          SUPA_BASE_PASS=${{ secrets.SUPA_BASE_PASS }}
+          NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+          ENVLOCALEOF
+
+      # -----------------------------------------------------------------------
+      # STEP 5: Generate Prisma ORM client from your schema
+      # This creates the database query engine used by your app
+      # -----------------------------------------------------------------------
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      # -----------------------------------------------------------------------
+      # STEP 6: Build the Next.js production bundle
+      # Output goes to .next/ folder with optimized pages & assets
+      # -----------------------------------------------------------------------
+      - name: Build application
+        run: npm run build
+
+      # -----------------------------------------------------------------------
+      # STEP 7: Prepare a clean deployment package
+      # Only includes files the server needs to run — no source code,
+      # no tests, no dev tools. Also removes .next/ build cache/traces
+      # to reduce upload size.
+      # -----------------------------------------------------------------------
+      - name: Prepare deployment files
+        run: |
+          mkdir -p deploy
+
+          # Production-required files
+          cp -r .next deploy/.next
+          cp -r public deploy/public
+          cp -r data deploy/data
+          cp -r prisma deploy/prisma
+          cp package.json deploy/package.json
+          cp package-lock.json deploy/package-lock.json
+          cp next.config.mjs deploy/next.config.mjs
+
+          # Startup file for cPanel's Node.js App (Phusion Passenger)
+          [ -f server.js ] && cp server.js deploy/server.js
+
+          # Environment files (created in Step 4)
+          [ -f .env ] && cp .env deploy/.env
+          [ -f .env.local ] && cp .env.local deploy/.env.local
+
+          # Remove dev-only .next subdirectories to save upload bandwidth
+          rm -rf deploy/.next/cache
+          rm -rf deploy/.next/dev
+          rm -rf deploy/.next/diagnostics
+          rm -rf deploy/.next/node_modules
+          rm -rf deploy/.next/types
+          rm -rf deploy/.next/trace
+          rm -rf deploy/.next/trace-build
+          rm -rf deploy/.next/turbopack
+
+      # -----------------------------------------------------------------------
+      # STEP 8: Configure SSH for secure connection to cPanel server
+      # Uses the private key stored in GitHub Secrets (CPANEL_SSH_KEY)
+      # ssh-keyscan adds the server's fingerprint to avoid host verification prompts
+      # -----------------------------------------------------------------------
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.CPANEL_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p ${{ secrets.CPANEL_SSH_PORT }} ${{ secrets.CPANEL_SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+
+      # -----------------------------------------------------------------------
+      # STEP 9: Upload files to cPanel server using rsync
+      # rsync only transfers CHANGED files (much faster than uploading everything)
+      # --delete removes files on server that no longer exist locally
+      # --exclude 'node_modules' skips it (we install fresh on server in Step 10)
+      # -----------------------------------------------------------------------
+      - name: Deploy to cPanel
+        run: |
+          rsync -avz --delete \
+            --exclude 'node_modules' \
+            -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.CPANEL_SSH_PORT }}" \
+            deploy/ \
+            ${{ secrets.CPANEL_SSH_USER }}@${{ secrets.CPANEL_SSH_HOST }}:${{ secrets.CPANEL_APP_PATH }}/
+
+      # -----------------------------------------------------------------------
+      # STEP 10: SSH into the server and run post-deployment tasks
+      # 1. Load Node.js environment (nvm or cPanel's nodevenv)
+      # 2. Install production dependencies (no devDependencies)
+      # 3. Restart the app by touching tmp/restart.txt (Phusion Passenger signal)
+      # -----------------------------------------------------------------------
+      - name: Install dependencies and restart on server
+        env:
+          APP_PATH: ${{ secrets.CPANEL_APP_PATH }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.CPANEL_SSH_PORT }} \
+            ${{ secrets.CPANEL_SSH_USER }}@${{ secrets.CPANEL_SSH_HOST }} << ENDSSH
+            cd ${APP_PATH}
+
+            # Load Node.js — cPanel uses nvm or nodevenv to manage versions
+            export NVM_DIR="\$HOME/.nvm"
+            [ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
+
+            # Install only production dependencies (skips devDependencies)
+            npm install --production
+
+            # Signal Phusion Passenger to restart the app
+            # Passenger watches tmp/restart.txt — touching it triggers a graceful restart
+            mkdir -p tmp
+            touch tmp/restart.txt
+
+            echo "Deployment complete!"
+          ENDSSH
+
+      # -----------------------------------------------------------------------
+      # STEP 11: Always clean up the SSH key, even if a previous step failed
+      # 'if: always()' ensures this runs regardless of success or failure
+      # -----------------------------------------------------------------------
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
