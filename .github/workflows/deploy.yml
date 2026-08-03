@@ -24,13 +24,13 @@ jobs:
       # STEP 1: Pull the latest code from the repository
       # -----------------------------------------------------------------------
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # -----------------------------------------------------------------------
       # STEP 2: Install Node.js with npm caching for faster builds
       # -----------------------------------------------------------------------
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'   # Caches node_modules between runs for speed
