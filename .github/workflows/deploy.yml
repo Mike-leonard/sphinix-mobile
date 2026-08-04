@@ -40,7 +40,7 @@ jobs:
       # 'npm ci' is faster & stricter than 'npm install' for CI environments
       # -----------------------------------------------------------------------
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       # -----------------------------------------------------------------------
       # STEP 4: Create .env and .env.local files from GitHub Secrets
@@ -108,7 +108,7 @@ jobs:
         run: |
           mkdir -p deploy
 
-          # The standalone build (includes server.js + all node_modules)
+          # The standalone build (includes server.js + all pruned runtime node_modules)
           cp -r .next/standalone/. deploy/
 
           # Static assets (CSS, JS bundles) — must be placed inside .next/static/
@@ -124,6 +124,10 @@ jobs:
 
           # Copy prisma schema (needed at runtime)
           cp -r prisma deploy/prisma
+
+          # Create restart file for cPanel Phusion Passenger server
+          mkdir -p deploy/tmp
+          touch deploy/tmp/restart.txt
 
       # -----------------------------------------------------------------------
       # STEP 8: Deploy to cPanel via FTP
@@ -164,7 +168,7 @@ jobs:
             set net:reconnect-interval-multiplier 1;
             set mirror:parallel-transfer-count 3;
             open ${FTP_HOST};
-            mirror --reverse --delete --verbose --only-newer --exclude node_modules/ deploy/ ${APP_PATH}/;
+            mirror --reverse --delete --verbose --only-newer deploy/ ${APP_PATH}/;
             bye;
           "
 
