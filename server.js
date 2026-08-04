@@ -1,12 +1,23 @@
-const { execSync } = require("child_process");
+const { createServer } = require("http");
+const { parse } = require("url");
 const path = require("path");
 
-// Set production environment
-process.env.NODE_ENV = "production";
+// Passenger sets PORT automatically
+const port = process.env.PORT || 3000;
 
-// Start Next.js production server
-const nextBin = path.join(__dirname, "node_modules", ".bin", "next");
-execSync(`${nextBin} start -p ${process.env.PORT || 3000}`, {
-  stdio: "inherit",
-  cwd: __dirname,
+// Load Next.js
+const next = require("next");
+const app = next({
+  dev: false,
+  dir: __dirname,
+});
+const handle = app.getRequestHandler();
+
+app.prepare().then(() => {
+  createServer((req, res) => {
+    const parsedUrl = parse(req.url, true);
+    handle(req, res, parsedUrl);
+  }).listen(port, () => {
+    console.log(`> Next.js ready on port ${port}`);
+  });
 });
