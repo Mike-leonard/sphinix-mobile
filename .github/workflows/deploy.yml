@@ -164,11 +164,14 @@ jobs:
           lftp -e "
             set ssl:verify-certificate no;
             set ftp:ssl-allow yes;
-            set net:timeout 60;
-            set net:max-retries 3;
-            set mirror:parallel-transfer-count 5;
+            set ftp:passive-mode yes;
+            set net:timeout 120;
+            set net:max-retries 5;
+            set net:reconnect-interval-base 5;
+            set net:reconnect-interval-multiplier 1;
+            set mirror:parallel-transfer-count 3;
             open ${FTP_HOST};
-            mirror --reverse --delete --verbose --exclude node_modules/ deploy/ ${APP_PATH}/;
+            mirror --reverse --delete --verbose --only-newer --exclude node_modules/ deploy/ ${APP_PATH}/;
             bye;
           "
 
