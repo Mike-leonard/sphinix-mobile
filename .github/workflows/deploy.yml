@@ -144,18 +144,36 @@ jobs:
       #   CPANEL_APP_PATH      - Remote directory (e.g. /home/sphinixx/sphinix-mobile)
       # -----------------------------------------------------------------------
       - name: Deploy to cPanel via FTP
+        env:
+          FTP_HOST: ${{ secrets.CPANEL_FTP_HOST }}
+          FTP_USER: ${{ secrets.CPANEL_FTP_USER }}
+          FTP_PASS: ${{ secrets.CPANEL_FTP_PASSWORD }}
+          APP_PATH: ${{ secrets.CPANEL_APP_PATH }}
         run: |
           sudo apt-get install -y lftp > /dev/null 2>&1
 
+          # Create .netrc for safe credential handling (avoids special char issues)
+          cat > ~/.netrc << EOF
+          machine ${FTP_HOST}
+          login ${FTP_USER}
+          password ${FTP_PASS}
+          EOF
+          chmod 600 ~/.netrc
+
+          # Deploy via lftp using .netrc credentials
           lftp -e "
             set ssl:verify-certificate no;
             set ftp:ssl-allow yes;
-            set net:timeout 30;
+            set net:timeout 60;
             set net:max-retries 3;
             set mirror:parallel-transfer-count 5;
-            open -u ${{ secrets.CPANEL_FTP_USER }},${{ secrets.CPANEL_FTP_PASSWORD }} ${{ secrets.CPANEL_FTP_HOST }};
-            mirror --reverse --delete --verbose --exclude node_modules/ deploy/ ${{ secrets.CPANEL_APP_PATH }}/;
+            open ${FTP_HOST};
+            mirror --reverse --delete --verbose --exclude node_modules/ deploy/ ${APP_PATH}/;
             bye;
           "
+
+          # Cleanup credentials
+          rm -f ~/.netrc
           echo "FTP deployment complete!"
+
 
