@@ -133,74 +133,29 @@ jobs:
           rm -rf deploy/.next/turbopack
 
       # -----------------------------------------------------------------------
-      # STEP 8: Configure SSH for secure connection to cPanel server
-      # Uses the private key stored in GitHub Secrets (CPANEL_SSH_KEY)
-      # ssh-keyscan adds the server's fingerprint to avoid host verification prompts
+      # STEP 8: Deploy to cPanel via FTP
+      # Uses lftp for reliable FTP upload with mirroring (only uploads changes)
+      # FTP works on all cPanel shared hosting without firewall issues
       # -----------------------------------------------------------------------
-      - name: Setup SSH key
+      # Required GitHub Secrets:
+      #   CPANEL_FTP_HOST      - FTP server (same as domain or server IP)
+      #   CPANEL_FTP_USER      - FTP username (usually same as cPanel username)
+      #   CPANEL_FTP_PASSWORD   - FTP password (usually same as cPanel password)
+      #   CPANEL_APP_PATH      - Remote directory (e.g. /home/sphinixx/sphinix-mobile)
+      # -----------------------------------------------------------------------
+      - name: Deploy to cPanel via FTP
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.CPANEL_SSH_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
+          sudo apt-get install -y lftp > /dev/null 2>&1
 
-          # Disable host key checking (safe for CI — we trust our own server)
-          cat > ~/.ssh/config << 'SSHEOF'
-          Host *
-            StrictHostKeyChecking no
-            UserKnownHostsFile /dev/null
-          SSHEOF
-          chmod 600 ~/.ssh/config
+          lftp -e "
+            set ssl:verify-certificate no;
+            set ftp:ssl-allow yes;
+            set net:timeout 30;
+            set net:max-retries 3;
+            set mirror:parallel-transfer-count 5;
+            open -u ${{ secrets.CPANEL_FTP_USER }},${{ secrets.CPANEL_FTP_PASSWORD }} ${{ secrets.CPANEL_FTP_HOST }};
+            mirror --reverse --delete --verbose --exclude node_modules/ deploy/ ${{ secrets.CPANEL_APP_PATH }}/;
+            bye;
+          "
+          echo "FTP deployment complete!"
 
-          # Try to scan host key (non-fatal if it fails)
-          ssh-keyscan -p ${{ secrets.CPANEL_SSH_PORT }} ${{ secrets.CPANEL_SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
-
-      # -----------------------------------------------------------------------
-      # STEP 9: Upload files to cPanel server using rsync
-      # rsync only transfers CHANGED files (much faster than uploading everything)
-      # --delete removes files on server that no longer exist locally
-      # --exclude 'node_modules' skips it (we install fresh on server in Step 10)
-      # -----------------------------------------------------------------------
-      - name: Deploy to cPanel
-        run: |
-          rsync -avz --delete \
-            --exclude 'node_modules' \
-            -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.CPANEL_SSH_PORT }}" \
-            deploy/ \
-            ${{ secrets.CPANEL_SSH_USER }}@${{ secrets.CPANEL_SSH_HOST }}:${{ secrets.CPANEL_APP_PATH }}/
-
-      # -----------------------------------------------------------------------
-      # STEP 10: SSH into the server and run post-deployment tasks
-      # 1. Load Node.js environment (nvm or cPanel's nodevenv)
-      # 2. Install production dependencies (no devDependencies)
-      # 3. Restart the app by touching tmp/restart.txt (Phusion Passenger signal)
-      # -----------------------------------------------------------------------
-      - name: Install dependencies and restart on server
-        env:
-          APP_PATH: ${{ secrets.CPANEL_APP_PATH }}
-        run: |
-          ssh -i ~/.ssh/deploy_key -p ${{ secrets.CPANEL_SSH_PORT }} \
-            ${{ secrets.CPANEL_SSH_USER }}@${{ secrets.CPANEL_SSH_HOST }} << ENDSSH
-            cd ${APP_PATH}
-
-            # Load Node.js — cPanel uses nvm or nodevenv to manage versions
-            export NVM_DIR="\$HOME/.nvm"
-            [ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
-
-            # Install only production dependencies (skips devDependencies)
-            npm install --production
-
-            # Signal Phusion Passenger to restart the app
-            # Passenger watches tmp/restart.txt — touching it triggers a graceful restart
-            mkdir -p tmp
-            touch tmp/restart.txt
-
-            echo "Deployment complete!"
-          ENDSSH
-
-      # -----------------------------------------------------------------------
-      # STEP 11: Always clean up the SSH key, even if a previous step failed
-      # 'if: always()' ensures this runs regardless of success or failure
-      # -----------------------------------------------------------------------
-      - name: Cleanup SSH key
-        if: always()
-        run: rm -f ~/.ssh/deploy_key
