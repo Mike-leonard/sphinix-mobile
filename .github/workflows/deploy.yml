@@ -118,9 +118,10 @@ jobs:
           # Public folder (images, fonts, etc.)
           cp -r public deploy/public
 
-          # Environment files (created in Step 4)
+          # Environment & config files
           [ -f .env ] && cp .env deploy/.env
           [ -f .env.local ] && cp .env.local deploy/.env.local
+          [ -f .npmrc ] && cp .npmrc deploy/.npmrc
 
           # Copy prisma schema (needed at runtime)
           cp -r prisma deploy/prisma
