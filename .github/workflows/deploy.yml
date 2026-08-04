@@ -69,6 +69,7 @@ jobs:
           SMTP_PASS=${{ secrets.SMTP_PASS }}
           SMTP_FROM=${{ secrets.SMTP_FROM }}
           CONTACT_RECEIVER_EMAIL=${{ secrets.CONTACT_RECEIVER_EMAIL }}
+          CHECKPOINT_DISABLE=1
           ENVEOF
 
           cat > .env.local << 'ENVLOCALEOF'
