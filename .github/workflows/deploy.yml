@@ -98,39 +98,32 @@ jobs:
         run: npm run build
 
       # -----------------------------------------------------------------------
-      # STEP 7: Prepare a clean deployment package
-      # Only includes files the server needs to run — no source code,
-      # no tests, no dev tools. Also removes .next/ build cache/traces
-      # to reduce upload size.
+      # STEP 7: Prepare a clean deployment package (standalone mode)
+      # Next.js 'standalone' output bundles ALL dependencies into the build.
+      # No need for 'npm install' on the server — everything is included!
+      # Structure: .next/standalone/ contains server.js + node_modules
+      #            .next/static/ contains CSS, JS, images (must be copied in)
       # -----------------------------------------------------------------------
       - name: Prepare deployment files
         run: |
           mkdir -p deploy
 
-          # Production-required files
-          cp -r .next deploy/.next
-          cp -r public deploy/public
-          cp -r prisma deploy/prisma
-          cp package.json deploy/package.json
-          cp package-lock.json deploy/package-lock.json
-          cp next.config.mjs deploy/next.config.mjs
+          # The standalone build (includes server.js + all node_modules)
+          cp -r .next/standalone/. deploy/
 
-          # Startup file for cPanel's Node.js App (Phusion Passenger)
-          [ -f server.js ] && cp server.js deploy/server.js
+          # Static assets (CSS, JS bundles) — must be placed inside .next/static/
+          mkdir -p deploy/.next/static
+          cp -r .next/static/. deploy/.next/static/
+
+          # Public folder (images, fonts, etc.)
+          cp -r public deploy/public
 
           # Environment files (created in Step 4)
           [ -f .env ] && cp .env deploy/.env
           [ -f .env.local ] && cp .env.local deploy/.env.local
 
-          # Remove dev-only .next subdirectories to save upload bandwidth
-          rm -rf deploy/.next/cache
-          rm -rf deploy/.next/dev
-          rm -rf deploy/.next/diagnostics
-          rm -rf deploy/.next/node_modules
-          rm -rf deploy/.next/types
-          rm -rf deploy/.next/trace
-          rm -rf deploy/.next/trace-build
-          rm -rf deploy/.next/turbopack
+          # Copy prisma schema (needed at runtime)
+          cp -r prisma deploy/prisma
 
       # -----------------------------------------------------------------------
       # STEP 8: Deploy to cPanel via FTP

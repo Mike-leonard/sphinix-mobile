@@ -32,14 +32,58 @@ export function formatDevice(device) {
  * -----------------------------------------------------------------------------
  * QUERY: getAllDevicesQuery
  * -----------------------------------------------------------------------------
- * @description Admin query: fetches all devices regardless of status ordered by creation timestamp.
+ * @description Admin query: fetches devices with backend sorting and filtering capabilities in PostgreSQL.
  * @table `device`
  * @where Called by: `actions/devices.js` -> `getDevices()`, `createDevice()`
+ * @param {object} [options] - Optional sorting and filtering parameters ({ sortField, sortOrder, search, brand, viewMode }).
  * @returns {Promise<Array>} List of formatted device records.
  */
-export async function getAllDevicesQuery() {
+export async function getAllDevicesQuery(options = {}) {
+  const {
+    sortField = 'createdAt',
+    sortOrder = 'desc',
+    search = '',
+    brand = 'All',
+    viewMode = 'all'
+  } = typeof options === 'object' && options !== null ? options : {};
+
+  const where = {};
+
+  if (viewMode === 'active') {
+    where.status = { not: 'TRASHED' };
+  } else if (viewMode === 'trash') {
+    where.status = 'TRASHED';
+  }
+
+  if (brand && brand !== 'All') {
+    where.brandName = { equals: brand, mode: 'insensitive' };
+  }
+
+  if (search) {
+    where.OR = [
+      { name: { contains: search, mode: 'insensitive' } },
+      { brandName: { contains: search, mode: 'insensitive' } }
+    ];
+  }
+
+  let orderBy = { createdAt: 'desc' };
+  const validOrder = sortOrder === 'desc' ? 'desc' : 'asc';
+
+  if (sortField === 'name') {
+    orderBy = { name: validOrder };
+  } else if (sortField === 'brand') {
+    orderBy = { brandName: validOrder };
+  } else if (sortField === 'price') {
+    orderBy = { price: validOrder };
+  } else if (sortField === 'status') {
+    orderBy = { status: validOrder };
+  } else if (sortField === 'createdAt') {
+    orderBy = { createdAt: validOrder };
+  }
+
   const devices = await prisma.device.findMany({
-    orderBy: { createdAt: 'desc' },
+    where,
+    orderBy,
     include: { deviceBrand: true }
   });
   return devices.map(formatDevice);
