@@ -111,6 +111,9 @@ jobs:
           # The standalone build (includes server.js + all pruned runtime node_modules)
           cp -r .next/standalone/. deploy/
 
+          # Custom Passenger/LiteSpeed startup file
+          [ -f server.js ] && cp server.js deploy/server.js
+
           # Static assets (CSS, JS bundles) — must be placed inside .next/static/
           mkdir -p deploy/.next/static
           cp -r .next/static/. deploy/.next/static/
