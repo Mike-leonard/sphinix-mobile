@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useTransition } from 'react';
-import { deleteDevice, trashDevice, restoreDevice } from '@/actions/devices';
+import { deleteDevice, trashDevice, restoreDevice, getDevices } from '@/actions/devices';
 
 import DeviceTabsRoute from './DeviceTabsRoute';
 import DevicesToolbar from './DevicesToolbar';
@@ -122,6 +122,10 @@ export default function DevicesManager({ initialDevices, initialBrands = [] }) {
         comparison = priceA - priceB;
       } else if (sortField === 'status') {
         comparison = (a.status || 'draft').localeCompare(b.status || 'draft');
+      } else if (sortField === 'createdAt') {
+        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        comparison = timeA - timeB;
       }
       return sortOrder === 'asc' ? comparison : -comparison;
     });
@@ -130,13 +134,24 @@ export default function DevicesManager({ initialDevices, initialBrands = [] }) {
   }, [devices, search, selectedBrand, sortField, sortOrder, viewMode]);
 
   const handleSort = (field) => {
-    if (sortField === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortOrder('asc');
-    }
+    const nextOrder = sortField === field ? (sortOrder === 'asc' ? 'desc' : 'asc') : 'asc';
+    const nextField = field;
+    setSortField(nextField);
+    setSortOrder(nextOrder);
     setCurrentPage(1);
+
+    startTransition(async () => {
+      const fetched = await getDevices({
+        sortField: nextField,
+        sortOrder: nextOrder,
+        search,
+        brand: selectedBrand,
+        viewMode
+      });
+      if (fetched && Array.isArray(fetched)) {
+        setDevices(fetched);
+      }
+    });
   };
 
   const totalPages = Math.ceil(filteredAndSortedDevices.length / itemsPerPage);

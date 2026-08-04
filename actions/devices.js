@@ -27,17 +27,18 @@ import {
  * -----------------------------------------------------------------------------
  * DEVICE ACTION: getDevices
  * -----------------------------------------------------------------------------
- * @description Admin action: fetches all devices regardless of status (published, draft, trash).
- * @why Powers the admin phone manager list page.
- * @where Called by: `app/dashboard/phones/page.js`
+ * @description Admin action: fetches devices with backend database sorting and filtering capabilities.
+ * @why Powers the admin phone manager list page and supports server-side sorting.
+ * @where Called by: `app/dashboard/phones/page.js`, `DevicesManager.jsx`
  * @security Restricted to authenticated admin sessions (`verifySession()`).
- * @returns {Promise<Array>} Array of all device objects.
+ * @param {object} [options] - Optional sorting and filtering options ({ sortField, sortOrder, search, brand, viewMode }).
+ * @returns {Promise<Array>} Array of matching device objects.
  */
-export async function getDevices() {
+export async function getDevices(options = {}) {
   try {
     const user = await verifySession();
     if (!user) throw new Error('Unauthorized');
-    return await getAllDevicesQuery();
+    return await getAllDevicesQuery(options);
   } catch (error) {
     console.error('Error fetching devices:', error);
     return [];

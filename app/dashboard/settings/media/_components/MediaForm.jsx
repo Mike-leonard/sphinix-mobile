@@ -13,7 +13,6 @@ export default function MediaForm({ initialSettings }) {
   const [settings, setSettings] = useState(initialSettings);
   const [isPending, startTransition] = useTransition();
   const [success, setSuccess] = useState(false);
-  const [newDomain, setNewDomain] = useState('');
 
   const handleChange = (key, value) => {
     setSettings(prev => ({
@@ -23,24 +22,6 @@ export default function MediaForm({ initialSettings }) {
         [key]: value
       }
     }));
-  };
-
-  const handleAddDomain = () => {
-    if (!newDomain.trim()) return;
-    
-    // Clean up domain (remove http://, https://, and trailing slashes)
-    const cleanDomain = newDomain.replace(/^https?:\/\//, '').replace(/\/$/, '').trim();
-    
-    const currentDomains = settings.media.cdnDomains || [];
-    if (!currentDomains.includes(cleanDomain)) {
-      handleChange('cdnDomains', [...currentDomains, cleanDomain]);
-    }
-    setNewDomain('');
-  };
-
-  const handleRemoveDomain = (domainToRemove) => {
-    const currentDomains = settings.media.cdnDomains || [];
-    handleChange('cdnDomains', currentDomains.filter(d => d !== domainToRemove));
   };
 
   const handleSave = () => {
@@ -67,10 +48,6 @@ export default function MediaForm({ initialSettings }) {
         <CdnConfigurationSection 
           settings={settings} 
           handleChange={handleChange} 
-          newDomain={newDomain} 
-          setNewDomain={setNewDomain} 
-          handleAddDomain={handleAddDomain} 
-          handleRemoveDomain={handleRemoveDomain} 
         />
       </div>
 
