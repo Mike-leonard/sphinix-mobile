@@ -168,7 +168,7 @@ jobs:
             set net:reconnect-interval-multiplier 1;
             set mirror:parallel-transfer-count 3;
             open ${FTP_HOST};
-            mirror --reverse --delete --verbose --only-newer deploy/ ${APP_PATH}/;
+            mirror --reverse --delete --verbose --only-newer --exclude node_modules/ deploy/ ${APP_PATH}/;
             bye;
           "
 
