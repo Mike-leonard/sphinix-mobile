@@ -2,7 +2,7 @@
 # CI/CD Pipeline: Auto-deploy Next.js app to cPanel shared hosting
 # =============================================================================
 # Trigger: Runs on every push to 'main' branch, or manually via GitHub UI
-# Flow:    Checkout → Install → Build → Upload via SSH → Restart server
+# Flow:    Checkout → Install → Build → Upload via FTP → Restart server
 # =============================================================================
 
 name: Deploy to cPanel
@@ -11,6 +11,10 @@ on:
   push:
     branches: [main]     # Auto-deploy when code is pushed/merged to main
   workflow_dispatch:     # Allow manual trigger from GitHub Actions tab
+
+concurrency:
+  group: cpanel-deploy-main
+  cancel-in-progress: true
 
 env:
   NODE_VERSION: '24'     # Must match your local & cPanel Node.js version
@@ -119,20 +123,16 @@ jobs:
           # Public folder (images, fonts, etc.)
           cp -r public deploy/public
 
-          # Environment & config files
+          # Environment files
           [ -f .env ] && cp .env deploy/.env
           [ -f .env.local ] && cp .env.local deploy/.env.local
-          [ -f .npmrc ] && cp .npmrc deploy/.npmrc
 
           # Copy prisma schema (needed at runtime)
           cp -r prisma deploy/prisma
 
-          # Create restart file for cPanel Phusion Passenger server
-          mkdir -p deploy/tmp
-          touch deploy/tmp/restart.txt
-
-          # Zip node_modules into node_modules.zip for fast FTP upload
-          cd deploy && zip -q -r node_modules.zip node_modules && rm -rf node_modules
+          # Create restart file separately so Passenger restarts after upload completes.
+          mkdir -p deploy-restart/tmp
+          touch deploy-restart/tmp/restart.txt
 
       # -----------------------------------------------------------------------
       # STEP 8: Deploy to cPanel via FTP
@@ -152,7 +152,14 @@ jobs:
           FTP_PASS: ${{ secrets.CPANEL_FTP_PASSWORD }}
           APP_PATH: ${{ secrets.CPANEL_APP_PATH }}
         run: |
-          sudo apt-get install -y lftp zip > /dev/null 2>&1
+          set -euo pipefail
+
+          : "${FTP_HOST:?CPANEL_FTP_HOST secret is required}"
+          : "${FTP_USER:?CPANEL_FTP_USER secret is required}"
+          : "${FTP_PASS:?CPANEL_FTP_PASSWORD secret is required}"
+          : "${APP_PATH:?CPANEL_APP_PATH secret is required}"
+
+          sudo apt-get install -y lftp > /dev/null 2>&1
 
           # Create .netrc for safe credential handling (avoids special char issues)
           cat > ~/.netrc << EOF
@@ -162,7 +169,8 @@ jobs:
           EOF
           chmod 600 ~/.netrc
 
-          # Deploy via lftp using .netrc credentials
+          # Deploy via lftp using .netrc credentials. The standalone output must keep
+          # its real node_modules directory; a node_modules.zip file will not run.
           lftp -e "
             set ssl:verify-certificate no;
             set ftp:ssl-allow yes;
@@ -171,14 +179,13 @@ jobs:
             set net:max-retries 5;
             set net:reconnect-interval-base 5;
             set net:reconnect-interval-multiplier 1;
-            set mirror:parallel-transfer-count 3;
+            set mirror:parallel-transfer-count 1;
             open ${FTP_HOST};
-            mirror --reverse --delete --verbose --only-newer --exclude node_modules/ --exclude stderr.log deploy/ ${APP_PATH}/;
+            mirror --reverse --delete --verbose --only-newer --exclude stderr.log --exclude-glob tmp/** deploy/ ${APP_PATH}/;
+            mirror --reverse --verbose deploy-restart/ ${APP_PATH}/;
             bye;
           "
 
           # Cleanup credentials
           rm -f ~/.netrc
           echo "FTP deployment complete!"
-
-
