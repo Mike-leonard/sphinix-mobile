@@ -111,10 +111,12 @@ jobs:
       # -----------------------------------------------------------------------
       - name: Prepare deployment files
         run: |
+          rm -rf deploy deploy-restart
           mkdir -p deploy
 
-          # The standalone build (includes server.js + all pruned runtime node_modules)
-          cp -r .next/standalone/. deploy/
+          # The standalone build includes symlinks for some external packages.
+          # Dereference them because cPanel/FTP commonly leaves broken links.
+          cp -RL .next/standalone/. deploy/
 
           # Static assets (CSS, JS bundles) — must be placed inside .next/static/
           mkdir -p deploy/.next/static
@@ -129,6 +131,17 @@ jobs:
 
           # Copy prisma schema (needed at runtime)
           cp -r prisma deploy/prisma
+
+          # Prisma is externalized by Next.js and must be present in standalone output.
+          test -d deploy/node_modules/@prisma/client
+          test -d deploy/.next/node_modules/@prisma
+          test -d deploy/.next/node_modules/@prisma/client-*
+
+          if find deploy -type l | grep -q .; then
+            echo "Deployment package contains symlinks; refusing to upload to cPanel."
+            find deploy -type l -print
+            exit 1
+          fi
 
           # Create restart file separately so Passenger restarts after upload completes.
           mkdir -p deploy-restart/tmp
