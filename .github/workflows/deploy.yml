@@ -76,6 +76,11 @@ jobs:
           CHECKPOINT_DISABLE=1
           ENVEOF
 
+          grep -Eq '^DATABASE_URL=.+$' .env || {
+            echo "DATABASE_URL GitHub secret is missing or empty."
+            exit 1
+          }
+
           cat > .env.local << 'ENVLOCALEOF'
           GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
           CHAT_GPT_API_KEY=${{ secrets.CHAT_GPT_API_KEY }}
