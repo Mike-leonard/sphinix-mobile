@@ -1,5 +1,6 @@
 import React from 'react';
 import { Scale, CheckCircle2, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
 
 export const metadata = {
   title: 'Terms of Service | Sphinix Mobile',
@@ -27,7 +28,7 @@ export default function TermsOfServicePage() {
         {/* Content Body */}
         <div className="space-y-6 text-slate-700 dark:text-slate-300 leading-relaxed text-sm sm:text-base">
           <p>
-            Welcome to <strong>Sphinix Mobile</strong>. These terms and conditions outline the rules and regulations for the use of Sphinix Mobile's Website, accessible at <span className="text-brand-600 dark:text-brand-400 font-semibold">sphinix-mobile.com</span>.
+            Welcome to <strong>Sphinix Mobile</strong>. These terms and conditions outline the rules and regulations for the use of Sphinix Mobile's Website, accessible at <Link href="https://sphinix.xyz" className="text-brand-600 dark:text-brand-400 font-semibold">sphinix.xyz</Link>.
           </p>
 
           <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-800 dark:text-amber-300 text-xs sm:text-sm flex items-start gap-3">

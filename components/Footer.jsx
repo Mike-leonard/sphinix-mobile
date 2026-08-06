@@ -5,9 +5,9 @@ function Footer() {
     <footer className="bg-slate-50 dark:bg-[#090d16] border-t border-slate-200 dark:border-slate-800/80 py-8 mt-20 text-slate-500 text-sm transition-colors">
       <div className="max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2 text-xs sm:text-sm">
-          <span className="font-extrabold text-slate-900 dark:text-white tracking-widest text-xs sm:text-sm">
+          <Link href="/" className="font-extrabold text-slate-900 dark:text-white tracking-widest text-xs sm:text-sm">
             SPHINIX <span className="text-brand-500">MOBILE</span>
-          </span>
+          </Link>
           <span className="text-slate-400 dark:text-slate-600">|</span>
           <p style={{ fontSize: "var(--font-size-p-footer, var(--font-size-p-default))" }} className="text-xs text-slate-600 dark:text-slate-400">
             &copy; 2026 Sphinix Mobile. All rights reserved.
