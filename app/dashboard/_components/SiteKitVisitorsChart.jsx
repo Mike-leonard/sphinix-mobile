@@ -1,15 +1,49 @@
 'use client';
 
-import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as LineTooltip, ResponsiveContainer, PieChart, Pie, Cell, Tooltip as PieTooltip, Legend } from 'recharts';
+import React, { useState } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as LineTooltip, ResponsiveContainer, PieChart, Pie, Cell, Tooltip as PieTooltip } from 'recharts';
 import { TrendingDown } from 'lucide-react';
 
 export default function SiteKitVisitorsChart({ data }) {
-  const { activeUsers, visitorsChartData, channelsData } = data;
+  const [dimension, setDimension] = useState('channels'); // 'channels' | 'locations' | 'devices'
+
+  const activeUsers = data?.activeUsers ?? 0;
+  const visitorsChartData = Array.isArray(data?.visitorsChartData) ? data.visitorsChartData : [];
+  
+  const channelsData = Array.isArray(data?.channelsData) ? data.channelsData : [
+    { name: 'Organic Search', value: 65, color: '#1a73e8' },
+    { name: 'Direct', value: 20, color: '#188038' },
+    { name: 'Referral', value: 10, color: '#f9ab00' },
+    { name: 'Social', value: 5, color: '#e37400' }
+  ];
+
+  const locationsData = Array.isArray(data?.locationsData) ? data.locationsData : [
+    { name: 'United States', value: 45, color: '#1a73e8' },
+    { name: 'India', value: 22, color: '#188038' },
+    { name: 'United Kingdom', value: 15, color: '#f9ab00' },
+    { name: 'Germany', value: 10, color: '#ea4335' },
+    { name: 'Others', value: 8, color: '#a855f7' }
+  ];
+
+  const devicesData = Array.isArray(data?.devicesData) ? data.devicesData : [
+    { name: 'Mobile', value: 68, color: '#1a73e8' },
+    { name: 'Desktop', value: 27, color: '#188038' },
+    { name: 'Tablet', value: 5, color: '#f9ab00' }
+  ];
+
+  let currentPieData = channelsData;
+  let currentLabel = 'Channels';
+  if (dimension === 'locations') {
+    currentPieData = locationsData;
+    currentLabel = 'Locations';
+  } else if (dimension === 'devices') {
+    currentPieData = devicesData;
+    currentLabel = 'Devices';
+  }
 
   return (
     <div className="flex flex-col">
-      <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+      <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h3 className="text-lg font-medium text-slate-800 dark:text-white">All Visitors</h3>
           <div className="text-5xl font-normal text-slate-800 dark:text-white mt-4 mb-2">{activeUsers}</div>
@@ -18,11 +52,43 @@ export default function SiteKitVisitorsChart({ data }) {
           </div>
         </div>
         
-        {/* Mock Tabs */}
-        <div className="hidden lg:flex items-center gap-6 text-sm">
-          <div className="text-[#1a73e8] font-medium border-b-2 border-[#1a73e8] pb-1">Channels</div>
-          <div className="text-slate-500 pb-1 cursor-pointer hover:text-slate-700">Locations</div>
-          <div className="text-slate-500 pb-1 cursor-pointer hover:text-slate-700">Devices</div>
+        {/* Interactive Dimension Tabs */}
+        <div className="flex items-center gap-6 text-sm">
+          <button 
+            type="button"
+            onClick={() => setDimension('channels')}
+            className={`pb-1 font-medium transition-colors cursor-pointer ${
+              dimension === 'channels'
+                ? 'text-[#1a73e8] border-b-2 border-[#1a73e8] dark:text-blue-400 dark:border-blue-400'
+                : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            Channels
+          </button>
+
+          <button 
+            type="button"
+            onClick={() => setDimension('locations')}
+            className={`pb-1 font-medium transition-colors cursor-pointer ${
+              dimension === 'locations'
+                ? 'text-[#1a73e8] border-b-2 border-[#1a73e8] dark:text-blue-400 dark:border-blue-400'
+                : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            Locations
+          </button>
+
+          <button 
+            type="button"
+            onClick={() => setDimension('devices')}
+            className={`pb-1 font-medium transition-colors cursor-pointer ${
+              dimension === 'devices'
+                ? 'text-[#1a73e8] border-b-2 border-[#1a73e8] dark:text-blue-400 dark:border-blue-400'
+                : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            Devices
+          </button>
         </div>
       </div>
       
@@ -47,15 +113,15 @@ export default function SiteKitVisitorsChart({ data }) {
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
-                data={channelsData}
+                data={currentPieData}
                 innerRadius={60}
                 outerRadius={100}
                 paddingAngle={2}
                 dataKey="value"
                 stroke="none"
               >
-                {channelsData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+                {currentPieData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color || '#1a73e8'} />
                 ))}
               </Pie>
               <PieTooltip 
@@ -66,14 +132,14 @@ export default function SiteKitVisitorsChart({ data }) {
           </ResponsiveContainer>
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
              <span className="text-xs text-slate-500">By</span>
-             <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Channels</span>
+             <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{currentLabel}</span>
           </div>
           
           {/* Custom Legend */}
           <div className="flex flex-wrap justify-center gap-4 mt-4 w-full px-4">
-            {channelsData.map((entry, index) => (
+            {currentPieData.map((entry, index) => (
               <div key={index} className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></div>
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color || '#1a73e8' }}></div>
                 {entry.name}
               </div>
             ))}

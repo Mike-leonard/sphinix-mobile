@@ -212,7 +212,7 @@ export async function forgotPasswordAction(email, turnstileToken) {
     const supabase = await createClient();
     
     const authOptions = {
-      redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/callback?next=/reset-password`
+      redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || 'http://localhost:3000'}/api/auth/callback?next=/reset-password`
     };
     if (turnstileToken !== 'e2e-bypass-token') {
       authOptions.captchaToken = turnstileToken;
