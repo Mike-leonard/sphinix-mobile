@@ -3,7 +3,7 @@
 import React from 'react';
 
 export default function SiteKitTopQueriesTable({ data }) {
-  const { topQueries } = data;
+  const topQueries = Array.isArray(data?.topQueries) ? data.topQueries : [];
 
   return (
     <div className="flex flex-col">
@@ -22,20 +22,28 @@ export default function SiteKitTopQueriesTable({ data }) {
             </tr>
           </thead>
           <tbody>
-            {topQueries.map((item, index) => (
-              <tr key={index} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                <td className="py-4 px-6 text-sm">
-                  <div className="flex gap-2">
-                    <span className="text-slate-500">{index + 1}.</span>
-                    <a href="#" className="text-[#008289] dark:text-teal-400 font-medium hover:underline truncate max-w-[350px] lg:max-w-[500px] block">
-                      {item.query}
-                    </a>
-                  </div>
+            {topQueries.length === 0 ? (
+              <tr>
+                <td colSpan="3" className="py-8 px-6 text-center text-sm text-slate-500">
+                  No top search queries available yet.
                 </td>
-                <td className="py-4 px-6 text-sm text-slate-700 dark:text-slate-300 text-right">{item.clicks}</td>
-                <td className="py-4 px-6 text-sm text-slate-700 dark:text-slate-300 text-right">{item.impressions}</td>
               </tr>
-            ))}
+            ) : (
+              topQueries.map((item, index) => (
+                <tr key={index} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                  <td className="py-4 px-6 text-sm">
+                    <div className="flex gap-2">
+                      <span className="text-slate-500">{index + 1}.</span>
+                      <a href="#" className="text-[#008289] dark:text-teal-400 font-medium hover:underline truncate max-w-[350px] lg:max-w-[500px] block">
+                        {item.query}
+                      </a>
+                    </div>
+                  </td>
+                  <td className="py-4 px-6 text-sm text-slate-700 dark:text-slate-300 text-right">{item.clicks}</td>
+                  <td className="py-4 px-6 text-sm text-slate-700 dark:text-slate-300 text-right">{item.impressions}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

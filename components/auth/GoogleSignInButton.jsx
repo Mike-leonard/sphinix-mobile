@@ -13,7 +13,7 @@ export default function GoogleSignInButton({ title = "Continue with Google" }) {
       setLoading(true);
       setError('');
       const supabase = createClient();
-      const rawOrigin = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+      const rawOrigin = process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
       const origin = rawOrigin.replace('0.0.0.0', 'localhost');
       
       const { data, error: signInError } = await supabase.auth.signInWithOAuth({

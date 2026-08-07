@@ -6,7 +6,10 @@ import { TrendingUp, TrendingDown } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 export default function SiteKitSearchTrafficChart({ data }) {
-  const { impressions, clicks, uniqueVisitors, searchTrafficChartData } = data;
+  const impressions = data?.impressions ?? 0;
+  const clicks = data?.clicks ?? 0;
+  const uniqueVisitors = data?.uniqueVisitors ?? 0;
+  const searchTrafficChartData = Array.isArray(data?.searchTrafficChartData) ? data.searchTrafficChartData : [];
 
   return (
     <div className="flex flex-col">
@@ -77,7 +80,7 @@ export default function SiteKitSearchTrafficChart({ data }) {
       </div>
       
       <div className="p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500">
-        Source: <a href="#" className="text-[#1a73e8] hover:underline flex items-center gap-1 inline-flex">Search Console <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
+        Source: <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer" className="text-[#1a73e8] hover:underline flex items-center gap-1 inline-flex">Search Console <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
       </div>
     </div>
   );

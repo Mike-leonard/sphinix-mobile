@@ -2,8 +2,8 @@ export const defaultSettings = {
   seo: {
     advanced: {
       generateSitemap: true,
-      robotsTxt: "User-agent: *\nAllow: /\nSitemap: https://sphinix-mobile.com/sitemap.xml",
-      globalStructuredData: "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"WebSite\",\n  \"name\": \"Sphinix Mobile\",\n  \"url\": \"https://sphinix-mobile.com\"\n}"
+      robotsTxt: "User-agent: *\nAllow: /\nSitemap: https://sphinix.xyz/sitemap.xml",
+      globalStructuredData: "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"WebSite\",\n  \"name\": \"Sphinix Mobile\",\n  \"url\": \"https://sphinix.xyz\"\n}"
     },
     home: { 
       title: "Sphinix Mobile | In-Depth Smartphone Reviews & Tech Blog", 

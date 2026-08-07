@@ -7,7 +7,7 @@ export default async function sitemap() {
     return [];
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://sphinix-mobile.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://sphinix.xyz';
 
   return [
     {

@@ -1,10 +1,14 @@
 import React from 'react';
 import { ShieldCheck, Lock, Eye, FileText } from 'lucide-react';
+import { rawOrigin } from '@/lib/utils';
+import Link from 'next/link';
 
 export const metadata = {
   title: 'Privacy Policy | Sphinix Mobile',
   description: 'Privacy Policy for Sphinix Mobile. Learn how we collect, use, and protect your personal data.'
 };
+
+
 
 export default function PrivacyPolicyPage() {
   return (
@@ -27,7 +31,7 @@ export default function PrivacyPolicyPage() {
         {/* Content Body */}
         <div className="space-y-6 text-slate-700 dark:text-slate-300 leading-relaxed text-sm sm:text-base">
           <p>
-            At <strong>Sphinix Mobile</strong>, accessible from <Link href="https://sphinix.xyz" className="text-brand-600 dark:text-brand-400 font-semibold">sphinix.xyz</Link>, one of our main priorities is the privacy of our visitors. This Privacy Policy document contains types of information that is collected and recorded by Sphinix Mobile and how we use it.
+            At <strong>Sphinix Mobile</strong>, accessible from <Link href={rawOrigin} className="text-brand-600 dark:text-brand-400 font-semibold">sphinix.xyz</Link>, one of our main priorities is the privacy of our visitors. This Privacy Policy document contains types of information that is collected and recorded by Sphinix Mobile and how we use it.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 my-6">
