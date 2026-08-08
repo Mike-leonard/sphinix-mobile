@@ -95,10 +95,10 @@ export default function LoginForm() {
               onSuccess={(token) => setTurnstileToken(token)}
             />
           </div>
-          <AuthSubmitButton 
-            loading={loading} 
-            defaultText="Sign In" 
-            loadingText="Signing in..." 
+          <AuthSubmitButton
+            loading={loading}
+            defaultText="Sign In"
+            loadingText="Signing in..."
             disabled={!turnstileToken}
           />
         </form>

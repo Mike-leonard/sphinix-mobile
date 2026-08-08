@@ -2,7 +2,7 @@
 
 Welcome to **Sphinix Mobile**, an advanced smartphone catalog, tech review platform, and content management system built with Next.js, React Server Components, Tailwind CSS, and PostgreSQL via Prisma ORM.
 
-This document provides a comprehensive guide detailing all **Public Visitor User Flows** and **Administrator Dashboard Workflows**.
+This document provides a comprehensive guide detailing all **Public Visitor User Flows** and **Administrator Dashboard Workflows**, complete with visual interface screenshots.
 
 ---
 
@@ -30,9 +30,15 @@ This document provides a comprehensive guide detailing all **Public Visitor User
 ### 1.1 Homepage Navigation & Instant Shimmer Skeleton
 - **Header Bar:** Contains quick links to `/phones`, `/blogs`, `/comparisons`, global search input, light/dark theme toggle, and authentication options.
 - **Instant Shimmer Skeleton (`app/(main)/loading.js`):** Displays a 1-to-1 matching loading skeleton (hero carousel shimmer, 4 product card shimmers, 5 blog card shimmers, right sidebar shimmers) the moment a user clicks any home link.
-- **Hero Carousel:** Showcases featured smartphones with direct specification teasers and quick link action buttons.
+- **Hero Carousel:** Showcases featured smartphones with direct specification teasers and quick link action buttons (optimized with responsive font scaling and non-overlapping mobile layouts).
 - **Latest Products Grid:** Displays recent smartphone additions with spec badges (governed dynamically by Dashboard Appearance settings).
 - **Latest News & Tech Articles:** Features trending blog posts with category tags and reading time estimates.
+
+![Homepage Desktop Interface](s-shot/homepage_desktop.png)
+*Figure 1.1a: Homepage Desktop Interface*
+
+![Homepage Mobile Responsive Interface & Footer](s-shot/homepage_mobile.png)
+*Figure 1.1b: Mobile Responsive Homepage Interface*
 
 ---
 
@@ -42,6 +48,9 @@ This document provides a comprehensive guide detailing all **Public Visitor User
 - **Sidebar Specification Filters:** Filter products by custom technical attributes (Price ranges, RAM, Battery capacity, Display type, OS).
 - **Sorting & Dynamic View Mode Skeletons:** Toggle between Grid View and List View formats. The route skeleton (`app/(main)/phones/loading.js`) automatically reads the user's saved `viewMode` cookie to render the matching Grid vs List shimmer skeleton.
 
+![Smartphones Catalog Page Interface](s-shot/phones_catalog.png)
+*Figure 1.2: Smartphones Catalog Page*
+
 ---
 
 ### 1.3 Side-by-Side Device Comparison Tool (`/comparisons`)
@@ -49,6 +58,9 @@ This document provides a comprehensive guide detailing all **Public Visitor User
 2. **Compare Drawer:** An interactive bottom drawer opens, displaying selected devices.
 3. **Compare Execution:** Click **"Compare Now"** to open `/comparisons` for a detailed side-by-side spec evaluation.
 4. **Highlights & Differences:** Displays side-by-side comparison tables highlighting spec advantages (screen size, chipset, camera megapixels, battery mAh, expert rating scores).
+
+![Side-by-Side Device Comparison Tool Interface](s-shot/comparisons_page.png)
+*Figure 1.3: Side-by-Side Smartphone Comparison Matrix*
 
 ---
 
@@ -62,12 +74,18 @@ This document provides a comprehensive guide detailing all **Public Visitor User
   - **Detailed Specs:** Grouped specs (Display, Platform, Camera, Battery, Connectivity).
   - **Expert Ratings:** Ratings breakdown across Design, Display, Performance, Camera, and Battery.
 
+![Device Specification Details Page Interface](s-shot/device_details.png)
+*Figure 1.4: Device Details & Technical Datasheet Page*
+
 ---
 
 ### 1.5 Tech Blog & Articles (`/blogs`)
 - Browse published articles categorized by topic.
 - Deep technical breakdown articles with rich media and formatted code snippets.
 - Interactive comments section (if enabled in settings).
+
+![Tech Blogs & News Page Interface](s-shot/blogs_page.png)
+*Figure 1.5: Tech Blogs & Articles Feed*
 
 ---
 
@@ -82,6 +100,9 @@ This document provides a comprehensive guide detailing all **Public Visitor User
 - **Custom 404 Not Found Page (`app/not-found.js`):** Renders automatically on unmapped URLs or when `notFound()` is called. Features a glowing brand 404 tag, inline search bar, navigation buttons (Home, Explore Phones, Read Articles), and popular brand filter pills.
 - **Global Error Boundary (`app/error.js`):** Catches unhandled route exceptions while preserving the site Navbar and Footer intact. Includes a **"Try Again"** button to retry rendering without full page reloads.
 
+![Custom 404 Not Found Page Interface](s-shot/not_found_404.png)
+*Figure 1.7: Theme-Aware Custom 404 Not Found Page*
+
 ---
 
 ## 2. Administrator Dashboard Guide
@@ -92,6 +113,9 @@ Access the admin suite at `/dashboard` (authentication required).
 - **Login:** Sign in at `/login` with administrative credentials. Google OAuth redirects are sanitized to enforce `NEXT_PUBLIC_BASE_URL` (`https://sphinix.xyz`).
 - **Interactive Visitors Analytics Widget:** View live 28-day active users, page views, search clicks, and impressions synced via GA4 Data API & Google Search Console. Click interactive sub-tabs (**Channels**, **Locations**, **Devices**) to switch pie chart distributions dynamically.
 - **Dashboard Error Boundary (`app/dashboard/error.js`):** Protects admin pages from unexpected errors while preserving the admin sidebar navigation.
+
+![Administrator Dashboard Analytics Overview](s-shot/dashboard_analytics.png)
+*Figure 2.1: Administrator Dashboard & Analytics Control Panel*
 
 ---
 
