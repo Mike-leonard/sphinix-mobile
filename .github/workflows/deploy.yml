@@ -2,7 +2,7 @@
 # CI/CD Pipeline: Auto-deploy Next.js app to cPanel shared hosting
 # =============================================================================
 # Trigger: Runs on every push to 'main' branch, or manually via GitHub UI
-# Flow:    Checkout → Install → Build → Upload via FTP → Restart server
+# Flow:    Checkout → Install → Build → Upload via SSH → Restart server
 # =============================================================================
 
 name: Deploy to cPanel
@@ -55,17 +55,19 @@ jobs:
         run: |
           cat > .env << 'ENVEOF'
           BASE_URL=${{ secrets.BASE_URL }}
+          NEXT_PUBLIC_BASE_URL=${{ secrets.NEXT_PUBLIC_BASE_URL }}
           SESSION_SECRET=${{ secrets.SESSION_SECRET }}
           DATABASE_URL=${{ secrets.DATABASE_URL }}
           DIRECT_URL=${{ secrets.DIRECT_URL }}
           AUTH_REDIRECT_URL=${{ secrets.AUTH_REDIRECT_URL }}
-          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
           NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
-          NEXT_PUBLIC_TURNSTILE_SITE_SECRET=${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_SECRET }}
+          NEXT_PUBLIC_TURNSTILE_SITE_SECRECT=${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_SECRECT }}
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRECT=${{ secrets.GOOGLE_CLIENT_SECRECT }}
           GOOGLE_CLIENT_EMAIL=${{ secrets.GOOGLE_CLIENT_EMAIL }}
           GOOGLE_PRIVATE_KEY=${{ secrets.GOOGLE_PRIVATE_KEY }}
           GA4_PROPERTY_ID=${{ secrets.GA4_PROPERTY_ID }}
+          MEASUREMENT_ID=${{ secrets.MEASUREMENT_ID }}
           SEARCH_CONSOLE_SITE_URL=${{ secrets.SEARCH_CONSOLE_SITE_URL }}
           SMTP_HOST=${{ secrets.SMTP_HOST }}
           SMTP_PORT=${{ secrets.SMTP_PORT }}
@@ -145,7 +147,7 @@ jobs:
           mkdir -p deploy
 
           # The standalone build includes symlinks for some external packages.
-          # Dereference them because cPanel/FTP commonly leaves broken links.
+          # Dereference them because cPanel uploads can leave broken links.
           cp -RL .next/standalone/. deploy/
 
           # Static assets (CSS, JS bundles) — must be placed inside .next/static/
@@ -188,24 +190,14 @@ jobs:
           SSH_HOST: ${{ secrets.CPANEL_SSH_HOST }}
           SSH_USER: ${{ secrets.CPANEL_SSH_USER }}
           SSH_PORT: ${{ secrets.CPANEL_SSH_PORT }}
-          SSH_KEY: ${{ secrets.CPANEL_SSH_PRIVATE_KEY }}
           SSH_KEY_B64: ${{ secrets.CPANEL_SSH_PRIVATE_KEY_B64 }}
         run: |
           set -euo pipefail
 
-          if [ -n "${SSH_HOST:-}" ] && [ -n "${SSH_USER:-}" ] && [ -n "${SSH_PORT:-}" ] && { [ -n "${SSH_KEY_B64:-}" ] || [ -n "${SSH_KEY:-}" ]; }; then
+          if [ -n "${SSH_HOST:-}" ] && [ -n "${SSH_USER:-}" ] && [ -n "${SSH_PORT:-}" ] && [ -n "${SSH_KEY_B64:-}" ]; then
             mkdir -p ~/.ssh
             SSH_KEY_FILE=~/.ssh/cpanel_deploy_key
-            if [ -n "${SSH_KEY_B64:-}" ]; then
-              printf '%s' "${SSH_KEY_B64}" | tr -d '\r\n ' | base64 -d > "${SSH_KEY_FILE}"
-            else
-              SSH_KEY_CLEAN=$(printf '%s' "${SSH_KEY}" | tr -d '\r' | sed 's/^"//; s/"$//')
-              if printf '%s' "${SSH_KEY_CLEAN}" | grep -q '\\n'; then
-                printf '%b' "${SSH_KEY_CLEAN}" > "${SSH_KEY_FILE}"
-              else
-                printf '%s\n' "${SSH_KEY_CLEAN}" > "${SSH_KEY_FILE}"
-              fi
-            fi
+            printf '%s' "${SSH_KEY_B64}" | tr -d '\r\n ' | base64 -d > "${SSH_KEY_FILE}"
             chmod 600 "${SSH_KEY_FILE}"
 
             if ! ssh-keygen -y -f "${SSH_KEY_FILE}" >/dev/null 2>&1; then
@@ -235,62 +227,51 @@ jobs:
             rm -f "${SSH_KEY_FILE}"
             echo "Stale Next.js processes cleanup attempted."
           else
-            echo "SSH cleanup skipped: CPANEL_SSH_HOST/USER/PORT/PRIVATE_KEY secrets not configured."
+            echo "SSH cleanup skipped: CPANEL_SSH_HOST/USER/PORT/PRIVATE_KEY_B64 secrets not configured."
           fi
 
       # -----------------------------------------------------------------------
-      # STEP 9: Deploy to cPanel via FTP
-      # Uses lftp for reliable FTP upload with mirroring (only uploads changes)
-      # FTP works on all cPanel shared hosting without firewall issues
+      # STEP 9: Deploy to cPanel via SSH
+      # Uses rsync over SSH for delta-based uploads, which is much faster than FTP
       # -----------------------------------------------------------------------
       # Required GitHub Secrets:
-      #   CPANEL_FTP_HOST      - FTP server (same as domain or server IP)
-      #   CPANEL_FTP_USER      - FTP username (usually same as cPanel username)
-      #   CPANEL_FTP_PASSWORD   - FTP password (usually same as cPanel password)
+      #   CPANEL_SSH_HOST      - SSH server hostname (same as cPanel host or IP)
+      #   CPANEL_SSH_USER      - SSH username (usually same as cPanel username)
+      #   CPANEL_SSH_PORT      - SSH port (e.g. 1157)
+      #   CPANEL_SSH_PRIVATE_KEY_B64 - Base64-encoded private key for SSH access
       #   CPANEL_APP_PATH      - Remote directory (e.g. /home/sphinixx/sphinix-mobile)
       # -----------------------------------------------------------------------
-      - name: Deploy to cPanel via FTP
+      - name: Deploy to cPanel via SSH
         env:
-          FTP_HOST: ${{ secrets.CPANEL_FTP_HOST }}
-          FTP_USER: ${{ secrets.CPANEL_FTP_USER }}
-          FTP_PASS: ${{ secrets.CPANEL_FTP_PASSWORD }}
+          SSH_HOST: ${{ secrets.CPANEL_SSH_HOST }}
+          SSH_USER: ${{ secrets.CPANEL_SSH_USER }}
+          SSH_PORT: ${{ secrets.CPANEL_SSH_PORT }}
+          SSH_KEY_B64: ${{ secrets.CPANEL_SSH_PRIVATE_KEY_B64 }}
           APP_PATH: ${{ secrets.CPANEL_APP_PATH }}
         run: |
           set -euo pipefail
 
-          : "${FTP_HOST:?CPANEL_FTP_HOST secret is required}"
-          : "${FTP_USER:?CPANEL_FTP_USER secret is required}"
-          : "${FTP_PASS:?CPANEL_FTP_PASSWORD secret is required}"
+          : "${SSH_HOST:?CPANEL_SSH_HOST secret is required}"
+          : "${SSH_USER:?CPANEL_SSH_USER secret is required}"
+          : "${SSH_PORT:?CPANEL_SSH_PORT secret is required}"
+          : "${SSH_KEY_B64:?CPANEL_SSH_PRIVATE_KEY_B64 secret is required}"
           : "${APP_PATH:?CPANEL_APP_PATH secret is required}"
 
-          sudo apt-get install -y lftp > /dev/null 2>&1
+          sudo apt-get install -y rsync > /dev/null 2>&1
 
-          # Create .netrc for safe credential handling (avoids special char issues)
-          cat > ~/.netrc << EOF
-          machine ${FTP_HOST}
-          login ${FTP_USER}
-          password ${FTP_PASS}
-          EOF
-          chmod 600 ~/.netrc
+          mkdir -p ~/.ssh
+          SSH_KEY_FILE=~/.ssh/cpanel_deploy_key
+          printf '%s' "${SSH_KEY_B64}" | tr -d '\r\n ' | base64 -d > "${SSH_KEY_FILE}"
+          chmod 600 "${SSH_KEY_FILE}"
 
-          # Deploy via lftp using .netrc credentials. The standalone output must keep
-          # its real node_modules directory; a node_modules.zip file will not run.
-          lftp -e "
-            set ssl:verify-certificate no;
-            set ftp:ssl-allow yes;
-            set ftp:passive-mode yes;
-            set net:timeout 120;
-            set net:max-retries 5;
-            set net:reconnect-interval-base 5;
-            set net:reconnect-interval-multiplier 1;
-            set mirror:parallel-transfer-count 1;
-            open ${FTP_HOST};
-            mirror --reverse --delete --verbose --only-newer --exclude stderr.log --exclude-glob tmp/** deploy/ ${APP_PATH}/;
-            mkdir -p ${APP_PATH}/tmp;
-            put -O ${APP_PATH}/tmp deploy/tmp/restart.txt;
-            bye;
-          "
+          if ! ssh-keygen -y -f "${SSH_KEY_FILE}" >/dev/null 2>&1; then
+            echo "SSH key file is invalid after reconstruction."
+            exit 1
+          fi
 
-          # Cleanup credentials
-          rm -f ~/.netrc
-          echo "FTP deployment complete!"
+          rsync -az --delete --info=progress2 \
+            -e "ssh -p ${SSH_PORT} -i ${SSH_KEY_FILE} -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+            deploy/ "${SSH_USER}@${SSH_HOST}:${APP_PATH}/"
+
+          rm -f "${SSH_KEY_FILE}"
+          echo "SSH deployment complete!"
