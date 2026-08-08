@@ -19,9 +19,9 @@
     *   `countActiveMarkets(affiliates)`: Returns total count of countries with at least 1 configured store link.
 
 ### Module: `lib/utils.js`
-*   **Purpose:** Miscellaneous utility functions (formatting, class name concatenation, slug formatting).
+*   **Purpose:** Miscellaneous utility functions (formatting, Tailwind class name concatenation, slug formatting).
 *   **Key Functions:**
-    *   `cn(...inputs)`: Merges Tailwind/CSS class names cleanly using `clsx` and `tailwind-merge`.
+    *   `cn(...inputs)`: Merges Tailwind/CSS class names cleanly using `clsx` and `tailwind-merge`. Used by UI components like `Skeleton` (`components/ui/skeleton.jsx`).
     *   `generateBlogSlug(title)`: Takes a raw string, splits by special characters, trims, lowercases, and replaces non-alphanumeric characters with hyphens to create URL-safe slugs for dynamic routing.
     *   `generateDeviceSlug(title)`: Alias mapped to `generateBlogSlug` to maintain consistency across domain entities.
     *   `generateBrandSlug(brand)`: Generates URL-friendly brand slugs.
@@ -45,15 +45,15 @@
     *   `fetchPageContentWithJina(url, timeoutMs)`: Scrapes clean Markdown text from web URLs with timeout guards.
 
 ### Module: `lib/analytics/google-clients.js`
-*   **Purpose:** Authentication and client initialization for Google Analytics 4 Data API and Google Search Console API.
+*   **Purpose:** Authentication and client initialization for Google Analytics 4 Data API (`@google-analytics/data`) and Google Search Console API (`googleapis`).
 *   **Key Functions:**
-    *   `getGoogleAuthCredentials()`: Resolves credentials from `.env` (`GOOGLE_CLIENT_EMAIL`, `GOOGLE_PRIVATE_KEY`) or falls back to `data/google-credentials.json`.
+    *   `getGoogleAuthCredentials()`: Resolves credentials from `.env` (`GOOGLE_CLIENT_EMAIL`, `GOOGLE_PRIVATE_KEY` with newline replacement) or falls back to `data/google-credentials.json`.
     *   `getGoogleApiClients()`: Returns initialized `BetaAnalyticsDataClient` and Google Webmasters client instances.
 
 ### Module: `lib/analytics/dummy-data.js`
-*   **Purpose:** Generates mock analytics and search traffic chart data when Google API credentials are not present.
+*   **Purpose:** Generates mock analytics and search traffic chart data when Google API credentials are not present or when API error boundaries trigger.
 *   **Key Functions:**
-    *   `getDummySiteKitData()`: Returns fallback metrics and 28-day chart arrays.
+    *   `getDummySiteKitData()`: Returns fallback metrics, 28-day chart arrays, and channels breakdown.
 
 ### Module: `lib/prisma.js`
 *   **Purpose:** Singleton Prisma Client instance manager with hot-reload protection for Next.js development server environments.

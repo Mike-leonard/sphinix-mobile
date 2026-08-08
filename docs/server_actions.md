@@ -65,9 +65,10 @@ Modularized into:
 ### Devices & Catalog (`actions/devices.js`)
 *   `publishedDevices({ limit, offset, query, brand, filters })`: Fetches published smartphone products.
 *   `publishedDevicesCount(...)`: Calculates total matching device count for pagination.
+*   `getDevices(options)`: Admin query action that supports database sorting (`sortField`, `sortOrder`) and filtering.
 *   `createDevice(...)`, `updateDevice(...)`, `deleteDevice(...)`: Smartphone entity CRUD operations with `imageAlts` SEO array support.
 *   `setDeviceViewMode(mode)`: Sets user view mode preference (`'grid'` or `'list'`) in HTTP cookie `deviceViewMode` and revalidates `/phones`.
-*   `getDeviceViewMode()`: Reads user view mode preference from HTTP cookies on server render pass.
+*   `getDeviceViewMode()`: Reads user view mode preference from HTTP cookies on server render pass (used by `app/(main)/phones/loading.js` for dynamic shimmer rendering).
 
 ---
 

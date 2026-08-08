@@ -31,7 +31,12 @@ export async function generateMetadata() {
       type: "website",
     },
     icons: {
-      icon: settings.seo.home.favicon || "/favicon.ico"
+      icon: [
+        { url: settings.seo.home.favicon || "/favicon.png", type: "image/png" },
+        { url: "/favicon.ico" }
+      ],
+      shortcut: "/favicon.png",
+      apple: "/favicon.png",
     }
   };
 

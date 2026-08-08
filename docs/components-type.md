@@ -5,6 +5,8 @@ This document outlines all components in the project and identifies whether they
 ## `app/`
 - 🖥️ **layout.js** - Server Component
 - 🖥️ **sitemap.js** - Server Component
+- 🖥️ **not-found.js** - Server Component
+- 🌐 **error.js** - Client Component
 
 ## `app/(auth)/login/`
 - 🌐 **page.js** - Client Component
@@ -14,6 +16,7 @@ This document outlines all components in the project and identifies whether they
 
 ## `app/(main)/`
 - 🖥️ **layout.js** - Server Component
+- 🖥️ **loading.js** - Server Component
 - 🖥️ **page.js** - Server Component
 
 ## `app/(main)/_components/`
@@ -35,9 +38,11 @@ This document outlines all components in the project and identifies whether they
 
 ## `app/(main)/blogs/`
 - 🖥️ **layout.js** - Server Component
+- 🖥️ **loading.js** - Server Component
 - 🖥️ **page.js** - Server Component
 
 ## `app/(main)/blogs/[blogSlug]/`
+- 🖥️ **loading.js** - Server Component
 - 🖥️ **page.js** - Server Component
 
 ## `app/(main)/blogs/[blogSlug]/_components/`
@@ -53,6 +58,7 @@ This document outlines all components in the project and identifies whether they
 
 ## `app/(main)/comparisons/`
 - 🖥️ **layout.js** - Server Component
+- 🖥️ **loading.js** - Server Component
 - 🌐 **page.jsx** - Client Component
 
 ## `app/(main)/comparisons/_components/`
@@ -63,9 +69,11 @@ This document outlines all components in the project and identifies whether they
 
 ## `app/(main)/phones/`
 - 🖥️ **layout.js** - Server Component
+- 🖥️ **loading.js** - Server Component
 - 🖥️ **page.js** - Server Component
 
 ## `app/(main)/phones/[brandSlug]/[deviceSlug]/`
+- 🖥️ **loading.js** - Server Component
 - 🖥️ **page.js** - Server Component
 
 ## `app/(main)/phones/[brandSlug]/[deviceSlug]/_components/`
@@ -124,7 +132,9 @@ This document outlines all components in the project and identifies whether they
 
 ## `app/dashboard/`
 - 🌐 **DashboardSidebar.jsx** - Client Component
+- 🌐 **error.js** - Client Component
 - 🖥️ **layout.js** - Server Component
+- 🖥️ **loading.js** - Server Component
 - 🌐 **page.js** - Client Component
 
 ## `app/dashboard/_components/`
@@ -132,6 +142,11 @@ This document outlines all components in the project and identifies whether they
 - 🌐 **SidebarFooter.jsx** - Client Component
 - 🖥️ **SidebarLogo.jsx** - Server Component
 - 🌐 **SidebarNav.jsx** - Client Component
+- 🌐 **SiteKitDashboard.jsx** - Client Component
+- 🌐 **SiteKitVisitorsChart.jsx** - Client Component
+- 🌐 **SiteKitSearchTrafficChart.jsx** - Client Component
+- 🌐 **SiteKitTopContentTable.jsx** - Client Component
+- 🌐 **SiteKitTopQueriesTable.jsx** - Client Component
 
 ## `app/dashboard/blogs/`
 - 🖥️ **page.js** - Server Component
@@ -387,3 +402,4 @@ This document outlines all components in the project and identifies whether they
 - 🖥️ **card.jsx** - Server Component
 - 🖥️ **input.jsx** - Server Component
 - 🌐 **sheet.jsx** - Client Component
+- 🖥️ **skeleton.jsx** - Server Component
