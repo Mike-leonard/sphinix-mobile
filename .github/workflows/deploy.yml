@@ -232,7 +232,7 @@ jobs:
 
       # -----------------------------------------------------------------------
       # STEP 9: Deploy to cPanel via SSH
-      # Uses rsync over SSH for delta-based uploads, which is much faster than FTP
+      # Uses a tar stream over SSH for fast deployment without extra runner dependencies
       # -----------------------------------------------------------------------
       # Required GitHub Secrets:
       #   CPANEL_SSH_HOST      - SSH server hostname (same as cPanel host or IP)
@@ -257,9 +257,6 @@ jobs:
           : "${SSH_KEY_B64:?CPANEL_SSH_PRIVATE_KEY_B64 secret is required}"
           : "${APP_PATH:?CPANEL_APP_PATH secret is required}"
 
-          sudo apt-get update > /dev/null 2>&1
-          sudo apt-get install -y rsync > /dev/null 2>&1
-
           mkdir -p ~/.ssh
           SSH_KEY_FILE=~/.ssh/cpanel_deploy_key
           printf '%s' "${SSH_KEY_B64}" | tr -d '\r\n ' | base64 -d > "${SSH_KEY_FILE}"
@@ -270,9 +267,10 @@ jobs:
             exit 1
           fi
 
-          rsync -az --delete --info=progress2 \
-            -e "ssh -p ${SSH_PORT} -i ${SSH_KEY_FILE} -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-            deploy/ "${SSH_USER}@${SSH_HOST}:${APP_PATH}/"
+          ssh -p "${SSH_PORT}" -i "${SSH_KEY_FILE}" -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${SSH_USER}@${SSH_HOST}" "mkdir -p '${APP_PATH}' && find '${APP_PATH}' -mindepth 1 -maxdepth 1 -exec rm -rf {} +"
+
+          tar -czf - -C deploy . \
+            | ssh -p "${SSH_PORT}" -i "${SSH_KEY_FILE}" -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${SSH_USER}@${SSH_HOST}" "tar -xzf - -C '${APP_PATH}'"
 
           rm -f "${SSH_KEY_FILE}"
           echo "SSH deployment complete!"
