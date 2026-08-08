@@ -187,16 +187,17 @@ jobs:
         env:
           SSH_HOST: ${{ secrets.CPANEL_SSH_HOST }}
           SSH_USER: ${{ secrets.CPANEL_SSH_USER }}
+          SSH_PORT: ${{ secrets.CPANEL_SSH_PORT }}
           SSH_KEY: ${{ secrets.CPANEL_SSH_PRIVATE_KEY }}
         run: |
           set -euo pipefail
 
-          if [ -n "${SSH_HOST:-}" ] && [ -n "${SSH_USER:-}" ] && [ -n "${SSH_KEY:-}" ]; then
+          if [ -n "${SSH_HOST:-}" ] && [ -n "${SSH_USER:-}" ] && [ -n "${SSH_PORT:-}" ] && [ -n "${SSH_KEY:-}" ]; then
             mkdir -p ~/.ssh
             printf '%s\n' "${SSH_KEY}" > ~/.ssh/cpanel_deploy_key
             chmod 600 ~/.ssh/cpanel_deploy_key
 
-            ssh -i ~/.ssh/cpanel_deploy_key -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${SSH_USER}@${SSH_HOST}" '
+            ssh -p "${SSH_PORT}" -i ~/.ssh/cpanel_deploy_key -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${SSH_USER}@${SSH_HOST}" '
               echo "SSH connection OK"
               whoami
               hostname
@@ -208,7 +209,7 @@ jobs:
             rm -f ~/.ssh/cpanel_deploy_key
             echo "Stale Next.js processes cleanup attempted."
           else
-            echo "SSH cleanup skipped: CPANEL_SSH_HOST/USER/PRIVATE_KEY secrets not configured."
+            echo "SSH cleanup skipped: CPANEL_SSH_HOST/USER/PORT/PRIVATE_KEY secrets not configured."
           fi
 
       # -----------------------------------------------------------------------
