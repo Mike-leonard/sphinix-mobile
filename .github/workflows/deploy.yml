@@ -114,8 +114,6 @@ jobs:
           CLAUDE_API_KEY=${{ secrets.CLAUDE_API_KEY }}
           OPEN_ROUTER_API_KEY=${{ secrets.OPEN_ROUTER_API_KEY }}
           KILO_CODE_API_KEY=${{ secrets.KILO_CODE_API_KEY }}
-          OLLAMA_API_KEY=${{ secrets.OLLAMA_API_KEY }}
-          SUPA_BASE_PASS=${{ secrets.SUPA_BASE_PASS }}
           NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
           ENVLOCALEOF

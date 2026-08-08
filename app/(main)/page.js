@@ -5,6 +5,8 @@ import BlogSection from './_components/_sections/BlogSection';
 import RightSidebar from '@/components/sidebar/RightSidebar';
 import { getSettings } from '@/actions/settings';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
 
   const settings = await getSettings();
