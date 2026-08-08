@@ -128,14 +128,26 @@ jobs:
         run: npx prisma generate
 
       # -----------------------------------------------------------------------
-      # STEP 6: Build the Next.js production bundle
+      # STEP 6: Restore Next.js build cache
+      # Reuses incremental build artifacts to speed up subsequent deploy builds.
+      # -----------------------------------------------------------------------
+      - name: Restore Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-next-cache-${{ hashFiles('package-lock.json', 'package.json', 'next.config.mjs', 'app/**', 'actions/**', 'components/**', 'context/**', 'lib/**', 'queries/**') }}
+          restore-keys: |
+            ${{ runner.os }}-next-cache-
+
+      # -----------------------------------------------------------------------
+      # STEP 7: Build the Next.js production bundle
       # Output goes to .next/ folder with optimized pages & assets
       # -----------------------------------------------------------------------
       - name: Build application
         run: npm run build
 
       # -----------------------------------------------------------------------
-      # STEP 7: Prepare a clean deployment package (standalone mode)
+      # STEP 8: Prepare a clean deployment package (standalone mode)
       # Next.js 'standalone' output bundles ALL dependencies into the build.
       # No need for 'npm install' on the server — everything is included!
       # Structure: .next/standalone/ contains server.js + node_modules
@@ -181,7 +193,7 @@ jobs:
           touch deploy/tmp/restart.txt
 
       # -----------------------------------------------------------------------
-      # STEP 8: Stop stale Node/Next.js processes on the server before deploy
+      # STEP 9: Stop stale Node/Next.js processes on the server before deploy
       # Some cPanel/Passenger setups leave old next-server processes running
       # after a restart, which causes multiple instances to accumulate.
       # -----------------------------------------------------------------------
@@ -231,7 +243,7 @@ jobs:
           fi
 
       # -----------------------------------------------------------------------
-      # STEP 9: Deploy to cPanel via SSH
+      # STEP 10: Deploy to cPanel via SSH
       # Uses a tar stream over SSH for fast deployment without extra runner dependencies
       # -----------------------------------------------------------------------
       # Required GitHub Secrets:
