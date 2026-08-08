@@ -220,8 +220,16 @@ jobs:
               echo "Existing Next.js processes:"
               current_shell_pid=$$
               pgrep -af "next-server|node .*server.js" || true
-              pgrep -f "next-server" | awk -v pid="${current_shell_pid}" '$1 != pid' | xargs -r kill || true
-              pgrep -f "node .*server.js" | awk -v pid="${current_shell_pid}" '$1 != pid' | xargs -r kill || true
+              for pid in $(pgrep -f "next-server" || true); do
+                if [ "${pid}" != "${current_shell_pid}" ]; then
+                  kill "${pid}" || true
+                fi
+              done
+              for pid in $(pgrep -f "node .*server.js" || true); do
+                if [ "${pid}" != "${current_shell_pid}" ]; then
+                  kill "${pid}" || true
+                fi
+              done
             '
 
             rm -f "${SSH_KEY_FILE}"
