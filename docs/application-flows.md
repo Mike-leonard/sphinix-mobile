@@ -8,14 +8,15 @@ This document provides a comprehensive guide detailing all **Public Visitor User
 
 ## 📋 Table of Contents
 1. [Public Visitor Guide](#1-public-visitor-guide)
-   - [1.1 Homepage Navigation & Overview](#11-homepage-navigation--overview)
-   - [1.2 Smartphone Catalog & Advanced Search](#12-smartphone-catalog--advanced-search)
+   - [1.1 Homepage Navigation & Instant Shimmer Skeleton](#11-homepage-navigation--instant-shimmer-skeleton)
+   - [1.2 Smartphone Catalog & View Mode Toggles](#12-smartphone-catalog--view-mode-toggles)
    - [1.3 Side-by-Side Device Comparison Tool](#13-side-by-side-device-comparison-tool)
    - [1.4 Device Specification Details & Geo-Targeted Buy Links](#14-device-specification-details--geo-targeted-buy-links)
    - [1.5 Tech Blog & Articles](#15-tech-blog--articles)
    - [1.6 Theme Customization (Light / Dark Mode)](#16-theme-customization-light--dark-mode)
+   - [1.7 Error Handling, 404 Not Found & Fail-Safe Recovery](#17-error-handling-404-not-found--fail-safe-recovery)
 2. [Administrator Dashboard Guide](#2-administrator-dashboard-guide)
-   - [2.1 Authentication & Dashboard Overview](#21-authentication--dashboard-overview)
+   - [2.1 Authentication & Interactive Analytics Overview](#21-authentication--interactive-analytics-overview)
    - [2.2 Smartphone Management & Multi-Country Affiliate Links](#22-smartphone-management--multi-country-affiliate-links)
    - [2.3 Dynamic Attributes, Groups, Brands, Filters & Affiliate Countries](#23-dynamic-attributes-groups-brands-filters--affiliate-countries)
    - [2.4 Tech Articles & Category Management](#24-tech-articles--category-management)
@@ -26,19 +27,20 @@ This document provides a comprehensive guide detailing all **Public Visitor User
 
 ## 1. Public Visitor Guide
 
-### 1.1 Homepage Navigation & Overview
+### 1.1 Homepage Navigation & Instant Shimmer Skeleton
 - **Header Bar:** Contains quick links to `/phones`, `/blogs`, `/comparisons`, global search input, light/dark theme toggle, and authentication options.
+- **Instant Shimmer Skeleton (`app/(main)/loading.js`):** Displays a 1-to-1 matching loading skeleton (hero carousel shimmer, 4 product card shimmers, 5 blog card shimmers, right sidebar shimmers) the moment a user clicks any home link.
 - **Hero Carousel:** Showcases featured smartphones with direct specification teasers and quick link action buttons.
 - **Latest Products Grid:** Displays recent smartphone additions with spec badges (governed dynamically by Dashboard Appearance settings).
 - **Latest News & Tech Articles:** Features trending blog posts with category tags and reading time estimates.
 
 ---
 
-### 1.2 Smartphone Catalog & Advanced Search (`/phones`)
+### 1.2 Smartphone Catalog & View Mode Toggles (`/phones`)
 - **Global Search:** Type any smartphone name or brand into the search input to dynamically filter items.
 - **Brand Selection:** Filter smartphones by brand (Apple, Samsung, Xiaomi, OnePlus, Google, etc.).
 - **Sidebar Specification Filters:** Filter products by custom technical attributes (Price ranges, RAM, Battery capacity, Display type, OS).
-- **Sorting & View Modes:** Toggle between Grid View and List View formats.
+- **Sorting & Dynamic View Mode Skeletons:** Toggle between Grid View and List View formats. The route skeleton (`app/(main)/phones/loading.js`) automatically reads the user's saved `viewMode` cookie to render the matching Grid vs List shimmer skeleton.
 
 ---
 
@@ -76,14 +78,20 @@ This document provides a comprehensive guide detailing all **Public Visitor User
 
 ---
 
+### 1.7 Error Handling, 404 Not Found & Fail-Safe Recovery
+- **Custom 404 Not Found Page (`app/not-found.js`):** Renders automatically on unmapped URLs or when `notFound()` is called. Features a glowing brand 404 tag, inline search bar, navigation buttons (Home, Explore Phones, Read Articles), and popular brand filter pills.
+- **Global Error Boundary (`app/error.js`):** Catches unhandled route exceptions while preserving the site Navbar and Footer intact. Includes a **"Try Again"** button to retry rendering without full page reloads.
+
+---
+
 ## 2. Administrator Dashboard Guide
 
 Access the admin suite at `/dashboard` (authentication required).
 
-### 2.1 Authentication & Dashboard Overview
-- **Login:** Sign in at `/login` with administrative credentials.
-- **Analytics Metrics:** View live 28-day active users, page views, search clicks, and impressions synced via Google Analytics 4 & Google Search Console.
-- **Publishing Trends:** Monitor monthly phone and blog publishing activity.
+### 2.1 Authentication & Interactive Analytics Overview
+- **Login:** Sign in at `/login` with administrative credentials. Google OAuth redirects are sanitized to enforce `NEXT_PUBLIC_BASE_URL` (`https://sphinix.xyz`).
+- **Interactive Visitors Analytics Widget:** View live 28-day active users, page views, search clicks, and impressions synced via GA4 Data API & Google Search Console. Click interactive sub-tabs (**Channels**, **Locations**, **Devices**) to switch pie chart distributions dynamically.
+- **Dashboard Error Boundary (`app/dashboard/error.js`):** Protects admin pages from unexpected errors while preserving the admin sidebar navigation.
 
 ---
 

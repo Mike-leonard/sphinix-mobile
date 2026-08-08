@@ -1,6 +1,31 @@
-# Sphinix Mobile - Feature Roadmap & Next Tasks
+# Sphinix Mobile - Feature Roadmap & Completed Tasks
 
-This document outlines the planned feature pipeline, remaining tasks, and future AI enhancements for **Sphinix Mobile**.
+This document outlines completed UX/stability enhancements, planned feature pipelines, remaining tasks, and future AI enhancements for **Sphinix Mobile**.
+
+---
+
+## ✅ Recently Completed Tasks
+
+### 1. ⚡ 1-to-1 Shimmer Loading Skeletons (`loading.js` & `skeleton.jsx`)
+- **Implemented**: Created matching shimmer loading skeletons across all public and admin routes:
+  - `app/(main)/loading.js`: Homepage 1-to-1 shimmer skeleton (hero carousel, 4 product cards, view all button, 5 blog cards, read more button, right sidebar).
+  - `app/(main)/phones/loading.js`: Smartphone catalog skeleton dynamically reading user's saved `viewMode` cookie for Grid vs List shimmer.
+  - `app/(main)/phones/[brandSlug]/[deviceSlug]/loading.js`: Device details skeleton (gallery, quick info, spec tabs, related devices).
+  - `app/(main)/blogs/loading.js`: Blogs list skeleton (6 horizontal cards, pagination, right sidebar).
+  - `app/(main)/blogs/[blogSlug]/loading.js`: Article detail skeleton (hero, author meta, content paragraphs, related articles).
+  - `app/(main)/comparisons/loading.js`: Comparison page skeleton (sticky header comparison cards, spec table).
+  - `app/dashboard/loading.js`: Admin dashboard skeleton (4 metric cards, analytics chart/table).
+
+### 2. 🛡️ React Route Error Boundaries & Custom 404 Page
+- **Implemented**:
+  - `app/error.js`: Global public site Error Boundary with "Try Again" & "Go Home" buttons while keeping Navbar and Footer intact.
+  - `app/dashboard/error.js`: Admin Dashboard Error Boundary with "Reload View" & "Dashboard Overview" buttons while keeping Admin Sidebar intact.
+  - `app/not-found.js`: Custom theme-aware 404 page featuring brand gradient header, inline search input, navigation buttons, and popular brand filter pills.
+
+### 3. 📊 Interactive Analytics Dashboard & Origin Sanitization
+- **Implemented**:
+  - `SiteKitVisitorsChart.jsx`: Added stateful interactive sub-tabs (**Channels**, **Locations**, **Devices**) with dynamic pie chart and legend updates.
+  - `app/api/auth/callback/route.js`: Sanitized OAuth origin to prevent `0.0.0.0:3000` redirect error on live production domains (`NEXT_PUBLIC_BASE_URL`).
 
 ---
 
@@ -50,11 +75,10 @@ This document outlines the planned feature pipeline, remaining tasks, and future
 
 | Feature | Target Area | Status | Priority |
 | :--- | :--- | :--- | :--- |
+| **Shimmer Skeletons & Error Boundaries** | App-wide (`loading.js`, `error.js`, `not-found.js`) | ✅ Completed | High |
+| **Interactive Visitors Analytics Widget** | Dashboard (`/dashboard`) | ✅ Completed | High |
 | **Device User Reviews & Comments** | Public Phone Pages & Admin | Pending | High |
 | **Blog Post Comments** | Public Blog Pages & Admin | Pending | High |
 | **Dashboard Bulk Actions (Multi-Select)** | Admin (`/dashboard/phones`, `/dashboard/blogs`) | Pending | High |
 | **Multi-Device AI Batch Generator** | Admin (`/dashboard/phones/new`) | Future | Medium |
 | **AI Side-by-Side Comparison Generator** | Comparison Drawer (`/compare`) | Future | Low |
-
----
-

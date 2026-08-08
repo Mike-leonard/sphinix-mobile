@@ -30,7 +30,8 @@
 *   **Dynamic Grid Limits & Spec Badges:**
     *   The `/phones` grid layout (items per page, spec card badge limit) and home page section limits are dynamically governed by admin settings stored in PostgreSQL (`settings.appearance.phones` and `settings.appearance.home`).
 
-## 3. UI Component System
+## 3. UI Component System & Shimmer Loading Skeletons
+*   **Shimmer Loading Skeletons (`components/ui/skeleton.jsx`):** Animated Tailwind pulse component (`animate-pulse`) used to construct 1-to-1 route loading skeletons across all public and admin pages (`loading.js`), eliminating layout shift during SSR navigation.
 *   **State Orchestrator Pattern:** Complex features (e.g., `BlogsManager`, `BlogEditor`, `CategoryManager`, `AffiliateCountryManager`, `DeviceAffiliateInputs`, and all `SettingsForm` variants) use the Orchestrator pattern. A parent component manages top-level state and API interactions, while modular child components handle UI rendering.
 *   **Base Library:** `shadcn/ui` components are heavily integrated to handle accessibility and logic, while strictly preserving custom Tailwind brand aesthetics.
 *   **Modals & Dialogs:**
@@ -39,12 +40,13 @@
 *   **Cards & Lists:**
     *   `ProductCard` and `BlogCard` are built using Shadcn's `<Card>` and `<CardContent>`.
     *   `StoreInputCard` renders individual store link and price input fields with localized currency symbols and trash icons.
-*   **Admin Data Tables:**
-    *   Data tables rely on conditional hover AND click states to display row actions (Edit, Trash, View), catering to both desktop mouse users and mobile touch users.
-*   **Rich Text Integration:**
-    *   The **Tiptap** editor implements the `@tailwindcss/typography` plugin (`prose`) combined with standard Tailwind utility classes to ensure the editing canvas matches public published output (WYSIWYG).
+*   **Interactive Analytics Widgets:**
+    *   `SiteKitVisitorsChart.jsx` provides interactive sub-navigation tabs (**Channels**, **Locations**, **Devices**) to toggle pie chart distributions dynamically with smooth color transitions and legends.
 
 ## 4. User Experience & Hydration Safeguards
+*   **Custom 404 & Error Boundaries:**
+    *   `app/not-found.js`: Provides a high-contrast 404 page with glowing brand tags, inline search bar, quick action navigation buttons, and popular brand filter pills.
+    *   `app/error.js` & `app/dashboard/error.js`: Catch unhandled route errors gracefully, rendering clean recovery cards with **"Try Again"** and **"Go Home"** buttons while keeping the top Navbar and Admin Sidebar intact.
 *   **Deterministic SSR/Hydration:**
     *   Visual components like `PublishTrendsChart.jsx` use deterministic formulas instead of `Math.random()` to ensure 100% server-client markup parity during Next.js hydration.
 *   **Micro-animations & Transitions:**

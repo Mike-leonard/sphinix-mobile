@@ -141,7 +141,7 @@ jobs:
       # -----------------------------------------------------------------------
       - name: Prepare deployment files
         run: |
-          rm -rf deploy deploy-restart
+          rm -rf deploy
           mkdir -p deploy
 
           # The standalone build includes symlinks for some external packages.
@@ -173,9 +173,10 @@ jobs:
             exit 1
           fi
 
-          # Create restart file separately so Passenger restarts after upload completes.
-          mkdir -p deploy-restart/tmp
-          touch deploy-restart/tmp/restart.txt
+          # Create the Passenger restart marker inside the same payload so the
+          # restart happens once after the upload finishes.
+          mkdir -p deploy/tmp
+          touch deploy/tmp/restart.txt
 
       # -----------------------------------------------------------------------
       # STEP 8: Deploy to cPanel via FTP
@@ -225,7 +226,8 @@ jobs:
             set mirror:parallel-transfer-count 1;
             open ${FTP_HOST};
             mirror --reverse --delete --verbose --only-newer --exclude stderr.log --exclude-glob tmp/** deploy/ ${APP_PATH}/;
-            mirror --reverse --verbose deploy-restart/ ${APP_PATH}/;
+            mkdir -p ${APP_PATH}/tmp;
+            put -O ${APP_PATH}/tmp deploy/tmp/restart.txt;
             bye;
           "
 
