@@ -189,19 +189,29 @@ jobs:
           SSH_USER: ${{ secrets.CPANEL_SSH_USER }}
           SSH_PORT: ${{ secrets.CPANEL_SSH_PORT }}
           SSH_KEY: ${{ secrets.CPANEL_SSH_PRIVATE_KEY }}
+          SSH_KEY_B64: ${{ secrets.CPANEL_SSH_PRIVATE_KEY_B64 }}
         run: |
           set -euo pipefail
 
-          if [ -n "${SSH_HOST:-}" ] && [ -n "${SSH_USER:-}" ] && [ -n "${SSH_PORT:-}" ] && [ -n "${SSH_KEY:-}" ]; then
+          if [ -n "${SSH_HOST:-}" ] && [ -n "${SSH_USER:-}" ] && [ -n "${SSH_PORT:-}" ] && { [ -n "${SSH_KEY_B64:-}" ] || [ -n "${SSH_KEY:-}" ]; }; then
             mkdir -p ~/.ssh
             SSH_KEY_FILE=~/.ssh/cpanel_deploy_key
-            SSH_KEY_CLEAN=$(printf '%s' "${SSH_KEY}" | tr -d '\r' | sed 's/^"//; s/"$//')
-            if printf '%s' "${SSH_KEY_CLEAN}" | grep -q '\\n'; then
-              printf '%b' "${SSH_KEY_CLEAN}" > "${SSH_KEY_FILE}"
+            if [ -n "${SSH_KEY_B64:-}" ]; then
+              printf '%s' "${SSH_KEY_B64}" | tr -d '\r\n ' | base64 -d > "${SSH_KEY_FILE}"
             else
-              printf '%s\n' "${SSH_KEY_CLEAN}" > "${SSH_KEY_FILE}"
+              SSH_KEY_CLEAN=$(printf '%s' "${SSH_KEY}" | tr -d '\r' | sed 's/^"//; s/"$//')
+              if printf '%s' "${SSH_KEY_CLEAN}" | grep -q '\\n'; then
+                printf '%b' "${SSH_KEY_CLEAN}" > "${SSH_KEY_FILE}"
+              else
+                printf '%s\n' "${SSH_KEY_CLEAN}" > "${SSH_KEY_FILE}"
+              fi
             fi
             chmod 600 "${SSH_KEY_FILE}"
+
+            if ! ssh-keygen -y -f "${SSH_KEY_FILE}" >/dev/null 2>&1; then
+              echo "SSH key file is invalid after reconstruction. Use CPANEL_SSH_PRIVATE_KEY_B64 or re-paste the full private key exactly."
+              exit 1
+            fi
 
             ssh -p "${SSH_PORT}" -i "${SSH_KEY_FILE}" -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${SSH_USER}@${SSH_HOST}" '
               echo "SSH connection OK"
