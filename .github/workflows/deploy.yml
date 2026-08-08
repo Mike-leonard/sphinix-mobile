@@ -194,10 +194,16 @@ jobs:
 
           if [ -n "${SSH_HOST:-}" ] && [ -n "${SSH_USER:-}" ] && [ -n "${SSH_PORT:-}" ] && [ -n "${SSH_KEY:-}" ]; then
             mkdir -p ~/.ssh
-            printf '%s\n' "${SSH_KEY}" > ~/.ssh/cpanel_deploy_key
-            chmod 600 ~/.ssh/cpanel_deploy_key
+            SSH_KEY_FILE=~/.ssh/cpanel_deploy_key
+            SSH_KEY_CLEAN=$(printf '%s' "${SSH_KEY}" | tr -d '\r' | sed 's/^"//; s/"$//')
+            if printf '%s' "${SSH_KEY_CLEAN}" | grep -q '\\n'; then
+              printf '%b' "${SSH_KEY_CLEAN}" > "${SSH_KEY_FILE}"
+            else
+              printf '%s\n' "${SSH_KEY_CLEAN}" > "${SSH_KEY_FILE}"
+            fi
+            chmod 600 "${SSH_KEY_FILE}"
 
-            ssh -p "${SSH_PORT}" -i ~/.ssh/cpanel_deploy_key -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${SSH_USER}@${SSH_HOST}" '
+            ssh -p "${SSH_PORT}" -i "${SSH_KEY_FILE}" -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${SSH_USER}@${SSH_HOST}" '
               echo "SSH connection OK"
               whoami
               hostname
@@ -206,7 +212,7 @@ jobs:
               pkill -f "node .*server.js" || true
             '
 
-            rm -f ~/.ssh/cpanel_deploy_key
+            rm -f "${SSH_KEY_FILE}"
             echo "Stale Next.js processes cleanup attempted."
           else
             echo "SSH cleanup skipped: CPANEL_SSH_HOST/USER/PORT/PRIVATE_KEY secrets not configured."
