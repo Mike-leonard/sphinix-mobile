@@ -217,9 +217,10 @@ jobs:
               echo "SSH connection OK"
               whoami
               hostname
-              set -e
-              pkill -f "next-server" || true
-              pkill -f "node .*server.js" || true
+              echo "Existing Next.js processes:"
+              pgrep -af "next-server|node .*server.js" || true
+              pgrep -f "next-server" | xargs -r kill || true
+              pgrep -f "node .*server.js" | xargs -r kill || true
             '
 
             rm -f "${SSH_KEY_FILE}"
