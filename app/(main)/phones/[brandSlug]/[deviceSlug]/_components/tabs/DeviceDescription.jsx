@@ -42,14 +42,21 @@ export default function DeviceDescription({ device, ratingBars = [] }) {
     ? (ratedBars.reduce((acc, bar) => acc + (expertRatings[bar.slug] !== undefined ? expertRatings[bar.slug] : (bar.defaultValue || 3)), 0) / ratedBars.length).toFixed(1)
     : 0;
 
+  const formattedDescription = React.useMemo(() => {
+    if (!device.description) return '';
+    return device.description
+      .replace(/<video([^>]*)controls(=["']?[^"'\s>]*["']?)?([^>]*)>/gi, '<video$1$3>')
+      .replace(/<video/gi, '<video autoplay loop muted playsinline pointer-events-none');
+  }, [device.description]);
+
   return (
     <div className="mt-12 space-y-6 text-slate-700 dark:text-slate-300 leading-relaxed text-lg">
       <h2 style={{fontSize: "var(--font-size-h2-default, var(--font-size-h2-default))"}} className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Overview</h2>
 
       {device.description ? (
         <div 
-          className="mb-10 space-y-4 [&>p]:mb-4 [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:mb-6 [&>h1]:mt-8 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:mt-6 [&>ul]:list-disc [&>ul]:ml-6 [&>ol]:list-decimal [&>ol]:ml-6 [&>a]:text-brand-500"
-          dangerouslySetInnerHTML={{ __html: device.description }}
+          className="mb-10 space-y-4 [&>p]:mb-4 [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:mb-6 [&>h1]:mt-8 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-4 [&>h2]:mt-6 [&>ul]:list-disc [&>ul]:ml-6 [&>ol]:list-decimal [&>ol]:ml-6 [&>a]:text-brand-500 [&_video]:pointer-events-none [&_video]:select-none [&_iframe]:pointer-events-none"
+          dangerouslySetInnerHTML={{ __html: formattedDescription }}
         />
       ) : (
         <>

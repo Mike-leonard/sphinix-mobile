@@ -87,12 +87,14 @@ export async function createDeviceAttributeQuery(data) {
  */
 export async function updateDeviceAttributeQuery(id, data) {
   const client = getPrisma();
-  const groupName = (data.groupIds && data.groupIds[0]) || data.group;
+  const groupName = (data.groupIds && data.groupIds.length > 0 ? data.groupIds[data.groupIds.length - 1] : null) || data.group;
   let groupId = data.groupId;
 
-  if (!groupId && groupName) {
+  if (groupName) {
     const found = await client.deviceGroup.findUnique({ where: { name: groupName } });
-    if (found) groupId = found.id;
+    if (found) {
+      groupId = found.id;
+    }
   }
 
   const updatePayload = {

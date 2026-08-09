@@ -74,11 +74,18 @@ export default function ComparisonBody({ compareList, gridColsClass }) {
     return () => { isCancelled = true; };
   }, []);
 
+  const NON_SPEC_KEYS = ['images', 'imageAlts', 'affiliates', 'expertRatings', 'seo', 'quickSpecs'];
+
   // Get unique dynamic spec groups from all devices
   const specGroupsSet = new Set();
   compareList.forEach(device => {
     Object.entries(device.specs || {}).forEach(([key, value]) => {
-      if (Array.isArray(value) && value.length > 0) {
+      if (
+        !NON_SPEC_KEYS.includes(key) &&
+        Array.isArray(value) &&
+        value.length > 0 &&
+        value.some(item => item && typeof item === 'object' && ('label' in item || 'value' in item))
+      ) {
         specGroupsSet.add(key);
       }
     });
