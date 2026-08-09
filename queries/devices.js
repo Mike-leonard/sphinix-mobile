@@ -7,12 +7,14 @@ export function formatDevice(device) {
   if (!device) return null;
   const specsObj = (device.specs && typeof device.specs === 'object') ? device.specs : {};
   const brandVal = device.brandName || device.brand || (device.deviceBrand?.name ?? '');
+  let rawStatus = (device.status || 'DRAFT').toLowerCase();
+  if (rawStatus === 'trashed') rawStatus = 'trash';
   return {
     ...device,
     brand: brandVal,
     brandName: brandVal,
     price: device.price !== undefined && device.price !== null ? String(device.price) : '',
-    status: (device.status || 'DRAFT').toLowerCase(),
+    status: rawStatus,
     description: device.description ?? specsObj.description ?? '',
     expertRatings: device.expertRatings ?? specsObj.expertRatings ?? {},
     images: device.images ?? specsObj.images ?? ['', '', '', ''],
@@ -445,7 +447,8 @@ export async function getTopRatedDevicesQuery(limit = 3) {
 export async function createDeviceQuery(data) {
   const payload = { ...data };
   if (payload.status) {
-    payload.status = payload.status.toUpperCase();
+    const s = payload.status.toUpperCase();
+    payload.status = (s === 'TRASH' || s === 'TRASHED') ? 'TRASHED' : s;
   }
   if (payload.brand && !payload.brandName) {
     payload.brandName = payload.brand;
@@ -469,7 +472,8 @@ export async function createDeviceQuery(data) {
 export async function updateDeviceQuery(id, data) {
   const payload = { ...data };
   if (payload.status) {
-    payload.status = payload.status.toUpperCase();
+    const s = payload.status.toUpperCase();
+    payload.status = (s === 'TRASH' || s === 'TRASHED') ? 'TRASHED' : s;
   }
   if (payload.brand && !payload.brandName) {
     payload.brandName = payload.brand;
