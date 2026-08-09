@@ -2,7 +2,7 @@
 
 import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, Save, Loader2, Smartphone, ArrowLeft, Send, Sparkles, Wand2, Eye } from 'lucide-react';
+import { ChevronLeft, Save, Loader2, Smartphone, ArrowLeft, Send, Sparkles, Wand2, Eye, ArrowUp, ArrowDown } from 'lucide-react';
 import Link from 'next/link';
 import { createDevice, updateDevice } from '@/actions/devices';
 import { generateDeviceData } from '@/actions/ai';
@@ -65,16 +65,11 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
   const [initialFormState] = useState(formData);
   const [isPending, startTransition] = useTransition();
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isDirty, setIsDirty] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const isDirty = !isSaved && JSON.stringify(formData) !== JSON.stringify(initialFormState);
+  const setIsDirty = (val) => setIsSaved(!val);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
-
-  // Track form data changes
-  React.useEffect(() => {
-    if (JSON.stringify(formData) !== JSON.stringify(initialFormState)) {
-      setIsDirty(true);
-    }
-  }, [formData, initialFormState]);
 
   // Block tab closing/reloading
   React.useEffect(() => {
@@ -151,7 +146,7 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto pb-20 p-4 sm:p-8">
+    <div className="max-w-[1400px] mx-auto pb-20 p-4 sm:p-8 relative">
       {/* Top Navigation & Actions */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <button 
@@ -198,7 +193,7 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
             {/* Main Column */}
             <div className="lg:col-span-2 space-y-6">
               
-              <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden p-6 relative">
+              <div id="device-title-section" className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden p-6 relative">
                 <div className="flex justify-between items-center mb-6 border-b border-slate-100 dark:border-slate-800 pb-4">
                   <div className="flex items-center gap-3 w-full mr-4">
                     <Smartphone className="h-6 w-6 text-brand-500 shrink-0" />
@@ -242,6 +237,8 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
                 specs={formData.specs}
                 deviceGroups={deviceGroups}
                 allAttributes={allAttributes}
+                deviceName={formData.name}
+                brand={formData.brand}
                 onChange={(newSpecs) => {
                   setFormData({
                     ...formData,
@@ -251,13 +248,17 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
               />
               <DeviceOverviewEditor 
                 description={formData.description} 
+                deviceName={formData.name}
+                brand={formData.brand}
                 onChange={(html) => setFormData(prev => ({ ...prev, description: html }))} 
               />
-              <DeviceExpertRatings 
-                expertRatings={formData.expertRatings || {}}
-                ratingBars={ratingBars}
-                onChange={(ratings) => setFormData(prev => ({ ...prev, expertRatings: ratings }))}
-              />
+              <div id="expert-ratings-section">
+                <DeviceExpertRatings 
+                  expertRatings={formData.expertRatings || {}}
+                  ratingBars={ratingBars}
+                  onChange={(ratings) => setFormData(prev => ({ ...prev, expertRatings: ratings }))}
+                />
+              </div>
             </div>
 
             {/* Sidebar */}
@@ -270,10 +271,48 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
         showLeaveModal={showLeaveModal}
         setShowLeaveModal={setShowLeaveModal}
         handleDiscard={() => {
-          setIsDirty(false);
+          setIsSaved(true);
           router.push('/dashboard/phones');
         }}
       />
+
+      {/* Floating Quick Scroll Controls */}
+      <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-1.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl ring-1 ring-slate-950/5 dark:ring-white/10">
+        <button
+          type="button"
+          onClick={() => {
+            const el = document.getElementById('device-title-section');
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+          }}
+          className="p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-brand-600 hover:text-white dark:hover:bg-brand-600 dark:hover:text-white transition-all shadow-sm active:scale-95 cursor-pointer"
+          title="Scroll to Device Title"
+          aria-label="Scroll to Device Title"
+        >
+          <ArrowUp className="w-5 h-5" />
+        </button>
+        <div className="h-px bg-slate-200 dark:bg-slate-800 mx-1" />
+        <button
+          type="button"
+          onClick={() => {
+            const el = document.getElementById('expert-ratings-section');
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+              window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+            }
+          }}
+          className="p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-brand-600 hover:text-white dark:hover:bg-brand-600 dark:hover:text-white transition-all shadow-sm active:scale-95 cursor-pointer"
+          title="Scroll to Expert Ratings"
+          aria-label="Scroll to Expert Ratings"
+        >
+          <ArrowDown className="w-5 h-5" />
+        </button>
+      </div>
     </div>
   );
 }
+

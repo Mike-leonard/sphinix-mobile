@@ -9,8 +9,9 @@ import LinkExtension from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import Youtube from '@tiptap/extension-youtube';
 import { Node, mergeAttributes } from '@tiptap/core';
-import { FileText, GripVertical, ArrowUp, ArrowDown, Trash2 } from 'lucide-react';
+import { FileText, GripVertical, ArrowUp, ArrowDown, Trash2, BookOpen, Sparkles } from 'lucide-react';
 import EditorMenuBar from '@/app/dashboard/blogs/_components/editor/EditorMenuBar';
+import DeviceOverviewNotebookStudio from './DeviceOverviewNotebookStudio';
 
 const VideoNodeView = (props) => {
   const { node, deleteNode, getPos, editor } = props;
@@ -243,7 +244,9 @@ const ExtendedYoutube = Youtube.extend({
   }
 });
 
-export default function DeviceOverviewEditor({ description, onChange }) {
+export default function DeviceOverviewEditor({ description, deviceName = '', brand = '', onChange }) {
+  const [isNotebookOpen, setIsNotebookOpen] = React.useState(false);
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -288,20 +291,52 @@ export default function DeviceOverviewEditor({ description, onChange }) {
     },
   });
 
+  const handleApplyNotebookContent = (html, mode = 'replace') => {
+    if (!editor) return;
+    if (mode === 'replace') {
+      editor.commands.setContent(html);
+    } else {
+      editor.commands.focus('end');
+      editor.commands.insertContent(html);
+    }
+    onChange(editor.getHTML());
+  };
+
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
-      <div className="p-6 border-b border-slate-100 dark:border-slate-800 pb-4 flex items-center gap-2">
-        <FileText className="h-5 w-5 text-emerald-500" />
-        <div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Overview Description</h2>
-          <p className="text-sm text-slate-500">Write a custom rich-text description for the Overview tab.</p>
+      <div className="p-6 border-b border-slate-100 dark:border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <FileText className="h-5 w-5 text-emerald-500 shrink-0" />
+          <div>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Overview Description</h2>
+            <p className="text-sm text-slate-500">Write a custom rich-text description for the Overview tab.</p>
+          </div>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setIsNotebookOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold text-xs shadow-md shadow-purple-500/20 transition-all cursor-pointer self-start sm:self-auto"
+        >
+          <BookOpen className="w-4 h-4 text-purple-200" />
+          <span>Notebook LLM Studio</span>
+          <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse ml-0.5" />
+        </button>
       </div>
 
       <div className="flex flex-col">
         <EditorMenuBar editor={editor} />
         <EditorContent editor={editor} />
       </div>
+
+      <DeviceOverviewNotebookStudio
+        isOpen={isNotebookOpen}
+        onClose={() => setIsNotebookOpen(false)}
+        deviceName={deviceName}
+        brand={brand}
+        onApplyContent={handleApplyNotebookContent}
+      />
     </div>
   );
 }
+
