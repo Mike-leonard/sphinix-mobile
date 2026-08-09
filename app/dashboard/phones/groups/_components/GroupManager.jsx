@@ -9,6 +9,7 @@ import GroupForm from './GroupForm';
 import GroupList from './GroupList';
 export default function GroupManager({ initialGroups, allAttributes = [] }) {
   const [groups, setGroups] = useState(initialGroups);
+  const [attributesState, setAttributesState] = useState(allAttributes);
   const [sortOrder, setSortOrder] = useState('asc');
   const [newGroup, setNewGroup] = useState('');
   const [isPending, startTransition] = useTransition();
@@ -16,6 +17,10 @@ export default function GroupManager({ initialGroups, allAttributes = [] }) {
   const [editValue, setEditValue] = useState('');
   const [managingGroup, setManagingGroup] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
+
+  React.useEffect(() => {
+    setAttributesState(allAttributes);
+  }, [allAttributes]);
 
   const handleAddGroup = (e) => {
     e.preventDefault();
@@ -69,17 +74,24 @@ export default function GroupManager({ initialGroups, allAttributes = [] }) {
   };
 
   const handleToggleAttribute = (attr, group, checked) => {
+    let targetGroupIds = attr.groupIds ? [...attr.groupIds] : (attr.group ? [attr.group] : ['General']);
+    if (checked) {
+      if (!targetGroupIds.includes(group)) targetGroupIds.push(group);
+    } else {
+      targetGroupIds = targetGroupIds.filter(g => g !== group);
+      if (targetGroupIds.length === 0) targetGroupIds = ['General'];
+    }
+
+    // Optimistically update UI
+    setAttributesState(prev =>
+      prev.map(a => (a.id === attr.id ? { ...a, group: targetGroupIds[targetGroupIds.length - 1], groupIds: targetGroupIds } : a))
+    );
+
     startTransition(async () => {
-      let newGroupIds = attr.groupIds ? [...attr.groupIds] : (attr.groupId ? [attr.groupId] : ['General']);
-      if (checked) {
-        if (!newGroupIds.includes(group)) newGroupIds.push(group);
-      } else {
-        newGroupIds = newGroupIds.filter(g => g !== group);
-        if (newGroupIds.length === 0) newGroupIds = ['General'];
-      }
-      const res = await updateDeviceAttribute(attr.id, attr.name, newGroupIds, attr.slug);
+      const res = await updateDeviceAttribute(attr.id, attr.name, targetGroupIds, attr.slug);
       if (!res.success) {
         alert(res.error);
+        setAttributesState(allAttributes);
       }
     });
   };
@@ -109,7 +121,7 @@ export default function GroupManager({ initialGroups, allAttributes = [] }) {
 
       <GroupList 
         sortedGroups={sortedGroups}
-        allAttributes={allAttributes}
+        allAttributes={attributesState}
         editingGroup={editingGroup}
         setEditingGroup={setEditingGroup}
         editValue={editValue}

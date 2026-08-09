@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { MoreHorizontal, Edit, Trash2, Eye, ArrowUpDown, Smartphone } from 'lucide-react';
 import { cn, generateBrandSlug } from '@/lib/utils';
 
@@ -89,6 +90,18 @@ export default function DevicesTable({
             ) : (
               paginatedDevices.map((device) => {
                 const dateInfo = formatDate(device.createdAt);
+                const deviceImage =
+                  (Array.isArray(device?.deviceGallery) && device.deviceGallery.length > 0
+                    ? typeof device.deviceGallery[0] === 'string'
+                      ? device.deviceGallery[0]
+                      : device.deviceGallery[0]?.url || device.deviceGallery[0]?.src
+                    : null) ||
+                  (Array.isArray(device?.images) && device.images.length > 0
+                    ? device.images.find(img => img && typeof img === 'string' && img.trim() !== '')
+                    : null) ||
+                  device?.image ||
+                  null;
+
                 return (
                   <tr 
                     key={device.id} 
@@ -100,8 +113,21 @@ export default function DevicesTable({
                     onMouseLeave={() => setActiveRowId(null)}
                   >
                     <td className="px-6 py-4">
-                      <div className={cn("w-10 h-12 rounded bg-gradient-to-br flex items-center justify-center", device.imageColor || 'from-slate-600 to-zinc-800')}>
-                        <Smartphone className="h-5 w-5 text-white/80" />
+                      <div className="w-10 h-12 rounded bg-slate-100 dark:bg-slate-800/60 relative overflow-hidden flex items-center justify-center border border-slate-200 dark:border-slate-700/60 shadow-sm shrink-0">
+                        {deviceImage ? (
+                          <Image
+                            src={deviceImage}
+                            alt={device.name || 'Device'}
+                            fill
+                            sizes="40px"
+                            className="object-contain p-1"
+                            unoptimized={typeof deviceImage === 'string' && deviceImage.startsWith('data:')}
+                          />
+                        ) : (
+                          <div className={cn("w-full h-full bg-gradient-to-br flex items-center justify-center", device.imageColor || 'from-slate-600 to-zinc-800')}>
+                            <Smartphone className="h-5 w-5 text-white/80" />
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4">

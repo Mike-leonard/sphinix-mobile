@@ -42,9 +42,16 @@ export default function SpecsTab({ device, hideAds = false, deviceGroups: propDe
 
   const specs = device?.specs || {};
 
-  // Find all keys that have arrays (which means they are detailed spec groups)
+  const NON_SPEC_KEYS = ['images', 'imageAlts', 'affiliates', 'expertRatings', 'seo', 'quickSpecs'];
+
+  // Find all keys that have arrays of spec items ({ label, value })
   const specGroups = Object.entries(specs)
-    .filter(([_, value]) => Array.isArray(value) && value.length > 0)
+    .filter(([key, value]) => {
+      if (NON_SPEC_KEYS.includes(key)) return false;
+      if (!Array.isArray(value) || value.length === 0) return false;
+      // Ensure the array contains specification objects (with label or value properties), not image URLs
+      return value.some(item => item && typeof item === 'object' && ('label' in item || 'value' in item));
+    })
     .sort((a, b) => {
       if (deviceGroups && deviceGroups.length > 0) {
         const indexA = deviceGroups.indexOf(a[0]);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bold, Italic, List, ListOrdered, Quote, Heading1, Heading2, Heading3, Link2, Code, Image as ImageIcon } from 'lucide-react';
+import { Bold, Italic, List, ListOrdered, Quote, Heading1, Heading2, Heading3, Link2, Code, Image as ImageIcon, Video as VideoIcon } from 'lucide-react';
 
 export default function EditorMenuBar({ editor }) {
   if (!editor) return null;
@@ -24,10 +24,25 @@ export default function EditorMenuBar({ editor }) {
   };
 
   const addImage = () => {
-    const url = window.prompt('URL');
+    const url = window.prompt('Image URL');
 
     if (url) {
       editor.chain().focus().setImage({ src: url }).run();
+    }
+  };
+
+  const addVideo = () => {
+    const url = window.prompt('Video URL (YouTube or direct MP4/WebM URL)');
+    if (!url) return;
+
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      if (editor.commands.setYoutubeVideo) {
+        editor.chain().focus().setYoutubeVideo({ src: url }).run();
+      }
+    } else if (editor.commands.setVideo) {
+      editor.chain().focus().setVideo({ src: url }).run();
+    } else if (editor.commands.setYoutubeVideo) {
+      editor.chain().focus().setYoutubeVideo({ src: url }).run();
     }
   };
 
@@ -60,13 +75,16 @@ export default function EditorMenuBar({ editor }) {
         <Quote className="w-4 h-4" />
       </button>
       <div className="w-px h-6 bg-slate-300 dark:bg-slate-700 mx-1" />
-      <button type="button" onClick={setLink} className={`p-2 rounded hover:bg-slate-200 dark:hover:bg-slate-800 ${editor.isActive('link') ? 'bg-slate-200 dark:bg-slate-800 text-brand-600' : 'text-slate-600 dark:text-slate-400'}`}>
+      <button type="button" onClick={setLink} className={`p-2 rounded hover:bg-slate-200 dark:hover:bg-slate-800 ${editor.isActive('link') ? 'bg-slate-200 dark:bg-slate-800 text-brand-600' : 'text-slate-600 dark:text-slate-400'}`} title="Add Link">
         <Link2 className="w-4 h-4" />
       </button>
-      <button type="button" onClick={addImage} className={`p-2 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400`}>
+      <button type="button" onClick={addImage} className={`p-2 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400`} title="Add Image">
         <ImageIcon className="w-4 h-4" />
       </button>
-      <button type="button" onClick={() => editor.chain().focus().toggleCode().run()} className={`p-2 rounded hover:bg-slate-200 dark:hover:bg-slate-800 ${editor.isActive('code') ? 'bg-slate-200 dark:bg-slate-800 text-brand-600' : 'text-slate-600 dark:text-slate-400'}`}>
+      <button type="button" onClick={addVideo} className={`p-2 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400`} title="Add Video URL">
+        <VideoIcon className="w-4 h-4" />
+      </button>
+      <button type="button" onClick={() => editor.chain().focus().toggleCode().run()} className={`p-2 rounded hover:bg-slate-200 dark:hover:bg-slate-800 ${editor.isActive('code') ? 'bg-slate-200 dark:bg-slate-800 text-brand-600' : 'text-slate-600 dark:text-slate-400'}`} title="Inline Code">
         <Code className="w-4 h-4" />
       </button>
     </div>
