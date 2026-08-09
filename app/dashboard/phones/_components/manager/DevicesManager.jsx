@@ -146,7 +146,7 @@ export default function DevicesManager({ initialDevices, initialBrands = [] }) {
         sortOrder: nextOrder,
         search,
         brand: selectedBrand,
-        viewMode
+        viewMode: 'all'
       });
       if (fetched && Array.isArray(fetched)) {
         setDevices(fetched);
