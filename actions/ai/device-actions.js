@@ -214,3 +214,203 @@ export async function generateDeviceDataFromUrl(url) {
     return { success: false, error: error.message };
   }
 }
+
+/**
+ * -----------------------------------------------------------------------------
+ * AI DEVICE ACTION: scrapeSourceUrl
+ * -----------------------------------------------------------------------------
+ * @description Scrapes external article/spec URL using Jina Reader to provide context for Notebook LLM.
+ * @security Session authentication required (`verifySession()`).
+ * @param {string} url - Webpage URL to scrape.
+ * @returns {Promise<{ success: boolean, data?: { title: string, text: string }, error?: string }>}
+ */
+export async function scrapeSourceUrl(url) {
+  try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+    if (!url) throw new Error('URL is required');
+
+    const { title, text } = await fetchPageContentWithJina(url, 25000);
+    return { success: true, data: { title: title || 'Scraped Source', text } };
+  } catch (error) {
+    console.error('Error scraping source URL:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * -----------------------------------------------------------------------------
+ * AI DEVICE ACTION: generateDeviceOverviewNotebook
+ * -----------------------------------------------------------------------------
+ * @description Generates a Google NotebookLM-style synthesized rich HTML overview description for a device.
+ * @security Session authentication required (`verifySession()`).
+ * @param {Object} options
+ * @param {string} [options.deviceName] - Name of the device.
+ * @param {string} [options.brand] - Brand of the device.
+ * @param {Array<{ url: string, title?: string, text?: string }>} [options.sources] - Scraped source contents or URLs.
+ * @param {string} [options.customPrompt] - Custom instruction or focus directive.
+ * @param {string} [options.tone] - 'comprehensive' | 'highlights' | 'pros_cons' | 'executive'
+ * @param {string} [options.lengthStyle] - 'concise' | 'standard' | 'indepth'
+ * @returns {Promise<{ success: boolean, data?: string, error?: string }>}
+ */
+export async function generateDeviceOverviewNotebook({
+  deviceName = '',
+  brand = '',
+  sources = [],
+  customPrompt = '',
+  tone = 'comprehensive',
+  lengthStyle = 'standard'
+}) {
+  try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+
+    // Scrape any sources that do not yet have extracted text
+    const processedSources = await Promise.all(
+      (sources || []).map(async (src) => {
+        if (src.text) return src;
+        if (src.url) {
+          try {
+            const { title, text } = await fetchPageContentWithJina(src.url, 20000);
+            return { ...src, title: src.title || title, text };
+          } catch (err) {
+            console.warn(`Failed to scrape source ${src.url}:`, err.message);
+            return null;
+          }
+        }
+        return null;
+      })
+    );
+
+    const validSources = processedSources.filter(Boolean);
+
+    let toneInstruction = '';
+    switch (tone) {
+      case 'highlights':
+        toneInstruction = 'Focus heavily on key highlights, standout hardware features, target audience, and buying recommendations using clear bold subheadings and structured bullet points.';
+        break;
+      case 'pros_cons':
+        toneInstruction = 'Organize the overview around major strengths (Pros) and potential compromises/weaknesses (Cons), supported by in-depth technical context.';
+        break;
+      case 'executive':
+        toneInstruction = 'Write a sleek, high-level executive summary tailored for tech enthusiasts and power buyers, emphasizing market positioning and overall value proposition.';
+        break;
+      case 'comprehensive':
+      default:
+        toneInstruction = 'Provide a full, well-rounded overview covering design & build quality, display performance, camera system, chipset performance, battery/charging, and software ecosystem.';
+        break;
+    }
+
+    let lengthInstruction = '';
+    switch (lengthStyle) {
+      case 'concise':
+        lengthInstruction = 'Keep the overview punchy and concise (around 250-400 words).';
+        break;
+      case 'indepth':
+        lengthInstruction = 'Write a detailed, comprehensive tech breakdown (around 700-1000 words).';
+        break;
+      case 'standard':
+      default:
+        lengthInstruction = 'Write a balanced overview (around 450-650 words).';
+        break;
+    }
+
+    let sourcesContext = '';
+    if (validSources.length > 0) {
+      sourcesContext = `
+The user has provided ${validSources.length} external source(s) as reference context:
+${validSources.map((s, idx) => `
+--- SOURCE ${idx + 1}: ${s.title || s.url} ---
+${s.text}
+`).join('\n')}
+
+Synthesize key specs, findings, reviewer impressions, and features from these provided sources accurately. Do not invent contradictory facts.
+`;
+    } else {
+      sourcesContext = `
+No external source links were provided. Use your authoritative internal tech knowledge about "${brand} ${deviceName}" (or general smartphone standards if specs are unknown) to generate an accurate, compelling overview description.
+`;
+    }
+
+    const systemPrompt = `You are NotebookLLM for Sphinix Mobile, an expert AI research assistant and tech writer specializing in high-end consumer technology and mobile devices.`;
+
+    const userPrompt = `
+Generate an awesome, beautifully structured rich-text HTML overview for the device: "${brand} ${deviceName}".
+
+${sourcesContext}
+
+DIRECTIVES:
+- Tone & Focus: ${toneInstruction}
+- Word Count Target: ${lengthInstruction}
+${customPrompt ? `- Custom User Note/Instruction: "${customPrompt}"` : ''}
+
+HTML FORMATTING REQUIREMENTS:
+1. Format output as clean, semantic HTML suitable for a TipTap rich-text editor.
+2. Use <h3> for section headings (e.g. <h3>Design & Build Quality</h3>, <h3>Display & Visuals</h3>, <h3>Performance & Camera</h3>, <h3>Verdict & Key Highlights</h3>). Do NOT use <h1> or <h2>.
+3. Use <p> for body paragraphs with clean transitions.
+4. Use <ul> and <li> for lists of key specs or takeaways.
+5. Use <strong> for emphasizing key specs or feature names.
+6. Use <blockquote> for key summary callouts if appropriate.
+7. Do NOT wrap output in markdown code blocks (\`\`\`html). Output ONLY the raw HTML string without extra formatting.
+`;
+
+    let htmlContent = await generateText(userPrompt, systemPrompt, false);
+
+    if (htmlContent.startsWith('```html')) {
+      htmlContent = htmlContent.replace(/^```html\n?/, '').replace(/\n?```$/, '');
+    } else if (htmlContent.startsWith('```')) {
+      htmlContent = htmlContent.replace(/^```\n?/, '').replace(/\n?```$/, '');
+    }
+
+    return { success: true, data: htmlContent.trim() };
+  } catch (error) {
+    console.error('Error generating Notebook LLM overview:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * -----------------------------------------------------------------------------
+ * AI DEVICE ACTION: generateSingleAttributeValue
+ * -----------------------------------------------------------------------------
+ * @description Fetches/deduces the value for a single missing specification attribute using AI.
+ * @security Session authentication required (`verifySession()`).
+ * @param {string} deviceName - Name of the device.
+ * @param {string} brand - Brand of the device.
+ * @param {string} attributeName - Attribute name (e.g. "2G Network", "GPU").
+ * @param {string} [groupName] - Optional category group (e.g. "Network").
+ * @returns {Promise<{ success: boolean, data?: string, error?: string }>}
+ */
+export async function generateSingleAttributeValue(deviceName, brand, attributeName, groupName = '') {
+  try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+    if (!attributeName) throw new Error('Attribute name is required');
+
+    const system = `You are an authoritative smartphone database scraper and tech spec assistant for Sphinix Mobile.`;
+    const prompt = `
+Search query focus: "${brand} ${deviceName} ${attributeName}"
+
+Target Device: "${brand} ${deviceName}"
+Attribute requested: "${attributeName}" ${groupName ? `(Category: ${groupName})` : ''}
+
+Provide the exact, accurate specification value for "${attributeName}" for "${brand} ${deviceName}".
+
+REQUIREMENTS:
+1. Return ONLY the exact specification value (e.g., "GSM 850 / 900 / 1800 / 1900" or "Adreno 750" or "5000 mAh" or "Yes, stereo" or "Unspecified" if unknown).
+2. Do NOT add labels, prefixes, markdown formatting, HTML, or explanations.
+3. Keep it clean and concise, matching standard smartphone database spec formatting.
+`;
+
+    let value = await generateText(prompt, system, false);
+    if (value) {
+      value = value.trim().replace(/^["']|["']$/g, '');
+    }
+    return { success: true, data: value || '' };
+  } catch (error) {
+    console.error('Error generating single attribute value:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+

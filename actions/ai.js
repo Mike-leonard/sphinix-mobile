@@ -13,7 +13,13 @@
 
 import { generateBlogFromTitle, generateBlogFromUrl } from './ai/blog-actions';
 import { generateSEOFromContent, generateDeviceSEO } from './ai/seo-actions';
-import { generateDeviceData, generateDeviceDataFromUrl } from './ai/device-actions';
+import { 
+  generateDeviceData, 
+  generateDeviceDataFromUrl,
+  scrapeSourceUrl,
+  generateDeviceOverviewNotebook,
+  generateSingleAttributeValue
+} from './ai/device-actions';
 
 export {
   generateBlogFromTitle,
@@ -21,5 +27,10 @@ export {
   generateSEOFromContent,
   generateDeviceSEO,
   generateDeviceData,
-  generateDeviceDataFromUrl
+  generateDeviceDataFromUrl,
+  scrapeSourceUrl,
+  generateDeviceOverviewNotebook,
+  generateSingleAttributeValue
 };
+
+
