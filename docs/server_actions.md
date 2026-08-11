@@ -7,6 +7,7 @@
 ## 1. Design & Security Patterns
 *   **Directive:** Declared with `"use server"` at the top of action files.
 *   **Security & Authorization:** All administrative server actions verify the user session via `verifySession()` from `actions/auth.js`.
+*   **Status Protection Security Rule:** `trashBlog(id)` and `trashDevice(id)` check status before trashing. Published items cannot be trashed directly; they must first be set to `draft` status.
 *   **JSDoc Standardized Hints:** Every Server Action file contains standardized JSDoc headers (`@description`, `@why`, `@where`, `@security`, `@param`, `@returns`) documenting execution behavior and call sites.
 *   **Data Persistence:** PostgreSQL database persistence executed via `queries/` layer using Prisma ORM.
 *   **100% Backward Compatibility Re-exports:** Large Server Action modules (like `actions/ai.js`) are modularized into domain sub-modules while re-exporting all functions from the root file for seamless compatibility across the codebase.
@@ -58,15 +59,21 @@ Modularized into:
 *   `publishedBlogs({ limit, offset, query, category })`: Fetches published blogs.
 *   `getBlogs()`, `getBlogById(id)`: Reads blogs array.
 *   `createBlog(formData)`, `updateBlog(id, formData)`: Creates/updates blog posts.
-*   `trashBlog(id)`, `restoreBlog(id)`, `permanentlyDeleteBlog(id)`: Status transition mutations.
+*   `duplicateBlog(id)`: Admin action: creates a duplicate copy of an existing blog article in `Draft` status titled `"[Original Title] (Copy)"` with a clean unique slug.
+*   `trashBlog(id)`: Soft-deletes a blog. Enforces protection error if post status is `published`.
+*   `restoreBlog(id)`, `permanentlyDeleteBlog(id)`: Status transition mutations.
 
 ---
 
 ### Devices & Catalog (`actions/devices.js`)
 *   `publishedDevices({ limit, offset, query, brand, filters })`: Fetches published smartphone products.
 *   `publishedDevicesCount(...)`: Calculates total matching device count for pagination.
-*   `getDevices(options)`: Admin query action that supports database sorting (`sortField`, `sortOrder`) and filtering.
-*   `createDevice(...)`, `updateDevice(...)`, `deleteDevice(...)`: Smartphone entity CRUD operations with `imageAlts` SEO array support.
+*   `getDevices(options)`: Admin query action supporting database sorting (`sortField`, `sortOrder`) and filtering.
+*   `createDevice(formData)`: Smartphone creation with `imageAlts` SEO array support.
+*   `updateDevice(id, formData)`: Smartphone update action. The device's primary key `id` (slug) remains permanent to prevent broken links even if the title changes.
+*   `duplicateDevice(id)`: Admin action: creates a duplicate copy of an existing device in `Draft` status titled `"[Original Name] (Copy)"` with a clean unique slug.
+*   `trashDevice(id)`: Soft-deletes a device. Enforces protection error if device status is `published`.
+*   `deleteDevice(id)`: Permanently deletes a device record.
 *   `setDeviceViewMode(mode)`: Sets user view mode preference (`'grid'` or `'list'`) in HTTP cookie `deviceViewMode` and revalidates `/phones`.
 *   `getDeviceViewMode()`: Reads user view mode preference from HTTP cookies on server render pass (used by `app/(main)/phones/loading.js` for dynamic shimmer rendering).
 

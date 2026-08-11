@@ -32,7 +32,7 @@
 
 ## 3. UI Component System & Shimmer Loading Skeletons
 *   **Shimmer Loading Skeletons (`components/ui/skeleton.jsx`):** Animated Tailwind pulse component (`animate-pulse`) used to construct 1-to-1 route loading skeletons across all public and admin pages (`loading.js`), eliminating layout shift during SSR navigation.
-*   **State Orchestrator Pattern:** Complex features (e.g., `BlogsManager`, `BlogEditor`, `CategoryManager`, `AffiliateCountryManager`, `DeviceAffiliateInputs`, and all `SettingsForm` variants) use the Orchestrator pattern. A parent component manages top-level state and API interactions, while modular child components handle UI rendering.
+*   **State Orchestrator Pattern:** Complex features (e.g., `BlogsManager`, `DevicesManager`, `BlogEditor`, `CategoryManager`, `AffiliateCountryManager`, `DeviceAffiliateInputs`, and all `SettingsForm` variants) use the Orchestrator pattern. A parent component manages top-level state and API interactions, while modular child components handle UI rendering.
 *   **Base Library:** `shadcn/ui` components are heavily integrated to handle accessibility and logic, while strictly preserving custom Tailwind brand aesthetics.
 *   **Modals & Dialogs:**
     *   Sliding drawers (Compare Drawer, Mobile Nav) use Shadcn's `<Sheet>`.
@@ -40,15 +40,21 @@
 *   **Cards & Lists:**
     *   `ProductCard` and `BlogCard` are built using Shadcn's `<Card>` and `<CardContent>`.
     *   `StoreInputCard` renders individual store link and price input fields with localized currency symbols and trash icons.
-*   **Interactive Analytics Widgets:**
+*   **Interactive Analytics & Trends Widgets:**
+    *   `PublishTrendsChart.jsx` renders dynamic monthly publication bars with an interactive timeframe dropdown (**Last 6 Months**, **Last 12 Months**, **This Year**, **By Year**) and period-over-period percentage badges.
     *   `SiteKitVisitorsChart.jsx` provides interactive sub-navigation tabs (**Channels**, **Locations**, **Devices**) to toggle pie chart distributions dynamically with smooth color transitions and legends.
 
-## 4. User Experience & Hydration Safeguards
+## 4. User Experience, Table Interactions & Hydration Safeguards
+*   **Interactive Status Badge Buttons & Cursor Styling:**
+    *   In `/dashboard/blogs` and `/dashboard/phones` tables, status badges (`Published` / `Draft`) act as interactive toggle buttons with hover feedback (`hover:bg-emerald-200`, `hover:bg-amber-200`).
+    *   All action buttons (`Edit`, `Publish`, `Draft`, `Duplicate`, `Trash`, `View`, `Restore`, `Delete Permanently`) strictly enforce `cursor-pointer` (and `disabled:cursor-not-allowed` when disabled).
+*   **Status Protection & Disabled Button Cues:**
+    *   Published items display a disabled `Trash` button (`opacity-50 cursor-not-allowed`) accompanied by informative tooltips ("Cannot delete published blog / phone. Move to draft first.").
+*   **Formatted Date & Time Column Cells:**
+    *   Table columns displaying creation dates format both Date and Time on distinct lines (e.g. `Jun 21, 2026` + `2:43 PM`).
 *   **Custom 404 & Error Boundaries:**
     *   `app/not-found.js`: Provides a high-contrast 404 page with glowing brand tags, inline search bar, quick action navigation buttons, and popular brand filter pills.
     *   `app/error.js` & `app/dashboard/error.js`: Catch unhandled route errors gracefully, rendering clean recovery cards with **"Try Again"** and **"Go Home"** buttons while keeping the top Navbar and Admin Sidebar intact.
-*   **Deterministic SSR/Hydration:**
-    *   Visual components like `PublishTrendsChart.jsx` use deterministic formulas instead of `Math.random()` to ensure 100% server-client markup parity during Next.js hydration.
 *   **Micro-animations & Transitions:**
     *   **Hover states:** Deeply integrated color transitions (`transition-colors duration-300`) ensure hover effects feel fluid rather than jarring.
     *   **Scaling:** Interactive elements feature a slight zoom on hover (`hover:scale-[1.01]`) and a physical press down effect on click (`active:scale-95`).

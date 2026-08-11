@@ -16,10 +16,10 @@ This document provides a comprehensive guide detailing all **Public Visitor User
    - [1.6 Theme Customization (Light / Dark Mode)](#16-theme-customization-light--dark-mode)
    - [1.7 Error Handling, 404 Not Found & Fail-Safe Recovery](#17-error-handling-404-not-found--fail-safe-recovery)
 2. [Administrator Dashboard Guide](#2-administrator-dashboard-guide)
-   - [2.1 Authentication & Interactive Analytics Overview](#21-authentication--interactive-analytics-overview)
-   - [2.2 Smartphone Management & Multi-Country Affiliate Links](#22-smartphone-management--multi-country-affiliate-links)
+   - [2.1 Authentication & Dynamic Analytics & Publishing Trends](#21-authentication--dynamic-analytics--publishing-trends)
+   - [2.2 Smartphone Management, Status Toggling, Duplication & Auto Slug Migration](#22-smartphone-management-status-toggling-duplication--auto-slug-migration)
    - [2.3 Dynamic Attributes, Groups, Brands, Filters & Affiliate Countries](#23-dynamic-attributes-groups-brands-filters--affiliate-countries)
-   - [2.4 Tech Articles & Category Management](#24-tech-articles--category-management)
+   - [2.4 Tech Articles, Status Toggling & Article Duplication](#24-tech-articles-status-toggling--article-duplication)
    - [2.5 AI Assistant Workflows](#25-ai-assistant-workflows)
    - [2.6 Global Site Settings Configuration](#26-global-site-settings-configuration)
 
@@ -36,9 +36,6 @@ This document provides a comprehensive guide detailing all **Public Visitor User
 
 ![Homepage Desktop Interface](s-shot/homepage_desktop.png)
 *Figure 1.1a: Homepage Desktop Interface*
-
-![Homepage Mobile Responsive Interface & Footer](s-shot/homepage_mobile.png)
-*Figure 1.1b: Mobile Responsive Homepage Interface*
 
 ---
 
@@ -73,10 +70,6 @@ This document provides a comprehensive guide detailing all **Public Visitor User
   - **Overview:** Engaging HTML summary of the device.
   - **Detailed Specs:** Grouped specs (Display, Platform, Camera, Battery, Connectivity).
   - **Expert Ratings:** Ratings breakdown across Design, Display, Performance, Camera, and Battery.
-
-![Device Specification Details Page Interface](s-shot/device_details.png)
-*Figure 1.4: Device Details & Technical Datasheet Page*
-
 ---
 
 ### 1.5 Tech Blog & Articles (`/blogs`)
@@ -109,8 +102,12 @@ This document provides a comprehensive guide detailing all **Public Visitor User
 
 Access the admin suite at `/dashboard` (authentication required).
 
-### 2.1 Authentication & Interactive Analytics Overview
+### 2.1 Authentication & Dynamic Analytics & Publishing Trends
 - **Login:** Sign in at `/login` with administrative credentials. Google OAuth redirects are sanitized to enforce `NEXT_PUBLIC_BASE_URL` (`https://sphinix.xyz`).
+- **Dynamic Publishing Trends Chart (`PublishTrendsChart.jsx`):**
+  - Displays dynamic publication counts for phones and blogs derived directly from item `createdAt` timestamps in PostgreSQL.
+  - **Timeframe Selector:** Toggle views between **Last 6 Months** (default), **Last 12 Months**, **This Year**, and **By Year** (multi-year comparison).
+  - **Dynamic MoM Trend Badge:** Calculates period-over-period percentage growth (`+X%` / `-X%`).
 - **Interactive Visitors Analytics Widget:** View live 28-day active users, page views, search clicks, and impressions synced via GA4 Data API & Google Search Console. Click interactive sub-tabs (**Channels**, **Locations**, **Devices**) to switch pie chart distributions dynamically.
 - **Dashboard Error Boundary (`app/dashboard/error.js`):** Protects admin pages from unexpected errors while preserving the admin sidebar navigation.
 
@@ -119,22 +116,14 @@ Access the admin suite at `/dashboard` (authentication required).
 
 ---
 
-### 2.2 Smartphone Management & Multi-Country Affiliate Links (`/dashboard/phones`)
-- **Viewing Catalog:** Search, filter, and manage published devices.
-- **Adding a New Device:** Click **"Add Device"** (`/dashboard/phones/new`).
-- **AI Spec Auto-Filler:**
-  - Enter brand and device name (e.g. `Samsung Galaxy S24 Ultra`), then click **"AI Generate Specs"**.
-  - Or paste a URL (e.g. GSMArena product page) into **"Extract Specs from URL"** to automatically scrape and populate price, description, quick specs, and detailed specifications.
-- **Expandable Accordion Sections:**
-  - `DeviceGalleryInputs` & `DeviceAffiliateInputs` feature collapsible headers with live badges (e.g., `2 / 4 Images` and `3 Active Markets`).
-- **Gallery Images & SEO Alt Texts (`DeviceGalleryInputs`):**
-  - Enter image URLs for Front, Back, Camera, and Side profile angles.
-  - Custom SEO Alt Text fields for each image angle with an **Auto Alt** AI auto-fill button to generate descriptive, accessible image alt tags automatically.
-- **Multi-Country Affiliate Manager (`DeviceAffiliateInputs`):**
-  - Select country tabs (🇺🇸 US, 🇮🇹 IT, 🇪🇸 ES, 🇧🇩 BD, 🇫🇷 FR, 🇨🇦 CA, 🇩🇪 DE).
-  - Populate URLs and prices for pre-configured retailers.
-  - Click **"+ Add Retailer"** to open a modal dialog for adding custom stores on-the-fly.
-  - Delete store cards per country with the inline trash button.
+### 2.2 Smartphone Management, Status Toggling, Duplication & Auto Slug Migration (`/dashboard/phones`)
+- **Viewing Catalog:** Search, filter, sort by date/time, and manage products.
+- **Interactive Status Badge Toggling:** Click table status badges to toggle items directly between `Published` and `Draft`.
+- **Status Protection Rule:** Trashing published phones is disabled (`opacity-50 cursor-not-allowed`) to prevent accidental deletion. Devices must be set to `Draft` before moving to Trash.
+- **Device Duplication (`duplicateDevice`):** Click the **Duplicate** icon button to clone any device into a new `Draft` state titled `"[Original Title] (Copy)"` with an auto-generated unique slug.
+- **Permanent Slug on Edit:** The unique slug/ID generated on creation or duplication remains permanent even if you edit the device title later. This ensures URLs and bookmarks do not break.
+- **AI Spec Auto-Filler:** Enter brand and name, then click **"AI Generate Specs"** or paste a product URL to scrape specs automatically.
+- **Expandable Accordion Sections & Multi-Country Affiliate Manager (`DeviceAffiliateInputs`):** Manage target country store links, prices, and custom retailers.
 
 ---
 
@@ -148,12 +137,13 @@ Access the admin suite at `/dashboard` (authentication required).
 
 ---
 
-### 2.4 Tech Articles & Category Management (`/dashboard/blogs`)
-- **Articles Manager:** View all posts, filter by status (**Published**, **Draft**, **Trash**).
-- **Creating an Article (`/dashboard/blogs/new`):**
-  - Use the **Tiptap WYSIWYG Editor** to format text, headings, lists, and images.
-  - Generate full articles with AI using **"Generate with AI"** from a title or external URL.
-- **Category Manager (`/dashboard/blogs/categories`):** Add, rename, or delete categories. Renaming or deleting automatically updates linked articles safely.
+### 2.4 Tech Articles, Status Toggling & Article Duplication (`/dashboard/blogs`)
+- **Articles Manager:** View all posts with formatted date and time (`Jun 21, 2026` + `2:43 PM`), filter by status (**Published**, **Draft**, **Trash**).
+- **Interactive Status Badge Toggling:** Click status badges directly in the table row to toggle between `Published` and `Draft`.
+- **Status Protection Guard:** Trashing published articles is disabled to prevent accidental post loss. Articles must be set to `Draft` state prior to trashing.
+- **Article Duplication (`duplicateBlog`):** Click **Duplicate** in the action bar to clone any article into a `Draft` copy titled `"[Original Title] (Copy)"` with a clean unique slug.
+- **Creating an Article (`/dashboard/blogs/new`):** Use Tiptap WYSIWYG editor or **"Generate with AI"**.
+- **Category Manager (`/dashboard/blogs/categories`):** Add, rename, or delete categories with safe relational updates.
 
 ---
 

@@ -22,10 +22,19 @@ This document outlines completed UX/stability enhancements, planned feature pipe
   - `app/dashboard/error.js`: Admin Dashboard Error Boundary with "Reload View" & "Dashboard Overview" buttons while keeping Admin Sidebar intact.
   - `app/not-found.js`: Custom theme-aware 404 page featuring brand gradient header, inline search input, navigation buttons, and popular brand filter pills.
 
-### 3. 📊 Interactive Analytics Dashboard & Origin Sanitization
+### 3. 📊 Interactive Analytics Dashboard & Dynamic Publishing Trends Chart
 - **Implemented**:
+  - `PublishTrendsChart.jsx`: Dynamic publishing trends chart parsing `createdAt` timestamps for published items. Features an interactive timeframe dropdown (**Last 6 Months**, **Last 12 Months**, **This Year**, **By Year**) and MoM percentage trend badges.
   - `SiteKitVisitorsChart.jsx`: Added stateful interactive sub-tabs (**Channels**, **Locations**, **Devices**) with dynamic pie chart and legend updates.
   - `app/api/auth/callback/route.js`: Sanitized OAuth origin to prevent `0.0.0.0:3000` redirect error on live production domains (`NEXT_PUBLIC_BASE_URL`).
+
+### 4. 🔄 Item Duplication, Interactive Status Toggling & Auto Slug Migration
+- **Implemented**:
+  - **Blog & Phone Duplication**: Added `duplicateBlog(id)` and `duplicateDevice(id)` server actions to clone posts/phones into `Draft` status titled `"[Original Title] (Copy)"` with clean unique slugs.
+  - **Interactive Status Badge Toggling**: Status badges (`Draft` $\leftrightarrow$ `Published`) in table rows act as direct click toggles.
+  - **Status Protection Guard**: Disabled trashing published blogs and devices (`opacity-50 cursor-not-allowed`) until transitioned to `Draft` state first.
+  - **Permanent Primary Key Slugs**: Device slug/IDs remain permanent even when device titles are changed later, ensuring links and bookmarks do not break.
+  - **Date & Time Table Formatting**: Created Date columns display both date and time (e.g. `Jun 21, 2026` + `2:43 PM`).
 
 ---
 
@@ -76,7 +85,8 @@ This document outlines completed UX/stability enhancements, planned feature pipe
 | Feature | Target Area | Status | Priority |
 | :--- | :--- | :--- | :--- |
 | **Shimmer Skeletons & Error Boundaries** | App-wide (`loading.js`, `error.js`, `not-found.js`) | ✅ Completed | High |
-| **Interactive Visitors Analytics Widget** | Dashboard (`/dashboard`) | ✅ Completed | High |
+| **Interactive Visitors Analytics & Publishing Trends** | Dashboard (`/dashboard`) | ✅ Completed | High |
+| **Duplication, Status Protection & Auto Slug Migration** | Admin (`/dashboard/phones`, `/dashboard/blogs`) | ✅ Completed | High |
 | **Device User Reviews & Comments** | Public Phone Pages & Admin | Pending | High |
 | **Blog Post Comments** | Public Blog Pages & Admin | Pending | High |
 | **Dashboard Bulk Actions (Multi-Select)** | Admin (`/dashboard/phones`, `/dashboard/blogs`) | Pending | High |
