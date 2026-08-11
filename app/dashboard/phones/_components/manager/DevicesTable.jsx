@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { MoreHorizontal, Edit, Trash2, Eye, ArrowUpDown, Smartphone } from 'lucide-react';
+import { MoreHorizontal, Edit, Trash2, Eye, ArrowUpDown, Smartphone, Copy } from 'lucide-react';
 import { cn, generateBrandSlug } from '@/lib/utils';
 
 export default function DevicesTable({
@@ -17,6 +17,8 @@ export default function DevicesTable({
   viewMode,
   promptTrash,
   handleRestore,
+  handleToggleStatus,
+  handleDuplicate,
   promptDelete
 }) {
   const SortIcon = ({ field }) => (
@@ -134,7 +136,7 @@ export default function DevicesTable({
                       <div className="flex flex-col">
                         <Link 
                           href={`/dashboard/phones/${device.id}/edit`} 
-                          className={`font-medium transition-colors ${
+                          className={`font-medium transition-colors cursor-pointer ${
                             device.status === 'draft'
                               ? 'text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300'
                               : 'text-slate-900 dark:text-white hover:text-brand-600'
@@ -154,17 +156,27 @@ export default function DevicesTable({
                     </td>
                     <td className="px-6 py-4">
                       {device.status === 'published' ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400">
+                        <button 
+                          disabled={isPending}
+                          onClick={(e) => { e.stopPropagation(); handleToggleStatus?.(device.id, 'draft'); }}
+                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 cursor-pointer transition-colors"
+                          title="Click to set status to Draft"
+                        >
                           Published
-                        </span>
+                        </button>
                       ) : device.status === 'trash' ? (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400">
                           Trash
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                        <button 
+                          disabled={isPending}
+                          onClick={(e) => { e.stopPropagation(); handleToggleStatus?.(device.id, 'published'); }}
+                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50 cursor-pointer transition-colors"
+                          title="Click to publish device"
+                        >
                           Draft
-                        </span>
+                        </button>
                       )}
                     </td>
                     <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
@@ -192,7 +204,7 @@ export default function DevicesTable({
                               <Link 
                                 href={`/phones/${generateBrandSlug(device.brand || 'unknown')}/${device.id}`}
                                 target="_blank"
-                                className="p-2 text-slate-400 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-colors"
+                                className="p-2 text-slate-400 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-colors cursor-pointer"
                                 title="View Public Page"
                               >
                                 <Eye className="h-4 w-4" />
@@ -201,16 +213,31 @@ export default function DevicesTable({
                             
                             <Link 
                               href={`/dashboard/phones/${device.id}/edit`}
-                              className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                              className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors cursor-pointer"
                               title="Edit Device"
                             >
                               <Edit className="h-4 w-4" />
                             </Link>
+
+                            <button 
+                              disabled={isPending}
+                              onClick={(e) => { e.stopPropagation(); handleDuplicate?.(device.id); }}
+                              className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed"
+                              title="Duplicate Device"
+                            >
+                              <Copy className="h-4 w-4" />
+                            </button>
                             
                             <button 
-                              onClick={() => promptTrash(device.id)}
-                              className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                              title="Move to Trash"
+                              disabled={isPending || device.status === 'published'}
+                              onClick={(e) => { e.stopPropagation(); promptTrash(device.id); }}
+                              className={cn(
+                                "p-2 rounded-lg transition-colors",
+                                device.status === 'published' 
+                                  ? "text-slate-300 dark:text-slate-700 opacity-50 cursor-not-allowed" 
+                                  : "text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer"
+                              )}
+                              title={device.status === 'published' ? "Cannot delete published phone. Move to draft first." : "Move to Trash"}
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>

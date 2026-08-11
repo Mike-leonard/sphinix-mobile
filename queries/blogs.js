@@ -6,9 +6,10 @@ import { generateBlogSlug } from '@/lib/utils';
  */
 export function formatBlog(blog) {
   if (!blog) return null;
+  const s = (blog.status || 'DRAFT').toLowerCase();
   return {
     ...blog,
-    status: (blog.status || 'DRAFT').toLowerCase()
+    status: s === 'trashed' ? 'trash' : s
   };
 }
 
@@ -430,7 +431,8 @@ export async function getRelatedBlogsQuery(currentBlog, limit = 3) {
 export async function createBlogQuery(data) {
   const payload = { ...data };
   if (payload.status) {
-    payload.status = payload.status.toUpperCase();
+    const s = payload.status.toUpperCase();
+    payload.status = (s === 'TRASH' || s === 'TRASHED') ? 'TRASHED' : s;
   }
   const created = await prisma.blog.create({
     data: payload
@@ -452,7 +454,8 @@ export async function createBlogQuery(data) {
 export async function updateBlogById(id, data) {
   const payload = { ...data };
   if (payload.status) {
-    payload.status = payload.status.toUpperCase();
+    const s = payload.status.toUpperCase();
+    payload.status = (s === 'TRASH' || s === 'TRASHED') ? 'TRASHED' : s;
   }
   const updated = await prisma.blog.update({
     where: { id: parseInt(id) },

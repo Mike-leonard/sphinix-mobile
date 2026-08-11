@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useTransition } from 'react';
-import { trashBlog, permanentlyDeleteBlog, restoreBlog } from '@/actions/blogs';
+import { trashBlog, permanentlyDeleteBlog, restoreBlog, updateBlog, duplicateBlog } from '@/actions/blogs';
 
 import BlogsToolbar from './BlogsToolbar';
 import BlogsTable from './BlogsTable';
@@ -80,6 +80,28 @@ export default function BlogsManager({ initialBlogs }) {
       const res = await restoreBlog(id);
       if (res.success) {
         setBlogs(blogs.map(b => b.id === id ? { ...b, status: 'draft' } : b));
+      }
+    });
+  };
+
+  const handleToggleStatus = async (id, newStatus) => {
+    startTransition(async () => {
+      const res = await updateBlog(id, { status: newStatus });
+      if (res.success) {
+        setBlogs(blogs.map(b => b.id === id ? { ...b, status: newStatus } : b));
+      } else {
+        alert(res.error || 'Failed to update status');
+      }
+    });
+  };
+
+  const handleDuplicate = async (id) => {
+    startTransition(async () => {
+      const res = await duplicateBlog(id);
+      if (res.success && res.data) {
+        setBlogs(prev => [res.data, ...prev]);
+      } else {
+        alert(res.error || 'Failed to duplicate blog');
       }
     });
   };
@@ -163,6 +185,8 @@ export default function BlogsManager({ initialBlogs }) {
         isPending={isPending}
         promptTrash={promptTrash}
         handleRestore={handleRestore}
+        handleToggleStatus={handleToggleStatus}
+        handleDuplicate={handleDuplicate}
         promptPermanentDelete={promptPermanentDelete}
       />
 

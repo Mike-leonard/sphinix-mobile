@@ -319,7 +319,24 @@ export async function updateDevice(id, formData) {
     if (!user) throw new Error('Unauthorized');
 
     const existing = await getDeviceByIdQuery(id);
-    const existingSpecs = (existing?.specs && typeof existing.specs === 'object') ? existing.specs : {};
+    if (!existing) throw new Error('Device not found');
+
+    const existingSpecs = (existing.specs && typeof existing.specs === 'object') ? existing.specs : {};
+
+    let targetId = id;
+    if (formData.name && formData.name.trim() !== '' && formData.name !== existing.name) {
+      const candidateSlug = generateDeviceSlug(formData.name);
+      if (candidateSlug !== id) {
+        const allDevices = await getAllDevicesQuery();
+        let uniqueSlug = candidateSlug;
+        let counter = 1;
+        while (allDevices.some(d => d.id === uniqueSlug && d.id !== id)) {
+          uniqueSlug = `${candidateSlug}-${counter}`;
+          counter++;
+        }
+        targetId = uniqueSlug;
+      }
+    }
 
     const updateData = {};
     if (formData.name !== undefined) updateData.name = formData.name;
@@ -345,13 +362,31 @@ export async function updateDevice(id, formData) {
 
     updateData.specs = updatedSpecs;
 
-    await updateDeviceQuery(id, updateData);
+    if (targetId !== id) {
+      const fullDeviceData = {
+        id: targetId,
+        name: updateData.name || existing.name,
+        brand: updateData.brand || existing.brand,
+        price: updateData.price !== undefined ? updateData.price : existing.price,
+        rating: updateData.rating !== undefined ? updateData.rating : existing.rating,
+        imageColor: updateData.imageColor || existing.imageColor,
+        isNew: updateData.isNew !== undefined ? updateData.isNew : existing.isNew,
+        isTopRated: updateData.isTopRated !== undefined ? updateData.isTopRated : existing.isTopRated,
+        status: updateData.status || existing.status,
+        specs: updatedSpecs
+      };
+      await createDeviceQuery(fullDeviceData);
+      await deleteDeviceQuery(id);
+    } else {
+      await updateDeviceQuery(id, updateData);
+    }
 
     revalidatePath('/dashboard/phones');
     revalidatePath(`/phones/${id}`);
+    revalidatePath(`/phones/${targetId}`);
     revalidatePath('/phones');
 
-    return { success: true, message: 'Device updated successfully' };
+    return { success: true, message: 'Device updated successfully', newId: targetId };
   } catch (error) {
     console.error('Error updating device:', error);
     return { success: false, error: error.message || 'Failed to update device' };
@@ -401,6 +436,11 @@ export async function trashDevice(id) {
   try {
     const user = await verifySession();
     if (!user) throw new Error('Unauthorized');
+
+    const device = await getDeviceByIdQuery(id);
+    if (device && device.status === 'published') {
+      return { success: false, error: 'Cannot delete a published phone. Please set it to draft status first.' };
+    }
 
     await trashDeviceQuery(id);
 
@@ -512,5 +552,58 @@ export async function getDeviceViewMode() {
   } catch (error) {
     console.error('Error getting device view mode:', error);
     return 'grid';
+  }
+}
+
+/**
+ * -----------------------------------------------------------------------------
+ * DEVICE ACTION: duplicateDevice
+ * -----------------------------------------------------------------------------
+ * @description Admin action: creates a duplicate copy of an existing device in DRAFT status.
+ * @param {string} id - Target device ID / slug to duplicate.
+ * @returns {Promise<{ success: boolean, data?: object, message?: string, error?: string }>}
+ */
+export async function duplicateDevice(id) {
+  try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+
+    const original = await getDeviceByIdQuery(id);
+    if (!original) throw new Error('Original device not found');
+
+    const newName = `${original.name} (Copy)`;
+    const allDevices = await getAllDevicesQuery();
+
+    let newId = generateDeviceSlug(newName);
+    let counter = 1;
+    let uniqueId = newId;
+
+    while (allDevices.some(d => d.id === uniqueId)) {
+      uniqueId = `${newId}-${counter}`;
+      counter++;
+    }
+
+    const duplicatedData = {
+      id: uniqueId,
+      name: newName,
+      brand: original.brand,
+      price: original.price || '$0',
+      rating: parseFloat(original.rating) || 0,
+      imageColor: original.imageColor || 'from-slate-600 to-zinc-800',
+      isNew: Boolean(original.isNew),
+      isTopRated: Boolean(original.isTopRated),
+      status: 'draft',
+      specs: original.specs ? JSON.parse(JSON.stringify(original.specs)) : {}
+    };
+
+    const created = await createDeviceQuery(duplicatedData);
+
+    revalidatePath('/dashboard/phones');
+    revalidatePath('/phones');
+
+    return { success: true, data: created, message: 'Device duplicated successfully' };
+  } catch (error) {
+    console.error('Error duplicating device:', error);
+    return { success: false, error: error.message || 'Failed to duplicate device' };
   }
 }

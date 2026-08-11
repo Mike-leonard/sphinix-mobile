@@ -448,3 +448,46 @@ export async function updateBlogCategoryAction(oldCategory, newCategory) {
 }
 
 export const reassignCategory = updateBlogCategoryAction;
+
+/**
+ * -----------------------------------------------------------------------------
+ * BLOG ACTION: duplicateBlog
+ * -----------------------------------------------------------------------------
+ * @description Creates a duplicate copy of an existing blog post in DRAFT status.
+ * @param {string|number} id - Target blog post ID to duplicate.
+ * @returns {Promise<{ success: boolean, data?: object, error?: string }>}
+ */
+export async function duplicateBlog(id) {
+  try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+
+    const original = await getBlogById(id);
+    if (!original) throw new Error('Original blog post not found');
+
+    const duplicatedData = {
+      title: `${original.title} (Copy)`,
+      excerpt: original.excerpt || '',
+      date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      readTime: original.readTime || '5 min read',
+      author: original.author || user.name || 'Admin',
+      category: original.category || 'General',
+      categoryId: original.categoryId || null,
+      color: original.color || 'from-blue-600 to-indigo-600',
+      image: original.image || '',
+      content: original.content || '',
+      status: 'DRAFT',
+      seo: original.seo ? JSON.parse(JSON.stringify(original.seo)) : null
+    };
+
+    const newBlog = await createBlogQuery(duplicatedData);
+
+    revalidatePath('/dashboard/blogs');
+    revalidatePath('/blogs');
+
+    return { success: true, data: newBlog, message: 'Blog duplicated successfully' };
+  } catch (error) {
+    console.error('Error duplicating blog:', error);
+    return { success: false, error: error.message || 'Failed to duplicate blog' };
+  }
+}
