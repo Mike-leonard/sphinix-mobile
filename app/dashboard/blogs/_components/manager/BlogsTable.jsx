@@ -87,12 +87,6 @@ export default function BlogsTable({
                           <>
                             <Link href={`/dashboard/blogs/${blog.id}/edit`} className="text-brand-600 hover:text-brand-700 dark:text-brand-400 cursor-pointer">Edit</Link>
                             <span className="text-slate-300 dark:text-slate-700">|</span>
-                            {blog.status === 'published' ? (
-                              <button disabled={isPending} onClick={(e) => { e.stopPropagation(); handleToggleStatus?.(blog.id, 'draft'); }} className="text-amber-600 hover:text-amber-700 dark:text-amber-400 cursor-pointer disabled:cursor-not-allowed">Draft</button>
-                            ) : (
-                              <button disabled={isPending} onClick={(e) => { e.stopPropagation(); handleToggleStatus?.(blog.id, 'published'); }} className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 cursor-pointer disabled:cursor-not-allowed">Publish</button>
-                            )}
-                            <span className="text-slate-300 dark:text-slate-700">|</span>
                             <button disabled={isPending} onClick={(e) => { e.stopPropagation(); handleDuplicate?.(blog.id); }} className="text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer disabled:cursor-not-allowed">Duplicate</button>
                             <span className="text-slate-300 dark:text-slate-700">|</span>
                             <button 
@@ -122,13 +116,29 @@ export default function BlogsTable({
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex px-2.5 py-1 text-[11px] font-bold tracking-wider uppercase rounded-full ${
-                      blog.status === 'trash' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
-                      blog.status === 'draft' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 
-                      'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                    }`}>
-                      {blog.status || 'draft'}
-                    </span>
+                    {blog.status === 'published' ? (
+                      <button 
+                        disabled={isPending}
+                        onClick={(e) => { e.stopPropagation(); handleToggleStatus?.(blog.id, 'draft'); }}
+                        className="inline-flex px-2.5 py-1 text-[11px] font-bold tracking-wider uppercase rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 cursor-pointer transition-colors"
+                        title="Click to set status to Draft"
+                      >
+                        Published
+                      </button>
+                    ) : blog.status === 'trash' ? (
+                      <span className="inline-flex px-2.5 py-1 text-[11px] font-bold tracking-wider uppercase rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                        Trash
+                      </span>
+                    ) : (
+                      <button 
+                        disabled={isPending}
+                        onClick={(e) => { e.stopPropagation(); handleToggleStatus?.(blog.id, 'published'); }}
+                        className="inline-flex px-2.5 py-1 text-[11px] font-bold tracking-wider uppercase rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50 cursor-pointer transition-colors"
+                        title="Click to publish blog"
+                      >
+                        Draft
+                      </button>
+                    )}
                   </td>
                   <td className="px-6 py-4 text-xs">
                     {typeof dateInfo === 'object' ? (
