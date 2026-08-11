@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useTransition } from 'react';
-import { deleteDevice, trashDevice, restoreDevice, getDevices } from '@/actions/devices';
+import { deleteDevice, trashDevice, restoreDevice, getDevices, updateDevice } from '@/actions/devices';
 
 import DeviceTabsRoute from './DeviceTabsRoute';
 import DevicesToolbar from './DevicesToolbar';
@@ -84,6 +84,29 @@ export default function DevicesManager({ initialDevices, initialBrands = [] }) {
         setDevices(devices.map(d => d.id === id ? { ...d, status: 'draft' } : d));
       } else {
         alert(res.error || 'Failed to restore device');
+      }
+    });
+  };
+
+  const handleToggleStatus = async (id, newStatus) => {
+    startTransition(async () => {
+      const res = await updateDevice(id, { status: newStatus });
+      if (res.success) {
+        setDevices(devices.map(d => d.id === id ? { ...d, status: newStatus } : d));
+      } else {
+        alert(res.error || 'Failed to update device status');
+      }
+    });
+  };
+
+  const handleDuplicate = async (id) => {
+    startTransition(async () => {
+      const { duplicateDevice } = await import('@/actions/devices');
+      const res = await duplicateDevice(id);
+      if (res.success && res.data) {
+        setDevices(prev => [res.data, ...prev]);
+      } else {
+        alert(res.error || 'Failed to duplicate device');
       }
     });
   };
@@ -186,6 +209,8 @@ export default function DevicesManager({ initialDevices, initialBrands = [] }) {
         viewMode={viewMode}
         promptTrash={promptTrash}
         handleRestore={handleRestore}
+        handleToggleStatus={handleToggleStatus}
+        handleDuplicate={handleDuplicate}
         promptDelete={promptDelete}
       />
 
