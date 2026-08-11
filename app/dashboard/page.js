@@ -140,7 +140,7 @@ export default async function DashboardPage() {
 
       {/* Publishing Trends */}
       <div className="mb-8 w-full">
-        <PublishTrendsChart totalPhones={totalPhones} totalBlogs={totalBlogs} />
+        <PublishTrendsChart devices={devices} blogs={blogs} totalPhones={totalPhones} totalBlogs={totalBlogs} />
       </div>
 
       {/* Google Site Kit Detailed Section */}
