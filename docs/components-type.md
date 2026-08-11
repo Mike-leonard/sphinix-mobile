@@ -8,10 +8,16 @@ This document outlines all components in the project and identifies whether they
 - 🖥️ **not-found.js** - Server Component
 - 🌐 **error.js** - Client Component
 
+## `app/(auth)/forgot-password/`
+- 🖥️ **page.js** - Server Component
+
 ## `app/(auth)/login/`
 - 🌐 **page.js** - Client Component
 
 ## `app/(auth)/register/`
+- 🖥️ **page.js** - Server Component
+
+## `app/(auth)/reset-password/`
 - 🖥️ **page.js** - Server Component
 
 ## `app/(main)/`
@@ -166,7 +172,7 @@ This document outlines all components in the project and identifies whether they
 - 🖥️ **BlogsConfirmModal.jsx** - Server Component
 - 🌐 **BlogsManager.jsx** - Client Component
 - 🖥️ **BlogsPagination.jsx** - Server Component
-- 🖥️ **BlogsTable.jsx** - Server Component
+- 🌐 **BlogsTable.jsx** - Client Component
 - 🖥️ **BlogsToolbar.jsx** - Server Component
 
 ## `app/dashboard/blogs/categories/`
@@ -370,13 +376,20 @@ This document outlines all components in the project and identifies whether they
 
 ## `components/`
 - 🌐 **AdvancedFilters.jsx** - Client Component
-- 🌐 **AuthModal.jsx** - Client Component
 - 🌐 **CompareDrawer.jsx** - Client Component
 - 🖥️ **DynamicStyles.jsx** - Server Component
 - 🖥️ **Footer.jsx** - Server Component
 - 🌐 **Pagination.jsx** - Client Component
 - 🌐 **Search.jsx** - Client Component
 - 🖥️ **StructuredData.jsx** - Server Component
+
+## `components/auth/`
+- 🖥️ **AuthHeader.jsx** - Server Component
+- 🌐 **AuthInput.jsx** - Client Component
+- 🌐 **AuthModal.jsx** - Client Component
+- 🌐 **AuthSubmitButton.jsx** - Client Component
+- 🌐 **GoogleSignInButton.jsx** - Client Component
+- 🌐 **SuccessMessage.jsx** - Client Component
 
 ## `components/ads/`
 - 🌐 **AdBanner.jsx** - Client Component

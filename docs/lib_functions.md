@@ -22,9 +22,9 @@
 *   **Purpose:** Miscellaneous utility functions (formatting, Tailwind class name concatenation, slug formatting).
 *   **Key Functions:**
     *   `cn(...inputs)`: Merges Tailwind/CSS class names cleanly using `clsx` and `tailwind-merge`. Used by UI components like `Skeleton` (`components/ui/skeleton.jsx`).
-    *   `generateBlogSlug(title)`: Takes a raw string, splits by special characters, trims, lowercases, and replaces non-alphanumeric characters with hyphens to create URL-safe slugs for dynamic routing.
-    *   `generateDeviceSlug(title)`: Alias mapped to `generateBlogSlug` to maintain consistency across domain entities.
-    *   `generateBrandSlug(brand)`: Generates URL-friendly brand slugs.
+    *   `generateBlogSlug(title)`: Takes a raw string, splits by special characters, trims, lowercases, and replaces non-alphanumeric characters with hyphens to create URL-safe slugs for dynamic routing. Used when creating blogs or duplicating posts (`duplicateBlog`).
+    *   `generateDeviceSlug(title)`: Alias mapped to `generateBlogSlug` to maintain consistency across domain entities. Used by `createDevice` and `duplicateDevice` to set the permanent ID string.
+    *   `generateBrandSlug(brand)`: Generates URL-friendly brand slugs for `/phones/[brandSlug]` dynamic routes.
 
 ### Module: `lib/settings-helpers.js`
 *   **Purpose:** Deep merging default settings schemas with database JSON values.

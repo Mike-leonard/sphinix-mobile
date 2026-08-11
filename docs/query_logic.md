@@ -13,8 +13,8 @@ Database interactions are isolated from Server Actions inside dedicated query mo
 *   `queries/device-groups.js`: Handles spec categories and group reordering.
 *   `queries/device-filters.js`: Catalog search filter definition queries and batch upserts.
 *   `queries/rating-bars.js`: Expert rating bar criteria definitions and transaction reordering.
-*   `queries/devices.js`: Fetches paginated devices, counts, search results, `imageAlts` SEO arrays, backend sorting (`getAllDevicesQuery` accepting `sortField`, `sortOrder`, `brand`, `search`), and multi-attribute spec evaluation filters.
-*   `queries/blogs.js`: Manages blog articles, category counts, filtering by status (`published`, `draft`, `trash`), and pagination.
+*   `queries/devices.js`: Fetches paginated devices, counts, search results, `imageAlts` SEO arrays, backend sorting (`getAllDevicesQuery` accepting `sortField`, `sortOrder`, `brand`, `search`), and multi-attribute spec evaluation filters. Manages primary key `id` creation (`createDeviceQuery`) and record deletion (`deleteDeviceQuery`). Slugs remain permanent upon creation or duplication.
+*   `queries/blogs.js`: Manages blog articles, category counts, status filtering (`published`, `draft`, `trash`), and pagination. Normalizes UI status strings to Prisma `StatusType` (`DRAFT`, `PUBLISHED`, `TRASHED`).
 *   `queries/categories.js`: Manages blog category CRUD operations and slugification.
 *   `queries/users.js`: User profiles, email verification upserts (`upsertUserEmailVerified`), and authentication query logic.
 

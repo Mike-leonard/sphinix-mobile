@@ -24,13 +24,15 @@
 ## 4. Advanced Features & Integrations
 *   **Geo-IP Location Detection:** `geoip-lite` (Dynamic safe runtime execution for visitor country code lookup, combined with Vercel `x-vercel-ip-country` & Cloudflare `cf-ipcountry` headers)
 *   **Rich Text Editor:** `@tiptap/react` and `@tiptap/starter-kit` (Headless content editing in admin panel)
-*   **Data Visualization:** `recharts` (Admin dashboard analytics charts)
+*   **Data Visualization:** `recharts` (Admin dashboard analytics charts & dynamic `PublishTrendsChart.jsx` with multi-timeframe filtering)
 *   **Analytics APIs:** `@google-analytics/data` (GA4 Data API) and `googleapis` (Search Console API)
 *   **AI Integration:** Multi-provider text generation engine (`lib/ai/text-generator.js`) supporting Gemini, OpenAI, Anthropic, OpenRouter, Kilo, and Ollama
 *   **HTML Sanitization:** `isomorphic-dompurify` (Secures generated HTML output)
 *   **Web Scraping:** Jina Reader API (`https://r.jina.ai/`) for clean Markdown web page scraping
 *   **Authentication:** Supabase Auth & custom signed cookie sessions (`actions/auth.js`)
+*   **Bot Protection & CAPTCHA:** Cloudflare Turnstile (Integrated into authentication forms)
 
 ## 5. Development & Testing
 *   **Unit Testing:** Vitest & React Testing Library (`npx vitest run`)
+*   **End-to-End Testing:** Playwright (`npx playwright test`)
 *   **Database Migrations:** `npx prisma db push` and `npx prisma migrate dev`

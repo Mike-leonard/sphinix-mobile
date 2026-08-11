@@ -103,7 +103,7 @@ export default function RegisterForm() {
 
           <div className="flex justify-center mt-2 mb-4">
             <Turnstile
-              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'} // Fallback testing key
+              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
               onSuccess={(token) => setTurnstileToken(token)}
             />
           </div>

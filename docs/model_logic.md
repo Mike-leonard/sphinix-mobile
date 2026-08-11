@@ -73,7 +73,7 @@ Database persistence is managed via **Prisma ORM** connecting to a PostgreSQL da
     *   `excerpt`: String?
     *   `content`: String (HTML content output from Tiptap editor)
     *   `category`: String (Default: `"General"`)
-    *   `status`: String (Default: `"draft"`, options: `"draft"`, `"published"`, `"trash"`)
+    *   `status`: StatusType Enum (`DRAFT`, `PUBLISHED`, `TRASHED`). Queries normalize UI string `'trash'` to `'TRASHED'`.
     *   `date`: String
     *   `readTime`: String?
     *   `author`: String?
@@ -84,14 +84,14 @@ Database persistence is managed via **Prisma ORM** connecting to a PostgreSQL da
 ---
 
 ### Model: `Device` (Table: `Device`)
-*   **Description:** Smartphone catalog database.
+*   **Description:** Smartphone catalog database. Primary key `id` string serves as the URL slug (`/phones/[brandSlug]/[deviceSlug]`).
 *   **Fields:**
-    *   `id`: String (Primary Key)
+    *   `id`: String (Primary Key / URL Slug). Generated upon creation or duplication, and remains permanent even if the device title is updated later to prevent broken URLs.
     *   `name`: String
     *   `brand`: String
     *   `image`: String?
     *   `price`: String?
-    *   `status`: String (Default: `"published"`)
+    *   `status`: StatusType Enum (`DRAFT`, `PUBLISHED`, `TRASHED`). Queries normalize UI string `'trash'` to `'TRASHED'`.
     *   `affiliates`: Json? (Multi-country store link mappings e.g. `{ US: { amazon: { url, price } }, IT: { ... } }`)
     *   `specs`: Json? (Quick specs, detailed grouped spec attributes, gallery images, and `imageAlts` SEO array)
     *   `ratings`: Json? (Expert rating breakdown numbers)
