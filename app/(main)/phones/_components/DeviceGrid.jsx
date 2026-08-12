@@ -2,17 +2,13 @@ import React from 'react';
 import InFeedAd from '@/components/ads/InFeedAd';
 import ProductCard from '@/app/(main)/_components/_cards/ProductCard';
 import DeviceListCard from '@/app/(main)/phones/_components/DeviceListCard';
-import { getDeviceViewMode } from '@/actions/devices';
-import { getSettings } from '@/actions/settings';
 
-export default async function DeviceGrid({ currentProducts = [] }) {
-  const [viewMode, settings] = await Promise.all([
-    getDeviceViewMode(),
-    getSettings()
-  ]);
-
-  const freq = settings?.advertisements?.injectionFrequency?.phonesPageGrid || 6;
-  const deviceCardSpecLimit = settings?.appearance?.phones?.deviceCardSpecLimit ?? settings?.appearance?.devices?.deviceCardSpecLimit ?? 3;
+export default function DeviceGrid({ 
+  currentProducts = [], 
+  viewMode = 'grid',
+  deviceCardSpecLimit = 3,
+  freq = 6
+}) {
 
   if (currentProducts.length === 0) {
     return (
@@ -39,10 +35,12 @@ export default async function DeviceGrid({ currentProducts = [] }) {
             <ProductCard
               product={product}
               limit={deviceCardSpecLimit}
+              priority={index < 4}
             />
           ) : (
             <DeviceListCard
               product={product}
+              priority={index < 4}
             />
           )}
         </React.Fragment>

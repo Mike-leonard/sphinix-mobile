@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { useCompare } from '@/context/CompareContext';
 import { useRouter } from 'next/navigation';
 
+import Image from 'next/image';
+import { getDeviceFirstImage, getDeviceImageAlt } from '@/lib/utils';
+
 export default function ComparisonHeader({ compareList, gridColsClass, handleToggleCompare: propHandleToggleCompare }) {
   const { handleToggleCompare: contextToggle } = useCompare();
   const router = useRouter();
@@ -29,24 +32,42 @@ export default function ComparisonHeader({ compareList, gridColsClass, handleTog
       </div>
 
       {/* Device Columns */}
-      {compareList.map((device) => (
-        <div key={device.id} className="p-4 md:p-6 relative group text-center flex flex-col items-center">
-          <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-default, var(--font-size-button-default))"}}  
-            onClick={() => handleRemove(device)}
-            className="absolute top-2 right-2 md:top-4 md:right-4 p-1.5 bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 rounded-full hover:bg-red-200 dark:hover:bg-red-500/40 transition-colors opacity-0 group-hover:opacity-100"
-            title="Remove from comparison"
-          >
-            <X className="w-4 h-4" />
-          </Button>
-          
-          <div className={`w-16 h-20 md:w-24 md:h-28 rounded-lg bg-gradient-to-br ${device.imageColor || 'from-slate-200 to-slate-300'} mb-4 shadow-inner flex items-center justify-center`}>
-            <span className="text-white/50 text-xs font-bold uppercase tracking-widest">{device.brand}</span>
+      {compareList.map((device) => {
+        const firstImage = getDeviceFirstImage(device);
+        const imageAlt = getDeviceImageAlt(device);
+
+        return (
+          <div key={device.id} className="p-4 md:p-6 relative group text-center flex flex-col items-center">
+            <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-default, var(--font-size-button-default))"}}  
+              onClick={() => handleRemove(device)}
+              className="absolute top-2 right-2 md:top-4 md:right-4 p-1.5 bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 rounded-full hover:bg-red-200 dark:hover:bg-red-500/40 transition-colors opacity-0 group-hover:opacity-100 z-10"
+              title="Remove from comparison"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+            
+            <div className={`relative w-20 h-24 md:w-28 md:h-36 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 mb-4 flex items-center justify-center p-2 overflow-hidden shadow-sm`}>
+              <div className={`absolute w-16 h-16 rounded-full bg-gradient-to-tr ${device.imageColor || 'from-brand-500 to-purple-500'} opacity-20 blur-xl`}></div>
+              {firstImage ? (
+                <Image
+                  src={firstImage}
+                  alt={imageAlt}
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 80px, 112px"
+                  className="object-contain drop-shadow-sm transition-transform group-hover:scale-105"
+                  unoptimized={typeof firstImage === 'string' && firstImage.startsWith('data:')}
+                />
+              ) : (
+                <span className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-widest">{device.brand}</span>
+              )}
+            </div>
+            
+            <h3 style={{fontSize: "var(--font-size-h3-default, var(--font-size-h3-default))"}} className="font-extrabold text-sm md:text-lg text-slate-900 dark:text-white leading-tight mb-1">{device.name}</h3>
+            <p style={{fontSize: "var(--font-size-p-subtitle, var(--font-size-p-default))"}} className="text-xs md:text-sm font-bold text-brand-600 dark:text-brand-400">{device.price}</p>
           </div>
-          
-          <h3  style={{fontSize: "var(--font-size-h3-default, var(--font-size-h3-default))"}} className="font-extrabold text-sm md:text-lg text-slate-900 dark:text-white leading-tight mb-1">{device.name}</h3>
-          <p  style={{fontSize: "var(--font-size-p-subtitle, var(--font-size-p-default))"}} className="text-xs md:text-sm font-bold text-brand-600 dark:text-brand-400">{device.price}</p>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

@@ -11,23 +11,34 @@ export default function SortingControl({
   selectedBrand = "All", 
   BRANDS = [],
   filters = [],
-  initialViewMode = "grid"
+  initialViewMode = "grid",
+  viewMode: controlledViewMode,
+  onViewModeToggle,
+  isPending = false
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [viewMode, setViewMode] = useState(initialViewMode);
+  const [internalViewMode, setInternalViewMode] = useState(initialViewMode);
   const [sortOption, setSortOption] = useState('Date (default)');
   const [showFilters, setShowFilters] = useState(false);
 
+  const activeViewMode = controlledViewMode !== undefined ? controlledViewMode : internalViewMode;
+
   useEffect(() => {
-    setViewMode(initialViewMode);
-  }, [initialViewMode]);
+    if (controlledViewMode === undefined) {
+      setInternalViewMode(initialViewMode);
+    }
+  }, [initialViewMode, controlledViewMode]);
 
   const handleViewModeToggle = async (mode) => {
-    setViewMode(mode);
-    await setDeviceViewMode(mode);
-    router.refresh();
+    if (onViewModeToggle) {
+      onViewModeToggle(mode);
+    } else {
+      setInternalViewMode(mode);
+      await setDeviceViewMode(mode);
+      router.refresh();
+    }
   };
 
   const handleBrandChange = (newBrand) => {
@@ -50,13 +61,17 @@ export default function SortingControl({
           <div className="flex bg-slate-100 dark:bg-slate-800 rounded-md p-1">
             <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-default, var(--font-size-button-default))"}} 
               onClick={() => handleViewModeToggle('grid')}
-              className={`cursor-pointer p-1.5 rounded-sm transition-colors ${viewMode === 'grid' ? 'bg-brand-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+              disabled={isPending}
+              aria-label="Switch to Grid View"
+              className={`cursor-pointer p-1.5 rounded-sm transition-colors ${activeViewMode === 'grid' ? 'bg-brand-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'} ${isPending ? 'opacity-70 cursor-wait' : ''}`}
             >
               <LayoutGrid className="w-4 h-4" />
             </Button>
             <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-default, var(--font-size-button-default))"}} 
               onClick={() => handleViewModeToggle('list')}
-              className={`cursor-pointer p-1.5 rounded-sm transition-colors ${viewMode === 'list' ? 'bg-brand-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+              disabled={isPending}
+              aria-label="Switch to List View"
+              className={`cursor-pointer p-1.5 rounded-sm transition-colors ${activeViewMode === 'list' ? 'bg-brand-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'} ${isPending ? 'opacity-70 cursor-wait' : ''}`}
             >
               <List className="w-4 h-4" />
             </Button>
