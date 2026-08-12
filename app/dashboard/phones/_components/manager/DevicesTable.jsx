@@ -73,7 +73,12 @@ export default function DevicesTable({
             >
               Est. Price <SortIcon field="price" />
             </th>
-            <th className="px-6 py-3.5">Status</th>
+            <th 
+              className="px-6 py-3.5 cursor-pointer hover:bg-slate-100/50 dark:hover:bg-slate-800/60 transition-colors group"
+              onClick={() => handleSort('status')}
+            >
+              Status <SortIcon field="status" />
+            </th>
             <th
               className="px-6 py-3.5 cursor-pointer hover:bg-slate-100/50 dark:hover:bg-slate-800/60 transition-colors group"
               onClick={() => handleSort('createdAt')}
@@ -146,6 +151,9 @@ export default function DevicesTable({
                       {device.brand}
                     </span>
                   </td>
+                  <td className="px-6 py-4 text-slate-600 dark:text-slate-400 font-medium">
+                    {device.price || 'N/A'}
+                  </td>
                   <td className="px-6 py-4">
                     {device.status === 'published' ? (
                       <button
@@ -170,9 +178,6 @@ export default function DevicesTable({
                         Draft
                       </button>
                     )}
-                  </td>
-                  <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
-                    {device.price}
                   </td>
                   <td className="px-6 py-4 text-xs">
                     {typeof dateInfo === 'object' ? (
