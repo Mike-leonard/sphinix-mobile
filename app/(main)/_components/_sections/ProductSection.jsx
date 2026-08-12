@@ -52,6 +52,7 @@ export default async function ProductSection({
                 <ProductCard
                   product={device}
                   limit={deviceCardSpecLimit}
+                  priority={index < 4}
                 />
               </React.Fragment>
             ))}

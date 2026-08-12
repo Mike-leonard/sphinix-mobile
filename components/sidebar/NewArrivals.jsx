@@ -1,6 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getNewArrivals } from '@/actions/devices';
+import { getDeviceFirstImage, getDeviceImageAlt } from '@/lib/utils';
 
 export default async function NewArrivals({ newArrivals: propNewArrivals, limit = 6 }) {
   let arrivals = propNewArrivals;
@@ -19,26 +21,42 @@ export default async function NewArrivals({ newArrivals: propNewArrivals, limit 
       </h3>
 
       <div className="grid grid-cols-3 gap-2">
-        {arrivals.slice(0, limit).map(prod => (
-          <Link
-            key={prod.id}
-            href={`/phones?q=${encodeURIComponent(prod.name)}`}
-            className="group bg-slate-50 dark:bg-slate-950 rounded-xl p-2 border border-slate-300 dark:border-slate-850/60 hover:border-brand-500/30 text-center cursor-pointer transition-colors"
-          >
-            <div className="relative h-16 w-full bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center overflow-hidden mb-1.5">
-              <div className={`absolute w-10 h-10 rounded-full bg-gradient-to-tr ${prod.imageColor} opacity-10 blur-xl`}></div>
-              <div className="w-8 h-12 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded flex flex-col justify-end p-0.5">
-                <div className={`flex-1 rounded bg-gradient-to-br ${prod.imageColor}`} />
+        {arrivals.slice(0, limit).map(prod => {
+          const firstImage = getDeviceFirstImage(prod);
+          const imageAlt = getDeviceImageAlt(prod);
+
+          return (
+            <Link
+              key={prod.id}
+              href={`/phones?q=${encodeURIComponent(prod.name)}`}
+              className="group bg-slate-50 dark:bg-slate-950 rounded-xl p-2 border border-slate-300 dark:border-slate-850/60 hover:border-brand-500/30 text-center cursor-pointer transition-colors block"
+            >
+              <div className="relative h-20 w-full bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center overflow-hidden mb-1.5 p-1">
+                <div className={`absolute w-10 h-10 rounded-full bg-gradient-to-tr ${prod.imageColor || 'from-brand-500 to-purple-500'} opacity-20 blur-xl`}></div>
+                {firstImage ? (
+                  <Image
+                    src={firstImage}
+                    alt={imageAlt}
+                    fill
+                    sizes="80px"
+                    className="object-contain drop-shadow-sm group-hover:scale-105 transition-transform"
+                    unoptimized={typeof firstImage === 'string' && firstImage.startsWith('data:')}
+                  />
+                ) : (
+                  <div className="w-8 h-12 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded flex flex-col justify-end p-0.5">
+                    <div className={`flex-1 rounded bg-gradient-to-br ${prod.imageColor || 'from-brand-500 to-purple-500'}`} />
+                  </div>
+                )}
               </div>
-            </div>
-            <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 block truncate group-hover:text-brand-400">
-              {prod.name.split(' ')[0]}
-            </span>
-            <span className="text-[9px] text-brand-500 font-extrabold">
-              {prod.price}
-            </span>
-          </Link>
-        ))}
+              <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 block truncate group-hover:text-brand-400">
+                {prod.name.split(' ')[0]}
+              </span>
+              <span className="text-[9px] text-brand-500 font-extrabold">
+                {prod.price}
+              </span>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

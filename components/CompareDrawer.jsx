@@ -13,6 +13,9 @@ import { BarChart2, X } from 'lucide-react'
 import { useCompare } from '@/context/CompareContext';
 import { useRouter, usePathname } from 'next/navigation';
 
+import Image from 'next/image';
+import { getDeviceFirstImage, getDeviceImageAlt } from '@/lib/utils';
+
 export default function CompareDrawer() {
   const { compareList, isOpen, setIsCompareOpen, handleToggleCompare, clearCompare } = useCompare();
   const router = useRouter();
@@ -39,16 +42,35 @@ export default function CompareDrawer() {
 
           {/* Grid showing comparison values side-by-side */}
           <div className="flex-1 grid grid-cols-12 gap-4 divide-x divide-slate-200 dark:divide-slate-800 py-2 px-6">
-            {compareList.map((item, index) => (
-              <div
-                key={item.id}
-                className={`${compareList.length === 1 ? "col-span-12" : compareList.length === 2 ? "col-span-6" : "col-span-4"} space-y-4 ${index > 0 ? "pl-4" : ""}`}
-              >
-                <div className="text-center">
-                  <span className="text-[10px] font-extrabold text-brand-600 dark:text-brand-400 uppercase tracking-widest block">{item.brand}</span>
-                  <h5 className="font-extrabold text-sm text-slate-900 dark:text-white truncate block mt-1">{item.name}</h5>
-                  <span className="text-sm font-black text-brand-600 dark:text-brand-500 mt-1 block">{item.price}</span>
-                </div>
+            {compareList.map((item, index) => {
+              const firstImage = getDeviceFirstImage(item);
+              const imageAlt = getDeviceImageAlt(item);
+
+              return (
+                <div
+                  key={item.id}
+                  className={`${compareList.length === 1 ? "col-span-12" : compareList.length === 2 ? "col-span-6" : "col-span-4"} space-y-4 ${index > 0 ? "pl-4" : ""}`}
+                >
+                  <div className="text-center flex flex-col items-center">
+                    <div className="relative w-20 h-24 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 mb-2 p-1.5 flex items-center justify-center overflow-hidden shadow-sm">
+                      <div className={`absolute w-12 h-12 rounded-full bg-gradient-to-tr ${item.imageColor || 'from-brand-500 to-purple-500'} opacity-20 blur-lg`}></div>
+                      {firstImage ? (
+                        <Image
+                          src={firstImage}
+                          alt={imageAlt}
+                          fill
+                          sizes="80px"
+                          className="object-contain drop-shadow-sm"
+                          unoptimized={typeof firstImage === 'string' && firstImage.startsWith('data:')}
+                        />
+                      ) : (
+                        <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{item.brand}</span>
+                      )}
+                    </div>
+                    <span className="text-[10px] font-extrabold text-brand-600 dark:text-brand-400 uppercase tracking-widest block">{item.brand}</span>
+                    <h5 className="font-extrabold text-sm text-slate-900 dark:text-white truncate block mt-1">{item.name}</h5>
+                    <span className="text-sm font-black text-brand-600 dark:text-brand-500 mt-1 block">{item.price}</span>
+                  </div>
 
                 <div className="space-y-4 border-t border-slate-200 dark:border-slate-800 pt-4">
                   <div className="flex flex-col gap-1.5">
@@ -82,7 +104,8 @@ export default function CompareDrawer() {
                   Remove
                 </Button>
               </div>
-            ))}
+            );
+          })}
           </div>
 
           <div className="flex gap-3 p-6 mt-auto border-t border-slate-200 dark:border-slate-800">

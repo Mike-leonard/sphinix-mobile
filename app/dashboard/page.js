@@ -10,6 +10,8 @@ import { Smartphone, FileText, Users, Star, Plus, Settings, Edit3, LineChart, Mo
 import { Button } from "@/components/ui/button";
 import { allBlogs } from '@/actions/blogs';
 
+import { getDeviceFirstImage } from '@/lib/utils';
+
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
@@ -199,21 +201,23 @@ export default async function DashboardPage() {
             {recentPhones.length === 0 ? (
               <div className="p-8 text-center text-slate-500">No phones added yet.</div>
             ) : (
-              recentPhones.map((phone) => (
-                <div key={phone.id} className="p-4 sm:p-6 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-700 overflow-hidden relative">
-                      {phone.images && phone.images[0] ? (
-                        <img src={phone.images[0]} alt={phone.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <Smartphone className="w-6 h-6 text-slate-400" />
-                      )}
+              recentPhones.map((phone) => {
+                const phoneImg = getDeviceFirstImage(phone);
+                return (
+                  <div key={phone.id} className="p-4 sm:p-6 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-700 overflow-hidden relative">
+                        {phoneImg ? (
+                          <img src={phoneImg} alt={phone.name} className="w-full h-full object-contain p-1" />
+                        ) : (
+                          <Smartphone className="w-6 h-6 text-slate-400" />
+                        )}
+                      </div>
+                      <div>
+                        <div className="text-sm font-bold text-slate-900 dark:text-white line-clamp-1">{phone.name}</div>
+                        <div className="text-xs font-medium text-slate-500 mt-1">{phone.brand}</div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="text-sm font-bold text-slate-900 dark:text-white line-clamp-1">{phone.name}</div>
-                      <div className="text-xs font-medium text-slate-500 mt-1">{phone.brand}</div>
-                    </div>
-                  </div>
                   <div className="flex items-center gap-4">
                     <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-semibold uppercase tracking-wider ${phone.status === 'published'
                         ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-500/20'
@@ -228,8 +232,9 @@ export default async function DashboardPage() {
                     </Link>
                   </div>
                 </div>
-              ))
-            )}
+              );
+            })
+          )}
           </div>
         </div>
 

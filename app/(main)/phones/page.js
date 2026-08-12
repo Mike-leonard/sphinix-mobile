@@ -2,8 +2,7 @@ import React from 'react';
 import AdvancedFilters from '@/components/AdvancedFilters';
 import Pagination from '@/components/Pagination';
 import RightSidebar from '@/components/sidebar/RightSidebar';
-import SortingControl from './_components/SortingControl';
-import DeviceGrid from './_components/DeviceGrid';
+import DeviceCatalogView from './_components/DeviceCatalogView';
 import { getDeviceFilters } from '@/actions/device-filters';
 import { publishedDevices, publishedDevicesCount, getDeviceViewMode } from '@/actions/devices';
 import { getDeviceBrands } from '@/actions/device-brands';
@@ -40,6 +39,8 @@ export default async function DevicesPage({ searchParams }) {
 
   const viewMode = cookieViewMode || 'grid';
   const ITEMS_PER_PAGE = settings?.appearance?.phones?.deviceLimit ?? settings?.appearance?.devices?.deviceLimit ?? 12;
+  const deviceCardSpecLimit = settings?.appearance?.phones?.deviceCardSpecLimit ?? settings?.appearance?.devices?.deviceCardSpecLimit ?? 3;
+  const freq = settings?.advertisements?.injectionFrequency?.phonesPageGrid || 6;
   const offset = Math.max(0, (page - 1) * ITEMS_PER_PAGE);
 
   // 2. Fetch published devices, total count, filters & brand list from PostgreSQL in parallel
@@ -64,18 +65,15 @@ export default async function DevicesPage({ searchParams }) {
         {/* Main Content Area */}
         <div className="lg:col-span-8">
 
-          {/* Controls Bar */}
-          <SortingControl
+          {/* Controls Bar & Products Grid/List Container */}
+          <DeviceCatalogView
+            devices={devices}
+            initialViewMode={viewMode}
             selectedBrand={selectedBrand}
             BRANDS={BRANDS}
-            filters={filtersData}
-            initialViewMode={viewMode}
-          />
-
-          {/* Products Grid/List */}
-          <DeviceGrid
-            currentProducts={devices}
-            viewMode={viewMode}
+            filtersData={filtersData}
+            deviceCardSpecLimit={deviceCardSpecLimit}
+            freq={freq}
           />
 
           {/* Pagination */}

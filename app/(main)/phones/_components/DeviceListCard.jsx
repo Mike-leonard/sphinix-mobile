@@ -1,13 +1,17 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Card } from '@/components/ui/card';
-import { generateBrandSlug } from '@/lib/utils';
+import { generateBrandSlug, getDeviceFirstImage, getDeviceImageAlt } from '@/lib/utils';
 import DeviceListCardCompare from './DeviceListCardCompare';
 
-export default function DeviceListCard({ product, isComparing, onToggleCompare }) {
+export default function DeviceListCard({ product, isComparing, onToggleCompare, priority = false }) {
   const slug = product.id;
   const brandSlug = generateBrandSlug(product.brand || 'unknown');
   const deviceDetailUrl = `/phones/${brandSlug}/${slug}`;
+
+  const firstImage = getDeviceFirstImage(product);
+  const imageAlt = getDeviceImageAlt(product);
 
   return (
     <Card className="group rounded-2xl border-slate-200 dark:border-slate-800 hover:border-brand-500/40 hover:shadow-xl hover:shadow-brand-500/5 transition-all duration-300 flex flex-col sm:flex-row bg-white dark:bg-slate-900 overflow-hidden relative">
@@ -16,18 +20,32 @@ export default function DeviceListCard({ product, isComparing, onToggleCompare }
       <Link 
         href={deviceDetailUrl}
         aria-label={`View details for ${product.brand} ${product.name}`}
-        className="w-full sm:w-1/3 p-4 sm:p-6 sm:border-r border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/50 flex items-center justify-center relative overflow-hidden group-hover:bg-slate-100 dark:group-hover:bg-slate-900/80 transition-colors block cursor-pointer"
+        className="w-full sm:w-1/3 min-h-[200px] p-4 sm:p-6 sm:border-r border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/50 flex items-center justify-center relative overflow-hidden group-hover:bg-slate-100 dark:group-hover:bg-slate-900/80 transition-colors block cursor-pointer shrink-0"
       >
-        <div className={`absolute w-32 h-32 rounded-full bg-gradient-to-tr ${product.imageColor} opacity-20 blur-2xl group-hover:scale-125 transition-transform duration-500`}></div>
+        <div className={`absolute w-32 h-32 rounded-full bg-gradient-to-tr ${product.imageColor || 'from-brand-500 to-purple-500'} opacity-20 blur-2xl group-hover:scale-125 transition-transform duration-500`}></div>
         
-        {/* SVG-based SmartPhone illustration */}
-        <div className="relative w-28 h-48 rounded-2xl bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 shadow-md p-1.5 flex flex-col group-hover:scale-105 transition-transform duration-300">
-          <div className="w-8 h-2 bg-slate-50 dark:bg-slate-950 rounded-full mx-auto mb-1 border border-slate-200 dark:border-slate-800"></div>
-          <div className={`flex-1 rounded-xl bg-gradient-to-br ${product.imageColor} p-3 flex flex-col justify-end text-[10px] font-bold text-white/80`}>
-            <div>{product.brand}</div>
-            <div className="text-xs text-white truncate font-extrabold leading-tight">{product.name}</div>
+        {firstImage ? (
+          <div className="relative w-full h-44 z-10">
+            <Image
+              src={firstImage}
+              alt={imageAlt}
+              fill
+              priority={priority}
+              sizes="(max-width: 640px) 100vw, 33vw"
+              className="object-contain drop-shadow-md transition-transform duration-300 group-hover:scale-105"
+              unoptimized={typeof firstImage === 'string' && firstImage.startsWith('data:')}
+            />
           </div>
-        </div>
+        ) : (
+          /* SVG-based SmartPhone illustration fallback */
+          <div className="relative w-24 h-40 rounded-2xl bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 shadow-md p-1.5 flex flex-col group-hover:scale-105 transition-transform duration-300">
+            <div className="w-8 h-2 bg-slate-50 dark:bg-slate-950 rounded-full mx-auto mb-1 border border-slate-200 dark:border-slate-800"></div>
+            <div className={`flex-1 rounded-xl bg-gradient-to-br ${product.imageColor || 'from-brand-500 to-purple-500'} p-2 flex flex-col justify-end text-[8px] font-bold text-white/80`}>
+              <div>{product.brand}</div>
+              <div className="text-[10px] text-white truncate font-extrabold leading-tight">{product.name}</div>
+            </div>
+          </div>
+        )}
       </Link>
 
       {/* Right side: Information and specs */}
@@ -55,7 +73,7 @@ export default function DeviceListCard({ product, isComparing, onToggleCompare }
             <p><strong className="text-slate-700 dark:text-slate-300">Storage:</strong> {product.specs?.storage}</p>
             <p><strong className="text-slate-700 dark:text-slate-300">Display:</strong> {product.specs?.screen}</p>
             <p><strong className="text-slate-700 dark:text-slate-300">Camera:</strong> {product.specs?.camera}</p>
-            <p><strong className="text-slate-700 dark:text-slate-300">OS:</strong> Android</p>
+            <p><strong className="text-slate-700 dark:text-slate-300">OS:</strong> {product.specs?.os || 'Android'}</p>
           </div>
         </div>
 

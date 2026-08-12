@@ -1,23 +1,10 @@
 import React from 'react';
 import Image from 'next/image';
+import { getDeviceFirstImage, getDeviceImageAlt } from '@/lib/utils';
 
-export default function ProductCardImage({ product }) {
-  // Extract the first image from deviceGallery, images array, or image prop
-  const firstImage =
-    (Array.isArray(product?.deviceGallery) && product.deviceGallery.length > 0
-      ? typeof product.deviceGallery[0] === 'string'
-        ? product.deviceGallery[0]
-        : product.deviceGallery[0]?.url || product.deviceGallery[0]?.src
-      : null) ||
-    (Array.isArray(product?.images) && product.images.length > 0
-      ? product.images.find(img => img && typeof img === 'string' && img.trim() !== '')
-      : null) ||
-    product?.image ||
-    null;
-
-  const imageAlt =
-    (Array.isArray(product?.imageAlts) && product.imageAlts[0]) ||
-    `${product?.brand || ''} ${product?.name || ''}`.trim();
+export default function ProductCardImage({ product, priority = false }) {
+  const firstImage = getDeviceFirstImage(product);
+  const imageAlt = getDeviceImageAlt(product);
 
   return (
     <div className="relative rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-950 p-4 h-48 flex items-center justify-center group-hover:scale-[1.01] transition-transform duration-300">
@@ -29,6 +16,7 @@ export default function ProductCardImage({ product }) {
             src={firstImage}
             alt={imageAlt}
             fill
+            priority={priority}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-contain drop-shadow-md transition-transform duration-300 group-hover:scale-105"
             unoptimized={typeof firstImage === 'string' && firstImage.startsWith('data:')}
