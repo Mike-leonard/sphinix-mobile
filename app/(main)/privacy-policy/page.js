@@ -4,7 +4,7 @@ import { rawOrigin } from '@/lib/utils';
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Privacy Policy | Sphinix Mobile',
+  title: 'Privacy Policy',
   description: 'Privacy Policy for Sphinix Mobile. Learn how we collect, use, and protect your personal data.'
 };
 

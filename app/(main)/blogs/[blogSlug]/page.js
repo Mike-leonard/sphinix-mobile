@@ -19,13 +19,13 @@ export async function generateMetadata({ params }) {
   const blog = await getPublishedBlogBySlug(blogSlug);
   if (!blog) {
     return {
-      title: 'Article Not Found | Sphinix Mobile',
+      title: 'Article Not Found',
       description: 'The requested blog article could not be found.',
     };
   }
 
   const seo = blog.seo || {};
-  const metaTitle = seo.metaTitle || `${blog.title} | Sphinix Mobile Blog`;
+  const metaTitle = seo.metaTitle || blog.title;
   const metaDescription = seo.metaDescription || blog.excerpt || `Read ${blog.title} by ${blog.author} on Sphinix Mobile.`;
   const keywordsList = seo.keywords
     ? (typeof seo.keywords === 'string' ? seo.keywords.split(',').map(k => k.trim()) : seo.keywords)

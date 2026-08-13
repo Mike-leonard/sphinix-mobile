@@ -59,6 +59,7 @@ export default async function DevicesPage({ searchParams }) {
 
   return (
     <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h1 className="sr-only">Smartphone Specifications & Mobile Catalog</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 

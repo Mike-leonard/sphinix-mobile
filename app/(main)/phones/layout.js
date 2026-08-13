@@ -1,9 +1,10 @@
 import { getSettings } from '@/actions/settings';
+import { isSameJson } from '@/components/StructuredData';
 
 export async function generateMetadata() {
   const settings = await getSettings();
   const data = settings?.seo?.phones || settings?.seo?.devices || {};
-  
+
   const title = data.title || "Devices";
   const description = data.description || "Browse, filter, and compare the latest mobile phone specifications, prices, and features on Sphinix Mobile.";
   const keywords = data.keywords
@@ -34,7 +35,7 @@ export default async function DevicesLayout({ children }) {
   const globalData = settings?.seo?.advanced?.globalStructuredData;
 
   const structuredData = rawData?.trim();
-  const shouldRender = structuredData && structuredData !== globalData?.trim();
+  const shouldRender = structuredData && !isSameJson(globalData, structuredData);
 
   return (
     <>

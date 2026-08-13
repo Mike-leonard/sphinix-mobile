@@ -1,7 +1,7 @@
 import ResetPasswordForm from '@/app/(auth)/reset-password/_components/ResetPasswordForm';
 
 export const metadata = {
-  title: 'Reset Password | Sphinix Mobile',
+  title: 'Reset Password',
   description: 'Enter your new password to regain access to your account.',
 };
 

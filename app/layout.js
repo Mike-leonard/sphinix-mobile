@@ -13,7 +13,7 @@ export async function generateMetadata() {
   const metadata = {
     title: {
       default: settings.seo.home.title,
-      template: "%s | " + settings.seo.home.title.split(' |')[0],
+      template: "%s | Sphinix Mobile",
     },
     description: settings.seo.home.description,
     keywords: settings.seo.home.keywords?.split(',').map(k => k.trim()) || ["smartphone reviews", "mobile specifications", "phone comparisons", "tech blog", "latest phones", "Sphinix Mobile"],
