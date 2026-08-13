@@ -5,8 +5,8 @@ export const defaultSettings = {
       robotsTxt: "User-agent: *\nAllow: /\nSitemap: https://sphinix.xyz/sitemap.xml",
       globalStructuredData: "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"WebSite\",\n  \"name\": \"Sphinix Mobile\",\n  \"url\": \"https://sphinix.xyz\"\n}"
     },
-    home: { 
-      title: "Sphinix Mobile | In-Depth Smartphone Reviews & Tech Blog", 
+    home: {
+      title: "Sphinix Mobile | In-Depth Smartphone Reviews & Tech Blog",
       description: "Read expert, unbiased smartphone reviews, detailed mobile specifications, comparison guides, and the latest mobile technology blog posts on Sphinix Mobile.",
       keywords: "smartphone reviews, mobile specifications, phone comparisons, tech blog, latest phones, Sphinix Mobile",
       structuredData: "",

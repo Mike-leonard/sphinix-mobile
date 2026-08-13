@@ -2,7 +2,8 @@ import "./globals.css";
 import { ThemeProvider } from "@/provider/ThemeProvider";
 import { getSettings } from "@/actions/settings";
 import { SettingsProvider } from "@/context/SettingsContext";
-import { GoogleAnalytics } from '@next/third-parties/google';
+import AnalyticsWrapper from "@/components/AnalyticsWrapper";
+import CookieConsent from "@/components/CookieConsent";
 import { DynamicStyles } from "@/components/DynamicStyles";
 import { StructuredData } from "@/components/StructuredData";
 
@@ -54,9 +55,7 @@ export default async function RootLayout({ children, modal }) {
         className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 antialiased selection:bg-brand-500/30 selection:text-brand-900 dark:selection:text-brand-100 flex flex-col"
         suppressHydrationWarning
       >
-        {settings.analytics?.googleAnalyticsId && (
-          <GoogleAnalytics gaId={settings.analytics.googleAnalyticsId} />
-        )}
+        <AnalyticsWrapper gaId={settings.analytics?.googleAnalyticsId} />
         <ThemeProvider
           attribute="class"
           defaultTheme={settings.appearance?.theme || "system"}
@@ -68,6 +67,9 @@ export default async function RootLayout({ children, modal }) {
 
             {/* Renders the intercepting login/register modal if active */}
             {modal}
+
+            {/* Cookie Consent Banner for GDPR / Privacy compliance */}
+            <CookieConsent />
           </SettingsProvider>
         </ThemeProvider>
       </body>
