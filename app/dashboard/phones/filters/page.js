@@ -3,12 +3,16 @@ import DeviceTabsRoute from '../_components/manager/DeviceTabsRoute';
 import FilterManager from './_components/FilterManager';
 import { getDeviceFilters } from '@/actions/device-filters';
 import { getDeviceAttributes } from '@/actions/device-attributes';
+import { verifySession } from '@/actions/auth';
 
 export const metadata = {
   title: 'Filters | Device Management',
 };
 
 export default async function FiltersPage() {
+  const session = await verifySession();
+  const userRole = session?.role || 'Normal';
+
   const filters = await getDeviceFilters();
   const attributes = await getDeviceAttributes();
 
@@ -21,7 +25,7 @@ export default async function FiltersPage() {
         </p>
         
         <DeviceTabsRoute />
-        <FilterManager initialFilters={filters} allAttributes={attributes} />
+        <FilterManager initialFilters={filters} allAttributes={attributes} userRole={userRole} />
       </div>
     </div>
   );

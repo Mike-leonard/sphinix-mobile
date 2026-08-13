@@ -9,7 +9,8 @@ import { Button } from '@/components/ui/button';
 import FilterForm from './FilterForm';
 import FilterList from './FilterList';
 
-export default function FilterManager({ initialFilters = [], allAttributes = [] }) {
+export default function FilterManager({ initialFilters = [], allAttributes = [], userRole }) {
+  const isContentWriter = userRole?.toLowerCase() === 'contentwriter';
   const [filters, setFilters] = useState(initialFilters);
   const [isPending, startTransition] = useTransition();
 
@@ -44,13 +45,14 @@ export default function FilterManager({ initialFilters = [], allAttributes = [] 
   };
 
   const handleDragStart = (e, index) => {
+    if (isContentWriter) return;
     setDraggedFilterIndex(index);
     e.dataTransfer.effectAllowed = 'move';
   };
 
   const handleDragOver = (e, index) => {
     e.preventDefault();
-    if (draggedFilterIndex === null || draggedFilterIndex === index) return;
+    if (isContentWriter || draggedFilterIndex === null || draggedFilterIndex === index) return;
     
     setFilters(prev => {
       const newOrder = [...prev];
@@ -66,7 +68,7 @@ export default function FilterManager({ initialFilters = [], allAttributes = [] 
 
   const handleDrop = (e) => {
     e.preventDefault();
-    if (draggedFilterIndex === null) return;
+    if (isContentWriter || draggedFilterIndex === null) return;
     
     startTransition(async () => {
       await saveToBackend(dragOrderedRef.current);
@@ -98,6 +100,10 @@ export default function FilterManager({ initialFilters = [], allAttributes = [] 
 
   const handleUpdateFilter = (e, filterId) => {
     e.preventDefault();
+    if (isContentWriter) {
+      alert('Unauthorized. ContentWriters cannot rename or edit filters.');
+      return;
+    }
     if (!editTitle.trim() || !editAttributeSlug) return;
 
     const newFilters = filters.map(f => {
@@ -116,6 +122,10 @@ export default function FilterManager({ initialFilters = [], allAttributes = [] 
   };
 
   const handleDeleteFilter = (filterId) => {
+    if (isContentWriter) {
+      alert('Unauthorized. ContentWriters cannot delete filters.');
+      return;
+    }
     if (!confirm('Are you sure you want to delete this filter?')) return;
     
     const newFilters = filters.filter(f => f.id !== filterId);
@@ -147,6 +157,10 @@ export default function FilterManager({ initialFilters = [], allAttributes = [] 
   };
 
   const handleDeleteOption = (filterId, optionIndex) => {
+    if (isContentWriter) {
+      alert('Unauthorized. ContentWriters cannot delete filter terms.');
+      return;
+    }
     const newFilters = filters.map(f => {
       if (f.id === filterId) {
         const newOptions = [...f.options];
@@ -211,6 +225,7 @@ export default function FilterManager({ initialFilters = [], allAttributes = [] 
         newOptionValues={newOptionValues}
         setNewOptionValues={setNewOptionValues}
         isPending={isPending}
+        isContentWriter={isContentWriter}
         handleDragStart={handleDragStart}
         handleDragOver={handleDragOver}
         handleDrop={handleDrop}

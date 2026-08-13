@@ -16,6 +16,7 @@ export default function FilterList({
   newOptionValues,
   setNewOptionValues,
   isPending,
+  isContentWriter,
   handleDragStart,
   handleDragOver,
   handleDrop,
@@ -39,20 +40,22 @@ export default function FilterList({
             return (
               <div 
                 key={filter.id}
-                draggable
-                onDragStart={(e) => handleDragStart(e, index)}
-                onDragOver={(e) => handleDragOver(e, index)}
-                onDrop={handleDrop}
+                draggable={!isContentWriter}
+                onDragStart={(e) => !isContentWriter && handleDragStart(e, index)}
+                onDragOver={(e) => !isContentWriter && handleDragOver(e, index)}
+                onDrop={!isContentWriter ? handleDrop : undefined}
                 className={`flex flex-col transition-colors ${isExpanded ? 'bg-slate-50 dark:bg-slate-800/20' : 'hover:bg-slate-50/50 dark:hover:bg-slate-800/10'}`}
               >
                 <div className="flex items-center justify-between p-4 md:p-5 group">
                   <div className="flex items-center gap-4 flex-1">
-                    <button className="cursor-grab active:cursor-grabbing p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
-                      <GripVertical className="w-5 h-5" />
-                    </button>
+                    {!isContentWriter && (
+                      <button className="cursor-grab active:cursor-grabbing p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+                        <GripVertical className="w-5 h-5" />
+                      </button>
+                    )}
                     
                     <div className="flex-1 flex items-center gap-4">
-                      {isEditing ? (
+                      {isEditing && !isContentWriter ? (
                         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                           <input 
                             type="text" 
@@ -86,7 +89,7 @@ export default function FilterList({
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {isEditing ? (
+                    {isEditing && !isContentWriter ? (
                       <>
                         <button onClick={(e) => handleUpdateFilter(e, filter.id)} className="p-2 bg-green-50 text-green-600 hover:bg-green-100 dark:bg-green-500/10 dark:text-green-400 dark:hover:bg-green-500/20 rounded-lg transition-colors">
                           <Check className="w-4 h-4" />
@@ -97,23 +100,27 @@ export default function FilterList({
                       </>
                     ) : (
                       <>
-                        <button 
-                          onClick={() => {
-                            setEditTitle(filter.title);
-                            setEditAttributeSlug(filter.attributeSlug);
-                            setEditingFilterId(filter.id);
-                            if (isExpanded) setExpandedRowId(null);
-                          }} 
-                          className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button 
-                          onClick={() => handleDeleteFilter(filter.id)} 
-                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {!isContentWriter && (
+                          <>
+                            <button 
+                              onClick={() => {
+                                setEditTitle(filter.title);
+                                setEditAttributeSlug(filter.attributeSlug);
+                                setEditingFilterId(filter.id);
+                                if (isExpanded) setExpandedRowId(null);
+                              }} 
+                              className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteFilter(filter.id)} 
+                              className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
                         <button 
                           onClick={() => setExpandedRowId(isExpanded ? null : filter.id)} 
                           className={`p-2 text-slate-500 hover:text-slate-900 dark:hover:text-white rounded-lg transition-colors ${isExpanded ? 'bg-slate-200 dark:bg-slate-800' : ''}`}
@@ -132,12 +139,14 @@ export default function FilterList({
                       {filter.options?.map((opt, oIndex) => (
                         <div key={oIndex} className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-700 dark:text-slate-300 shadow-sm group/tag">
                           <span>{opt}</span>
-                          <button 
-                            onClick={() => handleDeleteOption(filter.id, oIndex)}
-                            className="text-slate-400 hover:text-red-500 opacity-0 group-hover/tag:opacity-100 transition-opacity"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
+                          {!isContentWriter && (
+                            <button 
+                              onClick={() => handleDeleteOption(filter.id, oIndex)}
+                              className="text-slate-400 hover:text-red-500 opacity-0 group-hover/tag:opacity-100 transition-opacity"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          )}
                         </div>
                       ))}
                     </div>
