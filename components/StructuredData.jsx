@@ -1,18 +1,24 @@
 import React from 'react';
 
 export function StructuredData({ settings }) {
+  const globalData = settings?.seo?.advanced?.globalStructuredData?.trim();
+  const homeData = settings?.seo?.home?.structuredData?.trim();
+
+  // Avoid rendering duplicate schema if homeData is identical to globalData
+  const shouldRenderHome = homeData && homeData !== globalData;
+
   return (
     <>
-      {settings?.seo?.advanced?.globalStructuredData && (
+      {globalData && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: settings.seo.advanced.globalStructuredData }}
+          dangerouslySetInnerHTML={{ __html: globalData }}
         />
       )}
-      {settings?.seo?.home?.structuredData && (
+      {shouldRenderHome && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: settings.seo.home.structuredData }}
+          dangerouslySetInnerHTML={{ __html: homeData }}
         />
       )}
     </>
