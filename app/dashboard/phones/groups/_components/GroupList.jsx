@@ -9,6 +9,7 @@ export default function GroupList({
   editValue,
   setEditValue,
   isPending,
+  isContentWriter,
   managingGroup,
   setManagingGroup,
   toggleSort,
@@ -95,34 +96,38 @@ export default function GroupList({
                       </td>
                       <td className="py-3 px-6 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => setManagingGroup(managingGroup === group ? null : group)}
-                            className={`p-1.5 rounded-md transition-colors ${managingGroup === group ? 'bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-400' : 'text-slate-400 hover:text-brand-600'}`}
-                            title="Manage Attributes"
-                          >
-                            <Tag className="w-4 h-4" />
-                          </button>
-                          {!isProtected && editingGroup !== group && (
+                          {!isContentWriter && (
                             <>
                               <button
-                                onClick={() => {
-                                  setEditingGroup(group);
-                                  setEditValue(group);
-                                }}
-                                disabled={isPending}
-                                className="p-1.5 text-slate-400 hover:text-brand-600 transition-colors"
-                                title="Edit"
+                                onClick={() => setManagingGroup(managingGroup === group ? null : group)}
+                                className={`p-1.5 rounded-md transition-colors ${managingGroup === group ? 'bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-400' : 'text-slate-400 hover:text-brand-600'}`}
+                                title="Manage Attributes"
                               >
-                                <Edit2 className="w-4 h-4" />
+                                <Tag className="w-4 h-4" />
                               </button>
-                              <button
-                                onClick={() => confirmDeleteGroup(group)}
-                                disabled={isPending}
-                                className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"
-                                title="Delete"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
+                              {!isProtected && editingGroup !== group && (
+                                <>
+                                  <button
+                                    onClick={() => {
+                                      setEditingGroup(group);
+                                      setEditValue(group);
+                                    }}
+                                    disabled={isPending}
+                                    className="p-1.5 text-slate-400 hover:text-brand-600 transition-colors"
+                                    title="Edit"
+                                  >
+                                    <Edit2 className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => confirmDeleteGroup(group)}
+                                    disabled={isPending}
+                                    className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"
+                                    title="Delete"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </>
+                              )}
                             </>
                           )}
                         </div>

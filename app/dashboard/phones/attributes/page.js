@@ -3,12 +3,16 @@ import DeviceTabsRoute from '../_components/manager/DeviceTabsRoute';
 import AttributeManager from './_components/AttributeManager';
 import { getDeviceAttributes } from '@/actions/device-attributes';
 import { getDeviceGroups } from '@/actions/device-groups';
+import { verifySession } from '@/actions/auth';
 
 export const metadata = {
   title: 'Attributes | Device Management',
 };
 
 export default async function AttributesPage() {
+  const session = await verifySession();
+  const userRole = session?.role || 'Normal';
+
   const [attributes, groups] = await Promise.all([
     getDeviceAttributes(),
     getDeviceGroups()
@@ -23,7 +27,7 @@ export default async function AttributesPage() {
         </p>
         
         <DeviceTabsRoute />
-        <AttributeManager initialAttributes={attributes} availableGroups={groups} />
+        <AttributeManager initialAttributes={attributes} availableGroups={groups} userRole={userRole} />
       </div>
     </div>
   );

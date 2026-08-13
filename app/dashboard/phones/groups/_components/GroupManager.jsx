@@ -7,7 +7,8 @@ import { updateDeviceAttribute } from '@/actions/device-attributes';
 import { Button } from '@/components/ui/button';
 import GroupForm from './GroupForm';
 import GroupList from './GroupList';
-export default function GroupManager({ initialGroups, allAttributes = [] }) {
+export default function GroupManager({ initialGroups, allAttributes = [], userRole }) {
+  const isContentWriter = userRole?.toLowerCase() === 'contentwriter';
   const [groups, setGroups] = useState(initialGroups);
   const [attributesState, setAttributesState] = useState(allAttributes);
   const [sortOrder, setSortOrder] = useState('asc');
@@ -127,6 +128,7 @@ export default function GroupManager({ initialGroups, allAttributes = [] }) {
         editValue={editValue}
         setEditValue={setEditValue}
         isPending={isPending}
+        isContentWriter={isContentWriter}
         managingGroup={managingGroup}
         setManagingGroup={setManagingGroup}
         toggleSort={toggleSort}
