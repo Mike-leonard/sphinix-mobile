@@ -3,12 +3,16 @@ import DeviceTabsRoute from '../_components/manager/DeviceTabsRoute';
 import BrandManager from './_components/BrandManager';
 import { getDeviceBrands } from '@/actions/device-brands';
 import { getDevices } from '@/actions/devices';
+import { verifySession } from '@/actions/auth';
 
 export const metadata = {
   title: 'Brands | Device Management',
 };
 
 export default async function BrandsPage() {
+  const session = await verifySession();
+  const userRole = session?.role || 'Normal';
+
   const brands = await getDeviceBrands();
   const devices = await getDevices();
   
@@ -28,7 +32,7 @@ export default async function BrandsPage() {
         </p>
         
         <DeviceTabsRoute />
-        <BrandManager initialBrands={brands} brandCounts={brandCounts} />
+        <BrandManager initialBrands={brands} brandCounts={brandCounts} userRole={userRole} />
       </div>
     </div>
   );

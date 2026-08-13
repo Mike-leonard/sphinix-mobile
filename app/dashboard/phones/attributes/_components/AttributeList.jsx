@@ -20,6 +20,7 @@ export default function AttributeList({
   newTermValues,
   setNewTermValues,
   isPending,
+  isContentWriter,
   draggedAttribute,
   setDraggedAttribute,
   handleAttributeDragStart,
@@ -69,19 +70,21 @@ export default function AttributeList({
               (groupedAttributes[activeGroupId] || []).map(attr => (
                 <div 
                   key={attr.id} 
-                  draggable={!editingAttributeId}
-                  onDragStart={(e) => handleAttributeDragStart(e, attr)}
-                  onDragOver={(e) => handleAttributeDragOver(e, attr)}
-                  onDrop={(e) => handleAttributeDrop(e, attr)}
-                  onDragEnd={() => setDraggedAttribute(null)}
-                  className={`group/row flex flex-col p-2 rounded-2xl transition-all cursor-grab active:cursor-grabbing ${
+                  draggable={!isContentWriter && !editingAttributeId}
+                  onDragStart={(e) => !isContentWriter && handleAttributeDragStart(e, attr)}
+                  onDragOver={(e) => !isContentWriter && handleAttributeDragOver(e, attr)}
+                  onDrop={(e) => !isContentWriter && handleAttributeDrop(e, attr)}
+                  onDragEnd={() => !isContentWriter && setDraggedAttribute(null)}
+                  className={`group/row flex flex-col p-2 rounded-2xl transition-all ${
+                    !isContentWriter ? 'cursor-grab active:cursor-grabbing' : ''
+                  } ${
                     draggedAttribute?.id === attr.id ? 'opacity-50 border border-dashed border-brand-500 bg-brand-50/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/25 border border-transparent'
                   }`}
                 >
                   <div className="flex flex-wrap md:flex-nowrap items-center justify-between p-2 gap-4">
                     
                     <div className="flex items-center gap-4 flex-1">
-                      <GripVertical className="w-5 h-5 text-slate-300 dark:text-slate-600 hover:text-brand-500 transition-colors hidden md:block" />
+                      {!isContentWriter && <GripVertical className="w-5 h-5 text-slate-300 dark:text-slate-600 hover:text-brand-500 transition-colors hidden md:block" />}
                       <div 
                         className={`p-2 rounded-xl transition-colors cursor-pointer ${expandedRowId === attr.id ? 'bg-brand-100 text-brand-600 dark:bg-brand-900/40 dark:text-brand-400' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 group-hover/row:bg-white dark:group-hover/row:bg-slate-700 shadow-sm'}`}
                         onClick={() => toggleRow(attr.id)}
@@ -89,7 +92,7 @@ export default function AttributeList({
                         {expandedRowId === attr.id ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                       </div>
                       
-                      {editingAttributeId === attr.id ? (
+                      {editingAttributeId === attr.id && !isContentWriter ? (
                         <div className="flex flex-wrap items-center gap-3 w-full" onClick={e => e.stopPropagation()}>
                           <input
                             type="text"
@@ -148,33 +151,35 @@ export default function AttributeList({
                         </span>
                       </div>
                       
-                      <div className="flex items-center gap-1 opacity-0 group-hover/row:opacity-100 transition-opacity">
-                        {editingAttributeId !== attr.id && (
-                          <>
-                            <button
-                              onClick={() => {
-                                setEditingAttributeId(attr.id);
-                                setEditValue(attr.name);
-                                setEditSlug(attr.slug);
-                                setEditGroupIds(attr.groupIds || (attr.groupId ? [attr.groupId] : ['General']));
-                              }}
-                              disabled={isPending}
-                              className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow text-slate-400 hover:text-brand-600 hover:border-brand-200 dark:hover:border-brand-900/50 rounded-xl transition-all"
-                              title="Edit"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => confirmDeleteAttribute(attr.id, attr.name)}
-                              disabled={isPending}
-                              className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow text-slate-400 hover:text-red-500 hover:border-red-200 dark:hover:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-all"
-                              title="Delete"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </>
-                        )}
-                      </div>
+                      {!isContentWriter && (
+                        <div className="flex items-center gap-1 opacity-0 group-hover/row:opacity-100 transition-opacity">
+                          {editingAttributeId !== attr.id && (
+                            <>
+                              <button
+                                onClick={() => {
+                                  setEditingAttributeId(attr.id);
+                                  setEditValue(attr.name);
+                                  setEditSlug(attr.slug);
+                                  setEditGroupIds(attr.groupIds || (attr.groupId ? [attr.groupId] : ['General']));
+                                }}
+                                disabled={isPending}
+                                className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow text-slate-400 hover:text-brand-600 hover:border-brand-200 dark:hover:border-brand-900/50 rounded-xl transition-all"
+                                title="Edit"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => confirmDeleteAttribute(attr.id, attr.name)}
+                                disabled={isPending}
+                                className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow text-slate-400 hover:text-red-500 hover:border-red-200 dark:hover:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-all"
+                                title="Delete"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                   
@@ -193,13 +198,15 @@ export default function AttributeList({
                           (attr.terms || []).map(term => (
                             <span key={`term-${term}`} className="inline-flex items-center gap-1.5 pl-3 pr-2 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm font-medium text-slate-700 dark:text-slate-300 shadow-sm hover:shadow-md transition-shadow group/term">
                               {term}
-                              <button 
-                                onClick={() => handleRemoveTerm(attr.id, term)}
-                                disabled={isPending}
-                                className="p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-slate-300 dark:text-slate-600 hover:text-red-500 transition-colors opacity-50 group-hover/term:opacity-100"
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
+                              {!isContentWriter && (
+                                <button 
+                                  onClick={() => handleRemoveTerm(attr.id, term)}
+                                  disabled={isPending}
+                                  className="p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-slate-300 dark:text-slate-600 hover:text-red-500 transition-colors opacity-50 group-hover/term:opacity-100"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              )}
                             </span>
                           ))
                         )}

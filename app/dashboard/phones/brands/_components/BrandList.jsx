@@ -9,6 +9,7 @@ export default function BrandList({
   editValue,
   setEditValue,
   isPending,
+  isContentWriter,
   toggleSort,
   handleSaveEdit,
   confirmDeleteBrand,
@@ -81,7 +82,7 @@ export default function BrandList({
                       </td>
                       <td className="py-3 px-6 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          {!isProtected && editingBrand !== brand && (
+                          {!isProtected && editingBrand !== brand && !isContentWriter && (
                             <>
                               <button
                                 onClick={() => {

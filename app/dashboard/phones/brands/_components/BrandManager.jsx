@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 
 import BrandForm from './BrandForm';
 import BrandList from './BrandList';
-export default function BrandManager({ initialBrands, brandCounts = {} }) {
+export default function BrandManager({ initialBrands, brandCounts = {}, userRole }) {
+  const isContentWriter = userRole?.toLowerCase() === 'contentwriter';
   const [brands, setBrands] = useState(initialBrands);
   const [sortOrder, setSortOrder] = useState('asc');
   const [newBrand, setNewBrand] = useState('');
@@ -86,6 +87,7 @@ export default function BrandManager({ initialBrands, brandCounts = {} }) {
         editValue={editValue}
         setEditValue={setEditValue}
         isPending={isPending}
+        isContentWriter={isContentWriter}
         toggleSort={toggleSort}
         handleSaveEdit={handleSaveEdit}
         confirmDeleteBrand={confirmDeleteBrand}

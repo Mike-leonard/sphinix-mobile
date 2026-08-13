@@ -3,12 +3,16 @@ import DeviceTabsRoute from '../_components/manager/DeviceTabsRoute';
 import GroupManager from './_components/GroupManager';
 import { getDeviceGroups } from '@/actions/device-groups';
 import { getDeviceAttributes } from '@/actions/device-attributes';
+import { verifySession } from '@/actions/auth';
 
 export const metadata = {
   title: 'Groups | Device Management',
 };
 
 export default async function GroupsPage() {
+  const session = await verifySession();
+  const userRole = session?.role || 'Normal';
+
   const [groups, attributes] = await Promise.all([
     getDeviceGroups(),
     getDeviceAttributes()
@@ -23,7 +27,7 @@ export default async function GroupsPage() {
         </p>
         
         <DeviceTabsRoute />
-        <GroupManager initialGroups={groups} allAttributes={attributes} />
+        <GroupManager initialGroups={groups} allAttributes={attributes} userRole={userRole} />
       </div>
     </div>
   );

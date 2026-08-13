@@ -16,7 +16,8 @@ import AttributeForm from './AttributeForm';
 import AttributeSidebar from './AttributeSidebar';
 import AttributeList from './AttributeList';
 
-export default function AttributeManager({ initialAttributes, availableGroups = ['General'] }) {
+export default function AttributeManager({ initialAttributes, availableGroups = ['General'], userRole }) {
+  const isContentWriter = userRole?.toLowerCase() === 'contentwriter';
   const [attributes, setAttributes] = useState(initialAttributes || []);
   const [newAttribute, setNewAttribute] = useState('');
   const [newAttributeSlug, setNewAttributeSlug] = useState('');
@@ -270,6 +271,7 @@ export default function AttributeManager({ initialAttributes, availableGroups = 
           setActiveGroupId={setActiveGroupId}
           draggedGroup={draggedGroup}
           setDraggedGroup={setDraggedGroup}
+          isContentWriter={isContentWriter}
           handleDragStart={handleDragStart}
           handleDragOver={handleDragOver}
           handleDrop={handleDrop}
@@ -293,6 +295,7 @@ export default function AttributeManager({ initialAttributes, availableGroups = 
           newTermValues={newTermValues}
           setNewTermValues={setNewTermValues}
           isPending={isPending}
+          isContentWriter={isContentWriter}
           draggedAttribute={draggedAttribute}
           setDraggedAttribute={setDraggedAttribute}
           handleAttributeDragStart={handleAttributeDragStart}

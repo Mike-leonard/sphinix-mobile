@@ -43,7 +43,10 @@ export async function getDeviceGroups() {
 export async function createDeviceGroup(newGroup) {
   try {
     const user = await verifySession();
-    if (!user) throw new Error('Unauthorized');
+    const role = typeof user === 'object' && user?.role ? user.role.toLowerCase() : (user === true ? 'admin' : '');
+    if (!user || !['admin', 'moderator', 'contentwriter'].includes(role)) {
+      return { success: false, error: 'Unauthorized.' };
+    }
 
     if (!newGroup || typeof newGroup !== 'string' || newGroup.trim() === '') {
       return { success: false, error: 'Group name is required' };
@@ -86,7 +89,10 @@ export async function createDeviceGroup(newGroup) {
 export async function updateDeviceGroup(oldGroup, newGroup) {
   try {
     const user = await verifySession();
-    if (!user) throw new Error('Unauthorized');
+    const role = typeof user === 'object' && user?.role ? user.role.toLowerCase() : (user === true ? 'admin' : '');
+    if (!user || !['admin', 'moderator'].includes(role)) {
+      return { success: false, error: 'Unauthorized. ContentWriters cannot rename groups.' };
+    }
 
     if (oldGroup.toLowerCase() === 'general') {
       return { success: false, error: 'Cannot rename the General group' };
@@ -136,7 +142,10 @@ export async function updateDeviceGroup(oldGroup, newGroup) {
 export async function deleteDeviceGroup(groupToDelete) {
   try {
     const user = await verifySession();
-    if (!user) throw new Error('Unauthorized');
+    const role = typeof user === 'object' && user?.role ? user.role.toLowerCase() : (user === true ? 'admin' : '');
+    if (!user || !['admin', 'moderator'].includes(role)) {
+      return { success: false, error: 'Unauthorized. ContentWriters cannot delete groups.' };
+    }
 
     if (groupToDelete.toLowerCase() === 'general') {
       return { success: false, error: 'Cannot delete the General group' };
@@ -173,7 +182,10 @@ export async function deleteDeviceGroup(groupToDelete) {
 export async function reorderDeviceGroups(newGroupsOrder) {
   try {
     const user = await verifySession();
-    if (!user) throw new Error('Unauthorized');
+    const role = typeof user === 'object' && user?.role ? user.role.toLowerCase() : (user === true ? 'admin' : '');
+    if (!user || !['admin', 'moderator'].includes(role)) {
+      return { success: false, error: 'Unauthorized. ContentWriters cannot reorder groups.' };
+    }
 
     if (!Array.isArray(newGroupsOrder)) {
       return { success: false, error: 'Invalid groups order' };

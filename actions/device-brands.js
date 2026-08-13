@@ -43,7 +43,10 @@ export async function getDeviceBrands() {
 export async function createDeviceBrand(newBrand) {
   try {
     const user = await verifySession();
-    if (!user) throw new Error('Unauthorized');
+    const role = user?.role?.toLowerCase();
+    if (!user || !['admin', 'moderator', 'contentwriter'].includes(role)) {
+      return { success: false, error: 'Unauthorized.' };
+    }
 
     if (!newBrand || typeof newBrand !== 'string' || newBrand.trim() === '') {
       return { success: false, error: 'Brand name is required' };
@@ -88,7 +91,10 @@ export async function createDeviceBrand(newBrand) {
 export async function updateDeviceBrand(oldBrand, newBrand) {
   try {
     const user = await verifySession();
-    if (!user) throw new Error('Unauthorized');
+    const role = user?.role?.toLowerCase();
+    if (!user || !['admin', 'moderator'].includes(role)) {
+      return { success: false, error: 'Unauthorized. ContentWriters cannot edit brands.' };
+    }
 
     if (oldBrand.toLowerCase() === 'other') {
       return { success: false, error: 'Cannot rename the Other brand' };
@@ -139,7 +145,10 @@ export async function updateDeviceBrand(oldBrand, newBrand) {
 export async function deleteDeviceBrand(brandToDelete) {
   try {
     const user = await verifySession();
-    if (!user) throw new Error('Unauthorized');
+    const role = user?.role?.toLowerCase();
+    if (!user || !['admin', 'moderator'].includes(role)) {
+      return { success: false, error: 'Unauthorized. ContentWriters cannot delete brands.' };
+    }
 
     if (brandToDelete.toLowerCase() === 'other') {
       return { success: false, error: 'Cannot delete the Other brand' };

@@ -49,7 +49,10 @@ function generateSlug(name) {
 export async function createDeviceAttribute(name, groupIds = ['General'], customSlug = '') {
   try {
     const user = await verifySession();
-    if (!user) throw new Error('Unauthorized');
+    const role = user?.role?.toLowerCase();
+    if (!user || !['admin', 'moderator', 'contentwriter'].includes(role)) {
+      return { success: false, error: 'Unauthorized.' };
+    }
 
     if (!name || typeof name !== 'string' || name.trim() === '') {
       return { success: false, error: 'Attribute name is required' };
@@ -99,7 +102,10 @@ export async function createDeviceAttribute(name, groupIds = ['General'], custom
 export async function updateDeviceAttribute(id, newName, newGroupIds, customSlug = '') {
   try {
     const user = await verifySession();
-    if (!user) throw new Error('Unauthorized');
+    const role = user?.role?.toLowerCase();
+    if (!user || !['admin', 'moderator'].includes(role)) {
+      return { success: false, error: 'Unauthorized. ContentWriters cannot edit attributes.' };
+    }
 
     if (!newName || typeof newName !== 'string' || newName.trim() === '') {
       return { success: false, error: 'New attribute name is required' };
@@ -149,7 +155,10 @@ export async function updateDeviceAttribute(id, newName, newGroupIds, customSlug
 export async function deleteDeviceAttribute(id) {
   try {
     const user = await verifySession();
-    if (!user) throw new Error('Unauthorized');
+    const role = user?.role?.toLowerCase();
+    if (!user || !['admin', 'moderator'].includes(role)) {
+      return { success: false, error: 'Unauthorized. ContentWriters cannot delete attributes.' };
+    }
 
     await deleteDeviceAttributeQuery(id);
     
@@ -177,7 +186,10 @@ export async function deleteDeviceAttribute(id) {
 export async function addAttributeTerm(attributeId, term) {
   try {
     const user = await verifySession();
-    if (!user) throw new Error('Unauthorized');
+    const role = user?.role?.toLowerCase();
+    if (!user || !['admin', 'moderator', 'contentwriter'].includes(role)) {
+      return { success: false, error: 'Unauthorized.' };
+    }
 
     if (!term || typeof term !== 'string' || term.trim() === '') {
       return { success: false, error: 'Term is required' };
@@ -224,7 +236,10 @@ export async function addAttributeTerm(attributeId, term) {
 export async function deleteAttributeTerm(attributeId, term) {
   try {
     const user = await verifySession();
-    if (!user) throw new Error('Unauthorized');
+    const role = user?.role?.toLowerCase();
+    if (!user || !['admin', 'moderator'].includes(role)) {
+      return { success: false, error: 'Unauthorized. ContentWriters cannot delete terms.' };
+    }
 
     const attributes = await getDeviceAttributes();
     
@@ -261,7 +276,10 @@ export async function deleteAttributeTerm(attributeId, term) {
 export async function reassignAttributeGroup(oldGroup, newGroup) {
   try {
     const user = await verifySession();
-    if (!user) throw new Error('Unauthorized');
+    const role = user?.role?.toLowerCase();
+    if (!user || !['admin', 'moderator'].includes(role)) {
+      return { success: false, error: 'Unauthorized. ContentWriters cannot reassign attribute groups.' };
+    }
 
     await reassignAttributeGroupQuery(oldGroup, newGroup);
     revalidatePath('/dashboard/phones/attributes');
@@ -287,7 +305,10 @@ export async function reassignAttributeGroup(oldGroup, newGroup) {
 export async function reorderDeviceAttributes(orderedIds) {
   try {
     const user = await verifySession();
-    if (!user) throw new Error('Unauthorized');
+    const role = user?.role?.toLowerCase();
+    if (!user || !['admin', 'moderator'].includes(role)) {
+      return { success: false, error: 'Unauthorized. ContentWriters cannot reorder attributes.' };
+    }
     
     if (!Array.isArray(orderedIds)) {
       throw new Error('orderedIds must be an array');
