@@ -1,24 +1,19 @@
 import React from 'react';
-import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import UsersTable from '@/app/dashboard/users/_components/UsersTable';
 import { getUsers } from '@/actions/users';
+import { verifySession } from '@/actions/auth';
 
 export default async function UsersPage() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('session');
-  
-  let currentUserId = null;
-  if (sessionCookie && sessionCookie.value) {
-    try {
-      const user = JSON.parse(sessionCookie.value);
-      currentUserId = user.id;
-    } catch (e) {
-      console.error("Failed to parse session cookie", e);
-    }
+  const session = await verifySession();
+  if (!session || session.role !== 'Admin') {
+    redirect('/dashboard');
   }
 
-  // Fetch users server-side, excluding the current logged-in user
-  const initialUsers = await getUsers(currentUserId);
+  const currentUserId = session?.id || null;
+
+  // Fetch all registered users
+  const initialUsers = await getUsers();
 
   return (
     <div className="p-8">
@@ -28,7 +23,7 @@ export default async function UsersPage() {
           Manage all registered users, roles, and permissions.
         </p>
         
-        <UsersTable initialUsers={initialUsers} />
+        <UsersTable initialUsers={initialUsers} currentUserId={currentUserId} />
       </div>
     </div>
   );

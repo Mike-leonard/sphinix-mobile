@@ -26,15 +26,10 @@ export async function verifyUserEmail(id) {
  * @param {string|null} currentUserId - Active user ID to exclude.
  * @returns {Promise<Array>} List of user objects.
  */
-export async function getAllUsers(currentUserId = null) {
-  const users = await prisma.user.findMany({
+export async function getAllUsers() {
+  return await prisma.user.findMany({
     orderBy: { createdAt: 'desc' }
   });
-  
-  if (currentUserId) {
-    return users.filter(u => u.id !== currentUserId);
-  }
-  return users;
 }
 
 /**

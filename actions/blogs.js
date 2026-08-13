@@ -402,7 +402,10 @@ export async function restoreBlog(id) {
 export async function deleteBlog(id) {
   try {
     const user = await verifySession();
-    if (!user) throw new Error('Unauthorized');
+    const role = user?.role?.toLowerCase();
+    if (!user || !['admin', 'moderator'].includes(role)) {
+      return { success: false, error: 'Unauthorized. ContentWriters cannot delete blogs permanently.' };
+    }
 
     await deleteBlogById(id);
 
