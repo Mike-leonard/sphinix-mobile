@@ -14,8 +14,16 @@ const navItems = [
   { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
 
-export default function SidebarNav({ isCollapsed }) {
+export default function SidebarNav({ isCollapsed, user }) {
   const pathname = usePathname();
+
+  const userRole = user?.role || 'Normal';
+
+  const visibleNavItems = navItems.filter(item => {
+    if (item.name === 'Users') return userRole === 'Admin';
+    if (item.name === 'Settings') return ['Admin', 'Moderator'].includes(userRole);
+    return true;
+  });
 
   return (
     <div className="flex-1 py-6 overflow-y-auto overflow-x-hidden hide-scrollbar">
@@ -26,7 +34,7 @@ export default function SidebarNav({ isCollapsed }) {
       )}
 
       <nav className="space-y-1 px-3">
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const isActive = pathname === item.href;
           const Icon = item.icon;
 

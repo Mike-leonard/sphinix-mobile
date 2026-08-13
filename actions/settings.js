@@ -78,8 +78,8 @@ export async function getSettings() {
  */
 export async function getResolvedSettings() {
   const session = await verifySession();
-  if (!session || session.role !== 'Admin') {
-    throw new Error('Unauthorized. Admin access required.');
+  if (!session || !['Admin', 'Moderator'].includes(session.role)) {
+    throw new Error('Unauthorized. Admin or Moderator access required.');
   }
 
   const settings = await getSettings();
@@ -130,8 +130,8 @@ export async function getResolvedSettings() {
 export async function updateSettings(newSettings) {
   try {
     const session = await verifySession();
-    if (!session || session.role !== 'Admin') {
-      return { success: false, error: 'Unauthorized. Admin access required.' };
+    if (!session || !['Admin', 'Moderator'].includes(session.role)) {
+      return { success: false, error: 'Unauthorized. Admin or Moderator access required.' };
     }
 
     if (!newSettings || typeof newSettings !== 'object') {

@@ -15,13 +15,13 @@ import { getAllUsers, deleteUserById, updateUserRoleById, getUserById, updateUse
  * @param {string|null} currentUserId - Active admin ID to filter out self-deletion options.
  * @returns {Promise<Array>} Array of user profile objects.
  */
-export async function getUsers(currentUserId = null) {
+export async function getUsers() {
   try {
     const session = await verifySession();
     if (!session || session.role !== 'Admin') {
       return [];
     }
-    return await getAllUsers(currentUserId);
+    return await getAllUsers();
   } catch (error) {
     console.error('Error fetching users from database:', error);
     return [];
@@ -43,6 +43,10 @@ export async function deleteUser(userId) {
   const session = await verifySession();
   if (!session || session.role !== 'Admin') {
     return { success: false, message: 'Unauthorized. Admin access required.' };
+  }
+
+  if (session.id === userId) {
+    return { success: false, message: 'You cannot delete your own account.' };
   }
 
   try {
@@ -72,6 +76,10 @@ export async function updateUserRole(userId, newRole) {
   const session = await verifySession();
   if (!session || session.role !== 'Admin') {
     return { success: false, message: 'Unauthorized. Admin access required.' };
+  }
+
+  if (session.id === userId) {
+    return { success: false, message: 'You cannot change your own role.' };
   }
 
   try {

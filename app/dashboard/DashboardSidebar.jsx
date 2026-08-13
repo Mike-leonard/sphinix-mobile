@@ -18,7 +18,7 @@ export default function DashboardSidebar({ user }) {
         isCollapsed={isCollapsed} 
         onToggle={() => setIsCollapsed(!isCollapsed)} 
       />
-      <SidebarNav isCollapsed={isCollapsed} />
+      <SidebarNav isCollapsed={isCollapsed} user={user} />
       <SidebarFooter isCollapsed={isCollapsed} user={user} />
     </div>
   );

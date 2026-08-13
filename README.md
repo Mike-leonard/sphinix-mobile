@@ -24,16 +24,6 @@ The project is built around the **Next.js App Router**, **React Server Component
 
 A major part of the project is reducing repetitive editorial work. Administrators can generate device specifications and blog content with **multiple AI providers**, generate SEO metadata, scrape source content from URLs through Jina Reader, and maintain reusable technical specification structures rather than hard-coding every device field.
 
-### Project goals
-
-- Make smartphone research easier for users.
-- Provide a structured, searchable and comparable device catalog.
-- Publish technology content alongside device specifications.
-- Give administrators a flexible CMS-like dashboard instead of hard-coded content workflows.
-- Automate repetitive content creation with AI while retaining editorial control.
-- Support country-specific affiliate markets and localized currencies.
-- Keep the application maintainable through modular queries, Server Actions, reusable components, caching, testing, and CI/CD.
-
 ---
 
 ## What the Project Does — User Perspective

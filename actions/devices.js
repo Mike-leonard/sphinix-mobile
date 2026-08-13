@@ -407,7 +407,10 @@ export async function updateDevice(id, formData) {
 export async function deleteDevice(id) {
   try {
     const user = await verifySession();
-    if (!user) throw new Error('Unauthorized');
+    const role = user?.role?.toLowerCase();
+    if (!user || !['admin', 'moderator'].includes(role)) {
+      return { success: false, error: 'Unauthorized. ContentWriters cannot delete items permanently.' };
+    }
 
     await deleteDeviceQuery(id);
 

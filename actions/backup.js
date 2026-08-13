@@ -60,7 +60,7 @@ export async function restoreBackup(formData) {
     }
 
     const data = await file.text();
-    
+
     // Validate JSON structure
     let parsedData;
     try {

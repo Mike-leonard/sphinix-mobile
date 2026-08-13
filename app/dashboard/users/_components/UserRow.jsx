@@ -4,16 +4,18 @@ import { Button } from "@/components/ui/button";
 
 const ROLE_OPTIONS = ['Admin', 'Moderator', 'ContentWriter', 'Normal'];
 
-export default function UserRow({ user, submitRoleChange, handleSendLink, handleDelete }) {
+export default function UserRow({ user, isCurrentUser, submitRoleChange, handleSendLink, handleDelete }) {
   const [pendingRole, setPendingRole] = useState(null);
 
   const currentSelection = pendingRole || user.role;
 
   const onRoleChange = (e) => {
+    if (isCurrentUser) return;
     setPendingRole(e.target.value);
   };
 
   const onSubmit = () => {
+    if (isCurrentUser) return;
     if (pendingRole && pendingRole !== user.role) {
       submitRoleChange(user.id, pendingRole);
       setPendingRole(null);
@@ -21,13 +23,20 @@ export default function UserRow({ user, submitRoleChange, handleSendLink, handle
   };
 
   return (
-    <tr className="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+    <tr className={`transition-colors ${isCurrentUser ? 'bg-purple-50/30 dark:bg-purple-950/10 hover:bg-purple-50/50 dark:hover:bg-purple-950/20' : 'hover:bg-slate-50 dark:hover:bg-slate-900/50'}`}>
       <td className="px-6 py-4">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center font-bold uppercase shrink-0">
             {user.name.charAt(0)}
           </div>
-          <span className="font-semibold text-slate-900 dark:text-white">{user.name}</span>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-slate-900 dark:text-white">{user.name}</span>
+            {isCurrentUser && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200 dark:bg-purple-900/40 dark:text-purple-300 dark:border-purple-800">
+                You
+              </span>
+            )}
+          </div>
         </div>
       </td>
       
@@ -37,11 +46,14 @@ export default function UserRow({ user, submitRoleChange, handleSendLink, handle
       
       <td className="px-6 py-4">
         <div className="flex items-center gap-2">
-          <div className="relative inline-block">
+          <div className="relative inline-block" title={isCurrentUser ? "You cannot change your own role" : undefined}>
             <select
               value={currentSelection}
               onChange={onRoleChange}
-              className={`appearance-none pl-8 pr-8 py-1.5 rounded-lg text-xs font-semibold cursor-pointer border focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors ${
+              disabled={isCurrentUser}
+              className={`appearance-none pl-8 pr-8 py-1.5 rounded-lg text-xs font-semibold border focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors ${
+                isCurrentUser ? 'opacity-60 cursor-not-allowed ' : 'cursor-pointer '
+              }${
                 currentSelection === 'Admin' ? 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800' :
                 currentSelection === 'Moderator' ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800' :
                 currentSelection === 'ContentWriter' ? 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800' :
@@ -56,7 +68,7 @@ export default function UserRow({ user, submitRoleChange, handleSendLink, handle
             </select>
             {currentSelection === 'Admin' ? <Shield className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-purple-500" /> : <User className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 opacity-50" />}
           </div>
-          {pendingRole && pendingRole !== user.role && (
+          {pendingRole && pendingRole !== user.role && !isCurrentUser && (
             <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-default, var(--font-size-button-default))"}} 
               onClick={onSubmit}
               className="p-1.5 rounded-full bg-emerald-100 text-emerald-600 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 transition-colors shadow-sm"
@@ -78,9 +90,14 @@ export default function UserRow({ user, submitRoleChange, handleSendLink, handle
             <Mail className="w-4 h-4" />
           </Button>
           <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-default, var(--font-size-button-default))"}}  
-            onClick={() => handleDelete(user.id)}
-            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-            title="Delete User"
+            disabled={isCurrentUser}
+            onClick={() => !isCurrentUser && handleDelete(user.id)}
+            className={`p-1.5 rounded-lg transition-colors ${
+              isCurrentUser
+                ? 'text-slate-300 dark:text-slate-700 cursor-not-allowed opacity-40'
+                : 'text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30'
+            }`}
+            title={isCurrentUser ? "You cannot delete your own account" : "Delete User"}
           >
             <Trash2 className="w-4 h-4" />
           </Button>

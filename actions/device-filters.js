@@ -37,7 +37,9 @@ export async function getDeviceFilters() {
 export async function saveDeviceFilters(filters) {
   try {
     const user = await verifySession();
-    if (!user) throw new Error('Unauthorized');
+    if (!user || !['Admin', 'Moderator'].includes(user.role)) {
+      return { success: false, error: 'Unauthorized. Admin or Moderator access required.' };
+    }
 
     await saveDeviceFiltersBatchQuery(filters);
     

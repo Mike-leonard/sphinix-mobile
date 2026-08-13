@@ -44,7 +44,10 @@ export async function getRatingBars() {
 export async function createRatingBar(data) {
   try {
     const user = await verifySession();
-    if (!user) throw new Error('Unauthorized');
+    const role = user?.role?.toLowerCase();
+    if (!user || !['admin', 'moderator'].includes(role)) {
+      return { success: false, error: 'Unauthorized. Admin or Moderator access required.' };
+    }
 
     const bars = await getRatingBarsQuery();
     
@@ -85,7 +88,10 @@ export async function createRatingBar(data) {
 export async function updateRatingBar(id, data) {
   try {
     const user = await verifySession();
-    if (!user) throw new Error('Unauthorized');
+    const role = user?.role?.toLowerCase();
+    if (!user || !['admin', 'moderator'].includes(role)) {
+      return { success: false, error: 'Unauthorized. Admin or Moderator access required.' };
+    }
 
     const bars = await getRatingBarsQuery();
     const existing = bars.find(b => b.id === id);
@@ -126,7 +132,10 @@ export async function updateRatingBar(id, data) {
 export async function deleteRatingBar(id) {
   try {
     const user = await verifySession();
-    if (!user) throw new Error('Unauthorized');
+    const role = user?.role?.toLowerCase();
+    if (!user || !['admin', 'moderator'].includes(role)) {
+      return { success: false, error: 'Unauthorized. Admin or Moderator access required.' };
+    }
 
     await deleteRatingBarQuery(id);
     
@@ -152,7 +161,10 @@ export async function deleteRatingBar(id) {
 export async function reorderRatingBars(orderedIds) {
   try {
     const user = await verifySession();
-    if (!user) throw new Error('Unauthorized');
+    const role = user?.role?.toLowerCase();
+    if (!user || !['admin', 'moderator'].includes(role)) {
+      return { success: false, error: 'Unauthorized. Admin or Moderator access required.' };
+    }
 
     await reorderRatingBarsQuery(orderedIds);
     

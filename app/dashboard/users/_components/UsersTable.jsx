@@ -10,7 +10,7 @@ import UsersTablePagination from './UsersTablePagination';
 
 const USERS_PER_PAGE = 20;
 
-export default function UsersTable({ initialUsers }) {
+export default function UsersTable({ initialUsers, currentUserId }) {
   const [users, setUsers] = useState(initialUsers);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
@@ -149,6 +149,7 @@ export default function UsersTable({ initialUsers }) {
                   <UserRow 
                     key={user.id} 
                     user={user} 
+                    isCurrentUser={user.id === currentUserId}
                     submitRoleChange={submitRoleChange}
                     handleSendLink={handleSendLink}
                     handleDelete={handleDelete}
