@@ -18,8 +18,8 @@ export async function generateMetadata({ searchParams }) {
     ids = String(resolvedParams.q).split(',').filter(Boolean);
   }
 
-  const baseTitle = settings?.seo?.comparisons?.title || "Compare Smartphones & Specifications | Sphinix Mobile";
-  const baseDesc = settings?.seo?.comparisons?.description || "Compare mobile phone specifications side by side.";
+  const baseTitle = settings?.seo?.comparisons?.title || "Compare Smartphones & Specifications";
+  const baseDesc = settings?.seo?.comparisons?.description || "Compare mobile phone specifications side by side. Contrast displays, processors, cameras, battery life, and prices.";
   const baseKeywords = settings?.seo?.comparisons?.keywords
     ? settings.seo.comparisons.keywords.split(',').map(k => k.trim()).filter(Boolean)
     : ["compare phones", "smartphone comparison", "mobile specs comparison"];
@@ -52,8 +52,6 @@ export async function generateMetadata({ searchParams }) {
   let pageTitle = `${comparisonNames} - Full Comparison & Specs`;
   if (settings?.seo?.comparisons?.title) {
     pageTitle = `${comparisonNames} | ${settings.seo.comparisons.title}`;
-  } else {
-    pageTitle = `${comparisonNames} - Full Comparison & Specs | Sphinix Mobile`;
   }
 
   // Dynamic SEO Meta Description

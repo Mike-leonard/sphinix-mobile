@@ -1,8 +1,8 @@
 import ForgotPasswordForm from '@/app/(auth)/forgot-password/_components/ForgotPasswordForm';
 
 export const metadata = {
-  title: 'Forgot Password | Sphinix Mobile',
-  description: 'Reset your password to regain access to your account.',
+  title: 'Forgot Password',
+  description: 'Reset your Sphinix Mobile account password.',
 };
 
 export default function ForgotPasswordPage() {

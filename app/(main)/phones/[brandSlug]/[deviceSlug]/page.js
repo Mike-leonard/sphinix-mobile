@@ -22,7 +22,7 @@ export async function generateMetadata({ params }) {
   const device = await getPublishedDeviceById(deviceSlug);
   if (!device) {
     return {
-      title: 'Device Not Found | Sphinix Mobile',
+      title: 'Device Not Found',
       description: 'The requested smartphone record could not be found.',
     };
   }

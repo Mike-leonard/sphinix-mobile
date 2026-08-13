@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { rawOrigin } from '@/lib/utils';
 
 export const metadata = {
-  title: 'Terms of Service | Sphinix Mobile',
+  title: 'Terms of Service',
   description: 'Terms of Service for Sphinix Mobile. Read our rules, user guidelines, and content licensing.'
 };
 

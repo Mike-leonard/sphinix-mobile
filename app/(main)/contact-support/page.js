@@ -3,7 +3,7 @@ import { Mail, Clock, HelpCircle, Bug } from 'lucide-react';
 import ContactForm from './_components/ContactForm';
 
 export const metadata = {
-  title: 'Contact Support & Feedback | Sphinix Mobile',
+  title: 'Contact Support & Feedback',
   description: 'Have questions about smartphone benchmarks, editorial inquiries, or bug reports? Send us a message and our team will get back to you.'
 };
 

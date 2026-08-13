@@ -1,28 +1,17 @@
 import { getSettings } from '@/actions/settings';
-
-export async function generateMetadata() {
-  const settings = await getSettings();
-  const data = settings?.seo?.comparisons || {};
-  
-  return {
-    title: data.title || "Comparisons",
-    description: data.description || "",
-    keywords: data.keywords?.split(',').map(k => k.trim()) || [],
-    openGraph: {
-      title: data.ogTitle || data.title || "Comparisons",
-      description: data.ogDescription || data.description || "",
-      images: data.ogImage ? [{ url: data.ogImage }] : [],
-    },
-  };
-}
+import { isSameJson } from '@/components/StructuredData';
 
 export default async function ComparisonsLayout({ children }) {
   const settings = await getSettings();
-  const structuredData = settings?.seo?.comparisons?.structuredData;
+  const rawData = settings?.seo?.comparisons?.structuredData;
+  const globalData = settings?.seo?.advanced?.globalStructuredData;
+
+  const structuredData = rawData?.trim();
+  const shouldRender = structuredData && !isSameJson(globalData, structuredData);
 
   return (
     <>
-      {structuredData && (
+      {shouldRender && (
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: structuredData }}
