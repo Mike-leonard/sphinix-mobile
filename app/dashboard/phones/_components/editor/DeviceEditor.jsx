@@ -2,7 +2,7 @@
 
 import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, Save, Loader2, Smartphone, ArrowLeft, Send, Sparkles, Wand2, Eye, ArrowUp, ArrowDown } from 'lucide-react';
+import { ChevronLeft, Save, Loader2, Smartphone, ArrowLeft, Send, Sparkles, Wand2, Eye, ArrowUp, ArrowDown, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { createDevice, updateDevice } from '@/actions/devices';
 import { generateDeviceData } from '@/actions/ai';
@@ -16,6 +16,7 @@ import DeviceDetailedSpecs from './DeviceDetailedSpecs';
 import DeviceOverviewEditor from './DeviceOverviewEditor';
 import DeviceExpertRatings from './DeviceExpertRatings';
 import DeviceEditorSidebar from './DeviceEditorSidebar';
+import DeviceSpecValidatorModal from './DeviceSpecValidatorModal';
 
 import DeviceHero from '@/app/(main)/phones/[brandSlug]/[deviceSlug]/_components/DeviceGallery';
 import DeviceQuickInfo from '@/app/(main)/phones/[brandSlug]/[deviceSlug]/_components/DeviceQuickInfo';
@@ -70,6 +71,7 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
   const setIsDirty = (val) => setIsSaved(!val);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
+  const [isValidatorOpen, setIsValidatorOpen] = useState(false);
 
   // Block tab closing/reloading
   React.useEffect(() => {
@@ -103,7 +105,7 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
       }
 
       if (res.success) {
-        setIsDirty(false);
+        setIsSaved(true);
         router.push('/dashboard/phones');
         router.refresh();
       } else {
@@ -165,6 +167,14 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
           Back to Devices
         </button>
         <div className="flex items-center gap-3">
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={() => setIsValidatorOpen(true)} 
+            className="gap-2 rounded-xl text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+          >
+            <ShieldCheck className="w-4 h-4" /> Cross-Validate Specs
+          </Button>
           <Button type="button" variant="outline" onClick={() => setIsPreview(!isPreview)} className="gap-2 rounded-xl">
             <Eye className="w-4 h-4" /> {isPreview ? 'Edit Mode' : 'Preview'}
           </Button>
@@ -276,6 +286,18 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
         }}
       />
 
+      {/* Cross-Validation Auditor Modal */}
+      <DeviceSpecValidatorModal
+        isOpen={isValidatorOpen}
+        onClose={() => setIsValidatorOpen(false)}
+        deviceName={formData.name}
+        brand={formData.brand}
+        specs={formData.specs}
+        onApplyValidatedSpecs={(newSpecs) => {
+          setFormData(prev => ({ ...prev, specs: newSpecs }));
+        }}
+      />
+
       {/* Floating Quick Scroll Controls */}
       <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-1.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl ring-1 ring-slate-950/5 dark:ring-white/10">
         <button
@@ -315,4 +337,3 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
     </div>
   );
 }
-
