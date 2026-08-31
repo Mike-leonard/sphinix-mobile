@@ -1,7 +1,8 @@
 'use server';
 
 import { generateText } from '@/lib/ai/text-generator';
-import { fetchPageContentWithJina } from '@/lib/ai/jina-scraper';
+import { fetchPageContentWithJina, searchWebWithJina } from '@/lib/ai/jina-scraper';
+import { buildOptimizedSearchQuery } from '@/lib/ai/device-query-optimizer';
 import { verifySession } from '@/actions/auth';
 import { getDeviceAttributes } from '@/actions/device-attributes';
 
@@ -412,5 +413,199 @@ REQUIREMENTS:
     return { success: false, error: error.message };
   }
 }
+
+
+
+/**
+ * -----------------------------------------------------------------------------
+ * AI DEVICE ACTION: searchSingleAttributeWithWeb
+ * -----------------------------------------------------------------------------
+ * @description Performs a live Google/web search via Jina Search API to find real-time spec data, citations, and candidate values.
+ * @security Session authentication required (`verifySession()`).
+ * @param {string} deviceName
+ * @param {string} brand
+ * @param {string} attributeName
+ * @param {string} [groupName]
+ * @returns {Promise<{ success: boolean, data?: { recommendedValue: string, queryUsed: string, sources: Array<{ title: string, url: string, snippet: string }>, alternativeValues: string[] }, error?: string }>}
+ */
+export async function searchSingleAttributeWithWeb(deviceName, brand, attributeName, groupName = '', customQueryOverride = '') {
+  try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+    if (!attributeName && !customQueryOverride) throw new Error('Attribute name or custom query is required');
+
+    const dbAttributes = await getDeviceAttributes();
+    const searchQuery = customQueryOverride.trim() || buildOptimizedSearchQuery(brand, deviceName, attributeName, groupName, dbAttributes);
+    const searchResults = await searchWebWithJina(searchQuery, 6000, 1500);
+
+    const system = `You are an expert tech reviewer and database accuracy checker for Sphinix Mobile.`;
+    const prompt = `
+I performed a live web search for: "${searchQuery}"
+
+Web Search Results:
+${searchResults.text}
+
+Task:
+Extract the exact, authoritative specification value for "${attributeName}" for "${brand} ${deviceName}" from the search results above.
+
+Return a strict JSON object with EXACTLY these keys:
+{
+  "recommendedValue": "Exact spec value (e.g., 'March 1, 2026' or 'GSM 850 / 900 / 1800 / 1900' or 'Adreno 750'). Keep concise and standard.",
+  "alternativeValues": ["Alternative regional variant if any, otherwise empty array []"],
+  "sources": [
+    {
+      "title": "Title of source page",
+      "url": "https://...",
+      "snippet": "Direct excerpt or sentence from search results supporting this value"
+    }
+  ]
+}
+
+REQUIREMENTS:
+- Do NOT wrap in markdown (\`\`\`json). Return ONLY valid JSON.
+- Include up to 3 relevant source excerpts.
+`;
+
+    let rawJson = await generateText(prompt, system, true);
+    if (rawJson.startsWith('```json')) {
+      rawJson = rawJson.replace(/^```json\n?/, '').replace(/\n?```$/, '');
+    } else if (rawJson.startsWith('```')) {
+      rawJson = rawJson.replace(/^```\n?/, '').replace(/\n?```$/, '');
+    }
+
+    const data = JSON.parse(rawJson);
+    return {
+      success: true,
+      data: {
+        recommendedValue: data.recommendedValue || '',
+        queryUsed: searchQuery,
+        sources: data.sources || [],
+        alternativeValues: data.alternativeValues || []
+      }
+    };
+
+  } catch (error) {
+    console.error('Error in searchSingleAttributeWithWeb:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * -----------------------------------------------------------------------------
+ * AI DEVICE ACTION: crossValidateDeviceSpecs
+ * -----------------------------------------------------------------------------
+ * @description Audits current filled device JSON specs against 1 or more external source web page URLs.
+ * @security Session authentication required (`verifySession()`).
+ * @param {string} deviceName
+ * @param {string} brand
+ * @param {Object} currentSpecs - Current specs state object (grouped by category)
+ * @param {Array<string>} sourceUrls - List of reference webpage URLs
+ * @returns {Promise<{ success: boolean, data?: { summary: { totalAudited: number, matchedCount: number, discrepancyCount: number, missingCount: number }, auditResults: Object }, error?: string }>}
+ */
+export async function crossValidateDeviceSpecs(deviceName, brand, currentSpecs = {}, sourceUrls = []) {
+  try {
+    const user = await verifySession();
+    if (!user) throw new Error('Unauthorized');
+    if (!sourceUrls || sourceUrls.length === 0) {
+      throw new Error('At least one source URL is required for cross-validation');
+    }
+
+    // Scrape reference URLs using Jina Reader
+    const scrapedSources = await Promise.all(
+      sourceUrls.map(async (url) => {
+        try {
+          const { title, text } = await fetchPageContentWithJina(url, 15000, 4000);
+          return { url, title, text };
+        } catch (e) {
+          console.warn(`Failed scraping ${url}:`, e.message);
+          return null;
+        }
+      })
+    );
+
+    const validSources = scrapedSources.filter(Boolean);
+    if (validSources.length === 0) {
+      throw new Error('Could not fetch content from any of the provided source URLs');
+    }
+
+    const { schemaMap } = await getDeviceAttributesSchema();
+
+    const system = `You are a strict data auditing system for Sphinix Mobile.`;
+    const prompt = `
+Audit the following current device specifications for "${brand} ${deviceName}" against the provided reference webpage source(s).
+
+CURRENT SITE SPECIFICATIONS JSON:
+${JSON.stringify(currentSpecs, null, 2)}
+
+REFERENCE WEBPAGE SOURCES:
+${validSources.map((s, idx) => `
+--- SOURCE ${idx + 1}: ${s.title} (${s.url}) ---
+${s.text}
+`).join('\n')}
+
+AVAILABLE SCHEMA ATTRIBUTES:
+${JSON.stringify(Object.keys(schemaMap))}
+
+INSTRUCTIONS:
+Audit every attribute in CURRENT SITE SPECIFICATIONS JSON and AVAILABLE SCHEMA ATTRIBUTES.
+
+For each attribute, determine its status:
+- "matched": Current site value matches reference source.
+- "discrepancy": Current site value differs from or conflicts with reference source (e.g. site has "8GB" but source specifies "12GB").
+- "missing": Current site value is empty/blank, but reference source provides data for it.
+- "unverified": Attribute is not mentioned in reference sources.
+
+Return a strict JSON object with EXACTLY this root structure:
+{
+  "summary": {
+    "totalAudited": 40,
+    "matchedCount": 30,
+    "discrepancyCount": 5,
+    "missingCount": 5
+  },
+  "auditResults": {
+    // Group keys like "Network", "Display", "General", "Camera", etc.
+    "Network": [
+      {
+        "slug": "2g-network",
+        "name": "2G Network",
+        "siteValue": "",
+        "sourceValue": "GSM 850 / 900 / 1800 / 1900",
+        "status": "missing",
+        "evidence": "Source explicitly lists 2G GSM 850/900/1800/1900 bands"
+      },
+      {
+        "slug": "ram",
+        "name": "RAM",
+        "siteValue": "8GB",
+        "sourceValue": "12GB",
+        "status": "discrepancy",
+        "evidence": "Source states 12GB LPDDR5X RAM"
+      }
+    ]
+  }
+}
+
+Do NOT wrap in markdown (\`\`\`json). Output ONLY raw valid JSON.
+`;
+
+    let rawJson = await generateText(prompt, system, true);
+    if (rawJson.startsWith('```json')) {
+      rawJson = rawJson.replace(/^```json\n?/, '').replace(/\n?```$/, '');
+    } else if (rawJson.startsWith('```')) {
+      rawJson = rawJson.replace(/^```\n?/, '').replace(/\n?```$/, '');
+    }
+
+    const auditData = JSON.parse(rawJson);
+    return {
+      success: true,
+      data: auditData
+    };
+  } catch (error) {
+    console.error('Error cross-validating device specs:', error);
+    return { success: false, error: error.message };
+  }
+}
+
 
 

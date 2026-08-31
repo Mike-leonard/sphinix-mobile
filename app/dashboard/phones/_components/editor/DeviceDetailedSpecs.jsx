@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { List, ChevronDown, Sparkles, Loader2, Wand2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { List, ChevronDown, Loader2, Wand2, Search } from 'lucide-react';
 import { generateSingleAttributeValue } from '@/actions/ai';
+import SpecFinderModal from './SpecFinderModal';
 
 export default function DeviceDetailedSpecs({ 
   specs, 
@@ -19,6 +20,7 @@ export default function DeviceDetailedSpecs({
   const activeCategory = selectedCategory || detailedGroups[0] || '';
   const [loadingAttrs, setLoadingAttrs] = useState({});
   const [isFetchingCategory, setIsFetchingCategory] = useState(false);
+  const [specFinderState, setSpecFinderState] = useState({ isOpen: false, attrName: '', groupName: '', attrSlug: '' });
 
   const activeGroupAttributes = allAttributes.filter(attr => 
     attr.groupIds?.includes(activeCategory) || attr.groupId === activeCategory
@@ -43,31 +45,22 @@ export default function DeviceDetailedSpecs({
   };
 
   const getSpecValue = (attrSlug, attrName) => {
-    // Also try to find it by name for backwards compatibility
     const spec = activeSpecsList.find(s => s.slug === attrSlug || s.label === attrName);
     return spec ? spec.value : '';
   };
 
-  const handleFetchSingleAttr = async (attr) => {
+  const handleOpenSpecFinder = (attr) => {
     if (!deviceName && !brand) {
       alert("Please enter the Device Brand and Name first.");
       return;
     }
 
-    setLoadingAttrs(prev => ({ ...prev, [attr.slug]: true }));
-
-    try {
-      const res = await generateSingleAttributeValue(deviceName, brand, attr.name, activeCategory);
-      if (res.success && res.data) {
-        handleUpdateSpec(attr.slug, attr.name, res.data);
-      } else {
-        alert(res.error || `Could not fetch value for ${attr.name}`);
-      }
-    } catch (err) {
-      console.error(`Error fetching spec for ${attr.name}:`, err);
-    } finally {
-      setLoadingAttrs(prev => ({ ...prev, [attr.slug]: false }));
-    }
+    setSpecFinderState({
+      isOpen: true,
+      attrName: attr.name,
+      groupName: activeCategory,
+      attrSlug: attr.slug
+    });
   };
 
   const handleFetchAllMissingCategoryAttrs = async () => {
@@ -214,15 +207,15 @@ export default function DeviceDetailedSpecs({
                       {(!currentValue || isLoading) && (
                         <button
                           type="button"
-                          onClick={() => handleFetchSingleAttr(attr)}
+                          onClick={() => handleOpenSpecFinder(attr)}
                           disabled={isLoading}
-                          title={`AI Search for: "${queryHint}"`}
-                          className="p-2.5 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 hover:bg-purple-500/20 border border-purple-500/20 transition-all shrink-0 cursor-pointer disabled:opacity-50"
+                          title={`Live Web Search for: "${queryHint}"`}
+                          className="p-2.5 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 hover:bg-purple-500/20 border border-purple-500/20 transition-all shrink-0 cursor-pointer disabled:opacity-50 flex items-center justify-center text-xs font-semibold"
                         >
                           {isLoading ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                           ) : (
-                            <Sparkles className="w-4 h-4" />
+                            <Search className="w-4 h-4" />
                           )}
                         </button>
                       )}
@@ -234,7 +227,21 @@ export default function DeviceDetailedSpecs({
           </div>
         </div>
       </div>
+
+      {/* Live Web Spec Finder Modal */}
+      <SpecFinderModal
+        isOpen={specFinderState.isOpen}
+        onClose={() => setSpecFinderState(prev => ({ ...prev, isOpen: false }))}
+        attrName={specFinderState.attrName}
+        groupName={specFinderState.groupName}
+        deviceName={deviceName}
+        brand={brand}
+        onApplyValue={(val) => {
+          handleUpdateSpec(specFinderState.attrSlug, specFinderState.attrName, val);
+        }}
+      />
     </div>
   );
 }
+
 

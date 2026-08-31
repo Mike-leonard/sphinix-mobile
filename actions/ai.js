@@ -18,7 +18,9 @@ import {
   generateDeviceDataFromUrl,
   scrapeSourceUrl,
   generateDeviceOverviewNotebook,
-  generateSingleAttributeValue
+  generateSingleAttributeValue,
+  searchSingleAttributeWithWeb,
+  crossValidateDeviceSpecs
 } from './ai/device-actions';
 
 export {
@@ -30,7 +32,10 @@ export {
   generateDeviceDataFromUrl,
   scrapeSourceUrl,
   generateDeviceOverviewNotebook,
-  generateSingleAttributeValue
+  generateSingleAttributeValue,
+  searchSingleAttributeWithWeb,
+  crossValidateDeviceSpecs
 };
+
 
 
