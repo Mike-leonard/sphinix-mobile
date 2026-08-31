@@ -148,20 +148,26 @@ export default function DeviceSpecValidatorModal({
     onClose();
   };
 
-  // Flatten items for filtering
+  // Group items by category for group-wise rendering
   const allAuditedItems = [];
+  const groupedFilteredItems = {};
+
   if (auditReport?.auditResults) {
     Object.entries(auditReport.auditResults).forEach(([groupName, items]) => {
       items.forEach(item => {
         allAuditedItems.push({ ...item, groupName });
       });
+
+      const matchingItems = items.filter(item => {
+        if (activeFilter === 'all') return true;
+        return item.status === activeFilter;
+      });
+
+      if (matchingItems.length > 0) {
+        groupedFilteredItems[groupName] = matchingItems.map(item => ({ ...item, groupName }));
+      }
     });
   }
-
-  const filteredItems = allAuditedItems.filter(item => {
-    if (activeFilter === 'all') return true;
-    return item.status === activeFilter;
-  });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
@@ -346,83 +352,95 @@ export default function DeviceSpecValidatorModal({
                   )}
                 </div>
 
-                {/* Audit Items List */}
-                <div className="space-y-3 flex-1 overflow-y-auto">
-                  {filteredItems.length === 0 ? (
+                {/* Group-Wise Audit Items List */}
+                <div className="space-y-6 flex-1 overflow-y-auto pr-1">
+                  {Object.keys(groupedFilteredItems).length === 0 ? (
                     <div className="p-8 border border-dashed border-slate-800 rounded-xl text-center text-xs text-slate-500">
                       No attributes found matching filter <strong className="text-slate-300">{activeFilter}</strong>.
                     </div>
                   ) : (
-                    filteredItems.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className={`p-3.5 rounded-xl border transition-all space-y-2 ${
-                          item.status === 'discrepancy'
-                            ? 'bg-amber-950/20 border-amber-500/40'
-                            : item.status === 'missing'
-                            ? 'bg-red-950/20 border-red-500/40'
-                            : 'bg-slate-950/40 border-slate-800'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-white">{item.name}</span>
-                            <span className="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded-md">
-                              {item.groupName}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            {item.status === 'matched' && (
-                              <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-2 py-0.5 rounded-md flex items-center gap-1">
-                                <CheckCircle2 className="w-3 h-3" /> Verified
-                              </span>
-                            )}
-                            {item.status === 'discrepancy' && (
-                              <span className="text-[10px] font-semibold text-amber-300 bg-amber-950/40 border border-amber-500/30 px-2 py-0.5 rounded-md flex items-center gap-1">
-                                <AlertTriangle className="w-3 h-3" /> Discrepancy
-                              </span>
-                            )}
-                            {item.status === 'missing' && (
-                              <span className="text-[10px] font-semibold text-red-300 bg-red-950/40 border border-red-500/30 px-2 py-0.5 rounded-md flex items-center gap-1">
-                                <AlertCircle className="w-3 h-3" /> Missing Field
-                              </span>
-                            )}
-
-                            {(item.status === 'discrepancy' || item.status === 'missing') && (
-                              <button
-                                type="button"
-                                onClick={() => handleUpdateSingleField(item.groupName, item.slug, item.name, item.sourceValue)}
-                                className="text-xs font-semibold text-emerald-300 bg-emerald-600 hover:bg-emerald-500 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
-                              >
-                                <Check className="w-3 h-3" /> Apply Source Value
-                              </button>
-                            )}
-                          </div>
+                    Object.entries(groupedFilteredItems).map(([groupName, itemsInGroup]) => (
+                      <div key={groupName} className="space-y-3">
+                        {/* Category / Group Header */}
+                        <div className="flex items-center gap-2 pb-1.5 border-b border-slate-800/80">
+                          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50" />
+                          <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+                            {groupName} ({itemsInGroup.length})
+                          </h4>
                         </div>
 
-                        {/* Values Comparison */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
-                          <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
-                            <span className="text-[10px] text-slate-500 uppercase font-semibold block mb-0.5">Your Site Value</span>
-                            <span className={item.siteValue ? "text-slate-200 font-medium" : "text-slate-600 italic"}>
-                              {item.siteValue || "(Empty / Blank)"}
-                            </span>
-                          </div>
+                        {/* Group Items */}
+                        <div className="space-y-3">
+                          {itemsInGroup.map((item, idx) => (
+                            <div
+                              key={idx}
+                              className={`p-3.5 rounded-xl border transition-all space-y-2 ${
+                                item.status === 'discrepancy'
+                                  ? 'bg-amber-950/20 border-amber-500/40'
+                                  : item.status === 'missing'
+                                  ? 'bg-red-950/20 border-red-500/40'
+                                  : 'bg-slate-950/40 border-slate-800'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-bold text-white">{item.name}</span>
+                                </div>
 
-                          <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
-                            <span className="text-[10px] text-emerald-400 uppercase font-semibold block mb-0.5">Source Reference Value</span>
-                            <span className="text-emerald-200 font-medium">
-                              {item.sourceValue || "Not found in source"}
-                            </span>
-                          </div>
+                                <div className="flex items-center gap-2">
+                                  {item.status === 'matched' && (
+                                    <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-950/40 border border-emerald-500/30 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                      <CheckCircle2 className="w-3 h-3" /> Verified
+                                    </span>
+                                  )}
+                                  {item.status === 'discrepancy' && (
+                                    <span className="text-[10px] font-semibold text-amber-300 bg-amber-950/40 border border-amber-500/30 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                      <AlertTriangle className="w-3 h-3" /> Discrepancy
+                                    </span>
+                                  )}
+                                  {item.status === 'missing' && (
+                                    <span className="text-[10px] font-semibold text-red-300 bg-red-950/40 border border-red-500/30 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                      <AlertCircle className="w-3 h-3" /> Missing Field
+                                    </span>
+                                  )}
+
+                                  {(item.status === 'discrepancy' || item.status === 'missing') && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleUpdateSingleField(item.groupName, item.slug, item.name, item.sourceValue)}
+                                      className="text-xs font-semibold text-emerald-300 bg-emerald-600 hover:bg-emerald-500 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                                    >
+                                      <Check className="w-3 h-3" /> Apply Source Value
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Values Comparison */}
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+                                <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+                                  <span className="text-[10px] text-slate-500 uppercase font-semibold block mb-0.5">Your Site Value</span>
+                                  <span className={item.siteValue ? "text-slate-200 font-medium" : "text-slate-600 italic"}>
+                                    {item.siteValue || "(Empty / Blank)"}
+                                  </span>
+                                </div>
+
+                                <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
+                                  <span className="text-[10px] text-emerald-400 uppercase font-semibold block mb-0.5">Source Reference Value</span>
+                                  <span className="text-emerald-200 font-medium">
+                                    {item.sourceValue || "Not found in source"}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {item.evidence && (
+                                <p className="text-[11px] text-slate-400 italic bg-slate-950/60 p-2 rounded-lg">
+                                  Evidence: &quot;{item.evidence}&quot;
+                                </p>
+                              )}
+                            </div>
+                          ))}
                         </div>
-
-                        {item.evidence && (
-                          <p className="text-[11px] text-slate-400 italic bg-slate-950/60 p-2 rounded-lg">
-                            Evidence: &quot;{item.evidence}&quot;
-                          </p>
-                        )}
                       </div>
                     ))
                   )}
