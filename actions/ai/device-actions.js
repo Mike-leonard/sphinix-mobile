@@ -514,7 +514,7 @@ export async function crossValidateDeviceSpecs(deviceName, brand, currentSpecs =
     const scrapedSources = await Promise.all(
       sourceUrls.map(async (url) => {
         try {
-          const { title, text } = await fetchPageContentWithJina(url, 15000, 4000);
+          const { title, text } = await fetchPageContentWithJina(url, 45000, 8000);
           return { url, title, text };
         } catch (e) {
           console.warn(`Failed scraping ${url}:`, e.message);
@@ -530,32 +530,32 @@ export async function crossValidateDeviceSpecs(deviceName, brand, currentSpecs =
 
     const { schemaMap } = await getDeviceAttributesSchema();
 
-    const system = `You are a strict data auditing system for Sphinix Mobile.`;
+    const system = `You are an expert technical specification auditor for Sphinix Mobile.`;
     const prompt = `
-Audit the following current device specifications for "${brand} ${deviceName}" against the provided reference webpage source(s).
+Audit current site specifications for "${brand} ${deviceName}" against reference webpage content.
 
-CURRENT SITE SPECIFICATIONS JSON:
+CURRENT SITE SPECIFICATIONS:
 ${JSON.stringify(currentSpecs, null, 2)}
 
-REFERENCE WEBPAGE SOURCES:
+REFERENCE WEBPAGE SOURCES CONTENT:
 ${validSources.map((s, idx) => `
 --- SOURCE ${idx + 1}: ${s.title} (${s.url}) ---
 ${s.text}
 `).join('\n')}
 
-AVAILABLE SCHEMA ATTRIBUTES:
-${JSON.stringify(Object.keys(schemaMap))}
+AVAILABLE SCHEMA ATTRIBUTES BY CATEGORY:
+${JSON.stringify(schemaMap, null, 2)}
 
-INSTRUCTIONS:
-Audit every attribute in CURRENT SITE SPECIFICATIONS JSON and AVAILABLE SCHEMA ATTRIBUTES.
+AUDIT INSTRUCTIONS & RULES:
+1. Carefully search the REFERENCE WEBPAGE SOURCES for values corresponding to every attribute.
+2. Semantic Matching:
+   - Treat equivalent descriptions as "matched" (e.g. site has "Stereo speakers", source has "Loudspeaker: Yes, with stereo speakers" -> "matched").
+   - If site value has content and source confirms or describes it, mark "matched" and provide the source's exact spec text in "sourceValue".
+   - If site value is wrong/conflicting with source, mark "discrepancy" and provide the correct "sourceValue" from reference source.
+   - If site value is empty/blank but reference source has spec data, mark "missing" and provide the "sourceValue".
+   - ONLY mark "unverified" if the reference text genuinely contains NO information about that spec item.
 
-For each attribute, determine its status:
-- "matched": Current site value matches reference source.
-- "discrepancy": Current site value differs from or conflicts with reference source (e.g. site has "8GB" but source specifies "12GB").
-- "missing": Current site value is empty/blank, but reference source provides data for it.
-- "unverified": Attribute is not mentioned in reference sources.
-
-Return a strict JSON object with EXACTLY this root structure:
+Return a strict JSON object with EXACTLY this structure:
 {
   "summary": {
     "totalAudited": 40,
@@ -564,30 +564,20 @@ Return a strict JSON object with EXACTLY this root structure:
     "missingCount": 5
   },
   "auditResults": {
-    // Group keys like "Network", "Display", "General", "Camera", etc.
-    "Network": [
+    "General": [
       {
-        "slug": "2g-network",
-        "name": "2G Network",
-        "siteValue": "",
-        "sourceValue": "GSM 850 / 900 / 1800 / 1900",
-        "status": "missing",
-        "evidence": "Source explicitly lists 2G GSM 850/900/1800/1900 bands"
-      },
-      {
-        "slug": "ram",
-        "name": "RAM",
-        "siteValue": "8GB",
-        "sourceValue": "12GB",
-        "status": "discrepancy",
-        "evidence": "Source states 12GB LPDDR5X RAM"
+        "slug": "announced",
+        "name": "Announced",
+        "siteValue": "2026, March",
+        "sourceValue": "March 01, 2026",
+        "status": "matched",
+        "evidence": "Source lists Announcement date as March 01, 2026"
       }
     ]
   }
 }
 
-Do NOT wrap in markdown (\`\`\`json). Output ONLY raw valid JSON.
-`;
+Output ONLY valid raw JSON. Do NOT wrap in markdown (\`\`\`json).`;
 
     let rawJson = await generateText(prompt, system, true);
     if (rawJson.startsWith('```json')) {
