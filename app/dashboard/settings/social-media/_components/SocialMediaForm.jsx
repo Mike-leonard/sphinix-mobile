@@ -67,7 +67,8 @@ export default function SocialMediaForm({ initialSettings }) {
   const handleConnectPinterest = async () => {
     try {
       setAuthLoading(true);
-      const redirectUri = `${window.location.origin}/api/pinterest/callback`;
+      const origin = window.location.origin.replace('0.0.0.0', 'localhost');
+      const redirectUri = `${origin}/api/pinterest/callback`;
       const res = await getPinterestAuthLinkAction(redirectUri);
       if (res.success && res.url) {
         window.location.href = res.url;
