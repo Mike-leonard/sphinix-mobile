@@ -39,6 +39,22 @@ export async function generateMetadata() {
     };
   }
 
+  // Support custom HTML meta tags from Dashboard (e.g. Pinterest domain verification, Bing, Facebook)
+  const customMetaString = settings.seo?.advanced?.customMetaTags || '<meta name="p:domain_verify" content="e493c18721d10e873f09bb885328fc1e"/>';
+  if (customMetaString) {
+    const metaRegex = /<meta\s+([^>]+)>/gi;
+    let match;
+    metadata.other = metadata.other || {};
+    while ((match = metaRegex.exec(customMetaString)) !== null) {
+      const attrs = match[1];
+      const nameMatch = attrs.match(/(?:name|property)=["']([^"']+)["']/i);
+      const contentMatch = attrs.match(/content=["']([^"']+)["']/i);
+      if (nameMatch && contentMatch) {
+        metadata.other[nameMatch[1]] = contentMatch[1];
+      }
+    }
+  }
+
   return metadata;
 }
 

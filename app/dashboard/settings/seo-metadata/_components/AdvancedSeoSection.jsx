@@ -48,6 +48,22 @@ export default function AdvancedSeoSection({ currentData, handleChange }) {
         />
         <p className="text-xs text-slate-500 mt-2">This schema will be injected on every page of your site.</p>
       </div>
+
+      <div>
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+          Custom HTML Meta Tags (Site Verification)
+        </label>
+        <textarea
+          value={currentData.customMetaTags !== undefined ? currentData.customMetaTags : '<meta name="p:domain_verify" content="e493c18721d10e873f09bb885328fc1e"/>'}
+          onChange={(e) => handleChange('customMetaTags', e.target.value)}
+          rows={3}
+          className="w-full font-mono text-sm px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all outline-none resize-y"
+          placeholder='<meta name="p:domain_verify" content="e493c18721d10e873f09bb885328fc1e"/>'
+        />
+        <p className="text-xs text-slate-500 mt-2">
+          Add custom HTML meta tags for Pinterest domain verification, Bing Webmaster Tools, Facebook, etc.
+        </p>
+      </div>
     </div>
   );
 }

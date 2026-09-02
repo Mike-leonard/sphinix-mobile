@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { verifySession } from './auth';
+import { autoPinBlogToPinterest } from '@/actions/pinterest';
 import { 
   getAllBlogs, 
   getBlogById as getBlogByIdQuery, 
@@ -280,6 +281,11 @@ export async function createBlog(formData) {
 
     await createBlogQuery(data);
 
+    // Auto-Pin to Pinterest if published
+    if (data.status === 'published') {
+      autoPinBlogToPinterest(data).catch(err => console.error('[Pinterest Auto-Pin Blog Error]:', err));
+    }
+
     revalidatePath('/dashboard/blogs');
     revalidatePath('/blogs');
 
@@ -320,6 +326,11 @@ export async function updateBlog(id, formData) {
     if (formData.seo !== undefined) data.seo = formData.seo;
 
     await updateBlogById(id, data);
+
+    // Auto-Pin to Pinterest if status is published
+    if (data.status === 'published') {
+      autoPinBlogToPinterest({ id, ...data }).catch(err => console.error('[Pinterest Auto-Pin Blog Error]:', err));
+    }
 
     revalidatePath('/dashboard/blogs');
     revalidatePath(`/blogs/${id}`);
