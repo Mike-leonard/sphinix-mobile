@@ -12,6 +12,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1121.0",
     "@base-ui/react": "^1.6.0",
     "@google-analytics/data": "^6.1.0",
     "@google/genai": "^2.11.0",

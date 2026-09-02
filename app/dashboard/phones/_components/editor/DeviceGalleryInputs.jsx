@@ -1,13 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Check, Sparkles, ChevronDown, ChevronUp, Image as ImageIcon } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Check, Sparkles, ChevronDown, ChevronUp, Image as ImageIcon, UploadCloud } from 'lucide-react';
+import R2MediaImporterModal from './R2MediaImporterModal';
 
 const ANGLES = ['Front View', 'Back View', 'Camera', 'Side Profile'];
 
 export default function DeviceGalleryInputs({ formData, setFormData }) {
   const [editingGallery, setEditingGallery] = useState({});
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [r2ModalState, setR2ModalState] = useState({ isOpen: false, targetIdx: null });
+  const targetIdxRef = useRef(null);
 
   const imageAlts = Array.isArray(formData.imageAlts)
     ? formData.imageAlts
@@ -27,11 +30,40 @@ export default function DeviceGalleryInputs({ formData, setFormData }) {
     setFormData({ ...formData, imageAlts: newAlts });
   };
 
-  const handleAutoSuggestAlt = (idx, label) => {
-    const brand = formData.brand || '';
-    const name = formData.name || '';
-    const suggestedAlt = `${brand} ${name} ${label}`.trim() || `${label} Photo`;
-    handleUpdateAlt(idx, suggestedAlt);
+  const handleOpenR2Modal = (idx) => {
+    targetIdxRef.current = idx;
+    setR2ModalState({ isOpen: true, targetIdx: idx });
+  };
+
+  const handleR2MediaUploaded = (uploadedUrl, returnedIdx) => {
+    const idx = returnedIdx ?? targetIdxRef.current ?? r2ModalState.targetIdx;
+    if (idx !== null && idx !== undefined) {
+      setFormData((prev) => {
+        const currentImages = Array.isArray(prev.images) ? [...prev.images] : ['', '', '', ''];
+        while (currentImages.length <= idx) currentImages.push('');
+        currentImages[idx] = uploadedUrl;
+
+        const currentAlts = Array.isArray(prev.imageAlts)
+          ? [...prev.imageAlts]
+          : ['', '', '', ''];
+        while (currentAlts.length <= idx) currentAlts.push('');
+
+        if (!currentAlts[idx]) {
+          const brand = prev.brand || '';
+          const name = prev.name || '';
+          const label = ANGLES[idx] || 'Photo';
+          currentAlts[idx] = `${brand} ${name} ${label}`.trim() || `${label} Photo`;
+        }
+
+        return {
+          ...prev,
+          images: currentImages,
+          imageAlts: currentAlts
+        };
+      });
+
+      setEditingGallery((prev) => ({ ...prev, [idx]: true }));
+    }
   };
 
   const filledImagesCount = (formData.images || []).filter((img) => img && img.trim() !== '').length;
@@ -58,7 +90,7 @@ export default function DeviceGalleryInputs({ formData, setFormData }) {
               </span>
             </div>
             <p className="text-[11px] text-slate-400 mt-0.5">
-              Custom Alt text boosts Google Image Search SEO
+              Custom Alt text boosts Google Image Search SEO • Upload to Cloudflare R2
             </p>
           </div>
         </div>
@@ -153,18 +185,38 @@ export default function DeviceGalleryInputs({ formData, setFormData }) {
                     )}
                   </div>
 
-                  {/* Image URL Input */}
+                  {/* Image URL Input with R2 Upload Button */}
                   <div className="space-y-1">
-                    <label className="block text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                      Image URL
-                    </label>
-                    <input
-                      type="url"
-                      placeholder={`https://...`}
-                      value={formData.images?.[idx] || ''}
-                      onChange={(e) => handleUpdateImage(idx, e.target.value)}
-                      className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all"
-                    />
+                    <div className="flex items-center justify-between">
+                      <label className="block text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                        Image URL
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => handleOpenR2Modal(idx)}
+                        className="text-[11px] text-purple-600 dark:text-purple-400 font-semibold hover:underline flex items-center gap-1 cursor-pointer"
+                        title="Upload external URL to Cloudflare R2 under brand/model folder"
+                      >
+                        <UploadCloud className="w-3.5 h-3.5" /> Upload to R2
+                      </button>
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        type="url"
+                        placeholder={`https://...`}
+                        value={formData.images?.[idx] || ''}
+                        onChange={(e) => handleUpdateImage(idx, e.target.value)}
+                        className="flex-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all font-mono"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleOpenR2Modal(idx)}
+                        className="px-2.5 py-1.5 bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/30 rounded-xl text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer shrink-0"
+                        title="Upload to Cloudflare R2"
+                      >
+                        <UploadCloud className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
 
                   {/* Image Alt Text Input */}
@@ -196,6 +248,17 @@ export default function DeviceGalleryInputs({ formData, setFormData }) {
           </div>
         </div>
       )}
+
+      {/* R2 Media Importer Modal */}
+      <R2MediaImporterModal
+        isOpen={r2ModalState.isOpen}
+        onClose={() => setR2ModalState({ isOpen: false, targetIdx: null })}
+        onMediaUploaded={handleR2MediaUploaded}
+        brandName={formData.brand}
+        deviceName={formData.name}
+        defaultFolderType="gallery"
+        targetIdx={r2ModalState.targetIdx}
+      />
     </div>
   );
 }
