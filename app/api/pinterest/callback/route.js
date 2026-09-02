@@ -2,18 +2,36 @@ import { NextResponse } from 'next/server';
 import { exchangeCodeForTokens, getPinterestUserProfile, getPinterestBoards } from '@/lib/pinterest/pinterest-client';
 import { getSettings, updateSettings } from '@/actions/settings';
 
+function getSafeBaseUrl(request) {
+  // If production domain is configured, use it
+  if (process.env.NEXT_PUBLIC_BASE_URL) {
+    return process.env.NEXT_PUBLIC_BASE_URL.replace(/\/$/, '');
+  }
+
+  const forwardedHost = request.headers.get('x-forwarded-host');
+  const rawHost = forwardedHost || request.headers.get('host') || 'localhost:3000';
+
+  // Prevent 0.0.0.0 redirects
+  let host = rawHost.replace(/^0\.0\.0\.0/, 'localhost');
+  if (host.includes('sphinix.xyz')) {
+    return 'https://sphinix.xyz';
+  }
+
+  const proto = request.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
+  return `${proto}://${host}`;
+}
+
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
   const error = searchParams.get('error');
 
-  const host = request.headers.get('host') || 'localhost:3000';
-  const protocol = host.includes('localhost') ? 'http' : 'https';
-  const redirectUri = `${protocol}://${host}/api/pinterest/callback`;
+  const baseUrl = getSafeBaseUrl(request);
+  const redirectUri = `${baseUrl}/api/pinterest/callback`;
 
   if (error || !code) {
     const errorMsg = error || 'Authorization was cancelled or failed';
-    return NextResponse.redirect(new URL(`/dashboard/settings/social-media?pinterest_error=${encodeURIComponent(errorMsg)}`, request.url));
+    return NextResponse.redirect(new URL(`/dashboard/settings/social-media?pinterest_error=${encodeURIComponent(errorMsg)}`, baseUrl));
   }
 
   try {
@@ -49,9 +67,9 @@ export async function GET(request) {
       }
     });
 
-    return NextResponse.redirect(new URL('/dashboard/settings/social-media?pinterest=connected', request.url));
+    return NextResponse.redirect(new URL('/dashboard/settings/social-media?pinterest=connected', baseUrl));
   } catch (err) {
     console.error('Pinterest OAuth Callback Error:', err);
-    return NextResponse.redirect(new URL(`/dashboard/settings/social-media?pinterest_error=${encodeURIComponent(err.message)}`, request.url));
+    return NextResponse.redirect(new URL(`/dashboard/settings/social-media?pinterest_error=${encodeURIComponent(err.message)}`, baseUrl));
   }
 }
