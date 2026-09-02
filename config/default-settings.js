@@ -3,7 +3,8 @@ export const defaultSettings = {
     advanced: {
       generateSitemap: true,
       robotsTxt: "User-agent: *\nAllow: /\nSitemap: https://sphinix.xyz/sitemap.xml",
-      globalStructuredData: "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"WebSite\",\n  \"name\": \"Sphinix Mobile\",\n  \"url\": \"https://sphinix.xyz\"\n}"
+      globalStructuredData: "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"WebSite\",\n  \"name\": \"Sphinix Mobile\",\n  \"url\": \"https://sphinix.xyz\"\n}",
+      customMetaTags: "<meta name=\"p:domain_verify\" content=\"e493c18721d10e873f09bb885328fc1e\"/>"
     },
     home: {
       title: "Sphinix Mobile | In-Depth Smartphone Reviews & Tech Blog",
@@ -127,7 +128,18 @@ export const defaultSettings = {
     facebook: "",
     twitter: "",
     instagram: "",
-    youtube: ""
+    youtube: "",
+    pinterest: {
+      enabled: false,
+      autoPinPhones: true,
+      autoPinBlogs: true,
+      boardId: "",
+      boardName: "",
+      accessToken: "",
+      refreshToken: "",
+      tokenExpiresAt: null,
+      username: ""
+    }
   },
   media: {
     maxUploadSizeMB: 5,
