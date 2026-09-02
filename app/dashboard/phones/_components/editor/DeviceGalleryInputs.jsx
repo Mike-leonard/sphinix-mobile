@@ -30,6 +30,13 @@ export default function DeviceGalleryInputs({ formData, setFormData }) {
     setFormData({ ...formData, imageAlts: newAlts });
   };
 
+  const handleAutoSuggestAlt = (idx, label) => {
+    const brand = formData.brand || '';
+    const name = formData.name || '';
+    const suggestedAlt = `${brand} ${name} ${label}`.trim() || `${label} Photo`;
+    handleUpdateAlt(idx, suggestedAlt);
+  };
+
   const handleOpenR2Modal = (idx) => {
     targetIdxRef.current = idx;
     setR2ModalState({ isOpen: true, targetIdx: idx });

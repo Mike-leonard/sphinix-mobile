@@ -4,6 +4,7 @@ import ProductSection from './_components/_sections/ProductSection';
 import BlogSection from './_components/_sections/BlogSection';
 import RightSidebar from '@/components/sidebar/RightSidebar';
 import { getSettings } from '@/actions/settings';
+import { getNewArrivals } from '@/actions/devices';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,6 +12,7 @@ export default async function Home() {
 
   const settings = await getSettings();
   const homeLimits = settings?.appearance?.home || { deviceLimit: 8, blogLimit: 3 };
+  const featuredDevices = await getNewArrivals(5);
 
   return (
     <div className="text-slate-800 dark:text-slate-100">
@@ -23,7 +25,7 @@ export default async function Home() {
             {/* TOP LEADERBOARD AD */}
             <AdBanner type="horizontal" placement="homePageBanner" className="hidden sm:flex" />
 
-            <HeroCarousel />
+            <HeroCarousel initialDevices={featuredDevices} />
 
             {/* LATEST PRODUCTS SECTION */}
             <ProductSection
