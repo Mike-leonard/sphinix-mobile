@@ -14,7 +14,7 @@ export async function getPinterestAuthLinkAction(redirectUri) {
     const user = await verifySession();
     if (!user) throw new Error('Unauthorized');
 
-    const url = getPinterestAuthUrl({ redirectUri });
+    const url = await getPinterestAuthUrl({ redirectUri });
     return { success: true, url };
   } catch (error) {
     console.error('Error generating Pinterest auth URL:', error);

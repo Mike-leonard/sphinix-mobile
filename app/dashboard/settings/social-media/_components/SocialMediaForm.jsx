@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useTransition } from 'react';
-import { Save, CheckCircle2, Share2, ExternalLink, RefreshCw, Send, AlertCircle, Unlink } from 'lucide-react';
+import { Save, CheckCircle2, Share2, ExternalLink, RefreshCw, Send, AlertCircle, Unlink, Key, Shield } from 'lucide-react';
 import { updateSettings } from '@/actions/settings';
 import { 
   getPinterestAuthLinkAction, 
@@ -23,6 +23,16 @@ export default function SocialMediaForm({ initialSettings }) {
   const [loadingBoards, setLoadingBoards] = useState(isPinterestConnected);
   const [testPinState, setTestPinState] = useState({ loading: false, message: '', error: '' });
   const [authLoading, setAuthLoading] = useState(false);
+  const [urlAlert, setUrlAlert] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const err = params.get('pinterest_error');
+      const conn = params.get('pinterest');
+      if (err) return { error: decodeURIComponent(err), success: '' };
+      if (conn === 'connected') return { error: '', success: 'Pinterest account connected successfully!' };
+    }
+    return { error: '', success: '' };
+  });
 
   // Fetch Pinterest boards if connected
   useEffect(() => {
@@ -67,6 +77,22 @@ export default function SocialMediaForm({ initialSettings }) {
   const handleConnectPinterest = async () => {
     try {
       setAuthLoading(true);
+      setUrlAlert({ error: '', success: '' });
+
+      // If user provided appId or appSecret in the dashboard inputs, save them first
+      if (pinterestConfig.appSecret || pinterestConfig.appId) {
+        await updateSettings({
+          socialMedia: {
+            ...settings.socialMedia,
+            pinterest: {
+              ...settings.socialMedia?.pinterest,
+              appId: pinterestConfig.appId || '1607585',
+              appSecret: pinterestConfig.appSecret || ''
+            }
+          }
+        });
+      }
+
       const origin = window.location.origin.replace('0.0.0.0', 'localhost');
       const redirectUri = `${origin}/api/pinterest/callback`;
       const res = await getPinterestAuthLinkAction(redirectUri);
@@ -92,6 +118,8 @@ export default function SocialMediaForm({ initialSettings }) {
           ...prev.socialMedia,
           pinterest: {
             enabled: false,
+            appId: prev.socialMedia?.pinterest?.appId || '1607585',
+            appSecret: prev.socialMedia?.pinterest?.appSecret || '',
             autoPinPhones: false,
             autoPinBlogs: false,
             boardId: '',
@@ -104,6 +132,7 @@ export default function SocialMediaForm({ initialSettings }) {
         }
       }));
       setBoards([]);
+      setUrlAlert({ error: '', success: 'Pinterest account disconnected.' });
     } else {
       alert(res.error || 'Failed to disconnect Pinterest');
     }
@@ -172,7 +201,7 @@ export default function SocialMediaForm({ initialSettings }) {
                 variant="outline"
                 size="sm"
                 onClick={handleDisconnectPinterest}
-                className="text-xs border-red-200 dark:border-red-900/40 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 gap-1.5"
+                className="text-xs border-red-200 dark:border-red-900/40 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 gap-1.5 cursor-pointer"
               >
                 <Unlink className="w-3.5 h-3.5" />
                 <span>Disconnect</span>
@@ -193,6 +222,63 @@ export default function SocialMediaForm({ initialSettings }) {
             )}
           </div>
         </div>
+
+        {/* URL Error or Success Alert */}
+        {urlAlert.error && (
+          <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-xs font-medium text-red-700 dark:text-red-400 flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <div>
+              <span className="font-bold block">Pinterest Connection Error:</span>
+              <span>{urlAlert.error}</span>
+            </div>
+          </div>
+        )}
+        {urlAlert.success && (
+          <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-xs font-medium text-emerald-700 dark:text-emerald-400 flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span>{urlAlert.success}</span>
+          </div>
+        )}
+
+        {/* APP CREDENTIALS (IF NOT CONNECTED) */}
+        {!isPinterestConnected && (
+          <div className="pt-4 border-t border-slate-200 dark:border-slate-800/80 space-y-4">
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
+              <Key className="w-4 h-4 text-red-500" />
+              <span>Pinterest App Credentials (Stored securely in Database)</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                  App ID
+                </label>
+                <input
+                  type="text"
+                  value={pinterestConfig.appId || '1607585'}
+                  onChange={(e) => handlePinterestChange('appId', e.target.value)}
+                  placeholder="1607585"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-mono focus:ring-2 focus:ring-red-500/50 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                  App Secret Key
+                </label>
+                <input
+                  type="password"
+                  value={pinterestConfig.appSecret || ''}
+                  onChange={(e) => handlePinterestChange('appSecret', e.target.value)}
+                  placeholder="Paste your Pinterest App Secret here"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-mono focus:ring-2 focus:ring-red-500/50 outline-none"
+                />
+              </div>
+            </div>
+            <p className="text-[11px] text-slate-500 flex items-center gap-1.5">
+              <Shield className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              <span>You can enter your Secret Key here to save it in your database, or set it via <code>PINTEREST_APP_SECRET</code> in your server environment.</span>
+            </p>
+          </div>
+        )}
 
         {/* Connected Settings Controls */}
         {isPinterestConnected && (

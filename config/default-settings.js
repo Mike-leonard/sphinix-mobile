@@ -131,6 +131,8 @@ export const defaultSettings = {
     youtube: "",
     pinterest: {
       enabled: false,
+      appId: "1607585",
+      appSecret: "",
       autoPinPhones: true,
       autoPinBlogs: true,
       boardId: "",
