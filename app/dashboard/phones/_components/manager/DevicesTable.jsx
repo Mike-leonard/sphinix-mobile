@@ -6,6 +6,17 @@ import Image from 'next/image';
 import { MoreHorizontal, Edit, Trash2, Eye, ArrowUpDown, Smartphone, Copy } from 'lucide-react';
 import { cn, generateBrandSlug, getDeviceFirstImage } from '@/lib/utils';
 
+const SortIcon = ({ field, sortField }) => (
+  <ArrowUpDown
+    className={cn(
+      "inline-block ml-1 w-3.5 h-3.5 transition-colors",
+      sortField === field
+        ? "text-brand-600 dark:text-brand-400"
+        : "text-slate-400 opacity-0 group-hover:opacity-100"
+    )}
+  />
+);
+
 export default function DevicesTable({
   paginatedDevices,
   handleSort,
@@ -21,17 +32,6 @@ export default function DevicesTable({
   handleDuplicate,
   promptDelete
 }) {
-  const SortIcon = ({ field }) => (
-    <ArrowUpDown
-      className={cn(
-        "inline-block ml-1 w-3.5 h-3.5 transition-colors",
-        sortField === field
-          ? "text-brand-600 dark:text-brand-400"
-          : "text-slate-400 opacity-0 group-hover:opacity-100"
-      )}
-    />
-  );
-
   const formatDate = (dateString) => {
     if (!dateString) return { date: "—", time: "" };
     const date = new Date(dateString);
@@ -59,31 +59,31 @@ export default function DevicesTable({
               className="px-6 py-3.5 cursor-pointer hover:bg-slate-100/50 dark:hover:bg-slate-800/60 transition-colors group"
               onClick={() => handleSort('name')}
             >
-              Model Name <SortIcon field="name" />
+              Model Name <SortIcon field="name" sortField={sortField} />
             </th>
             <th
               className="px-6 py-3.5 cursor-pointer hover:bg-slate-100/50 dark:hover:bg-slate-800/60 transition-colors group"
               onClick={() => handleSort('brand')}
             >
-              Brand <SortIcon field="brand" />
+              Brand <SortIcon field="brand" sortField={sortField} />
             </th>
             <th
               className="px-6 py-3.5 cursor-pointer hover:bg-slate-100/50 dark:hover:bg-slate-800/60 transition-colors group"
               onClick={() => handleSort('price')}
             >
-              Est. Price <SortIcon field="price" />
+              Est. Price <SortIcon field="price" sortField={sortField} />
             </th>
             <th 
               className="px-6 py-3.5 cursor-pointer hover:bg-slate-100/50 dark:hover:bg-slate-800/60 transition-colors group"
               onClick={() => handleSort('status')}
             >
-              Status <SortIcon field="status" />
+              Status <SortIcon field="status" sortField={sortField} />
             </th>
             <th
               className="px-6 py-3.5 cursor-pointer hover:bg-slate-100/50 dark:hover:bg-slate-800/60 transition-colors group"
               onClick={() => handleSort('createdAt')}
             >
-              Created At <SortIcon field="createdAt" />
+              Created At <SortIcon field="createdAt" sortField={sortField} />
             </th>
             <th className="px-6 py-3.5 text-right w-28">Actions</th>
           </tr>
@@ -114,14 +114,14 @@ export default function DevicesTable({
                 >
                   <td className="px-6 py-4">
                     <div className="w-10 h-12 rounded bg-slate-100 dark:bg-slate-800/60 relative overflow-hidden flex items-center justify-center border border-slate-200 dark:border-slate-700/60 shadow-sm shrink-0">
-                      {deviceImage ? (
+                      {deviceImage && (deviceImage.startsWith('/') || deviceImage.startsWith('http://') || deviceImage.startsWith('https://') || deviceImage.startsWith('data:')) ? (
                         <Image
                           src={deviceImage}
                           alt={device.name || 'Device'}
                           fill
                           sizes="40px"
                           className="object-contain p-1"
-                          unoptimized={typeof deviceImage === 'string' && deviceImage.startsWith('data:')}
+                          unoptimized={typeof deviceImage === 'string' && (deviceImage.startsWith('data:') || deviceImage.includes('r2.dev'))}
                         />
                       ) : (
                         <div className={cn("w-full h-full bg-gradient-to-br flex items-center justify-center", device.imageColor || 'from-slate-600 to-zinc-800')}>
