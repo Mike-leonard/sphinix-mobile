@@ -1,7 +1,7 @@
 import React from 'react';
 import { Bold, Italic, List, ListOrdered, Quote, Heading1, Heading2, Heading3, Link2, Code, Image as ImageIcon, Video as VideoIcon } from 'lucide-react';
 
-export default function EditorMenuBar({ editor }) {
+export default function EditorMenuBar({ editor, onOpenR2ImageModal, onOpenR2VideoModal }) {
   if (!editor) return null;
 
   const setLink = () => {
@@ -24,14 +24,23 @@ export default function EditorMenuBar({ editor }) {
   };
 
   const addImage = () => {
-    const url = window.prompt('Image URL');
+    if (onOpenR2ImageModal) {
+      onOpenR2ImageModal();
+      return;
+    }
 
+    const url = window.prompt('Image URL');
     if (url) {
       editor.chain().focus().setImage({ src: url }).run();
     }
   };
 
   const addVideo = () => {
+    if (onOpenR2VideoModal) {
+      onOpenR2VideoModal();
+      return;
+    }
+
     const url = window.prompt('Video URL (YouTube or direct MP4/WebM URL)');
     if (!url) return;
 

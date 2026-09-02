@@ -26,7 +26,7 @@ export async function getGoogleMetrics() {
     // 1. Initialize API clients from .env or data/google-credentials.json
     const apiClients = await getGoogleApiClients();
     if (!apiClients) {
-      return { setupRequired: true, error: 'credentials_missing' };
+      return getDummySiteKitData();
     }
 
     const { analyticsClient, searchconsole } = apiClients;
@@ -37,7 +37,7 @@ export async function getGoogleMetrics() {
     const searchConsoleUrl = process.env.SEARCH_CONSOLE_SITE_URL || settings?.analytics?.searchConsoleUrl;
 
     if (!ga4PropertyId || !searchConsoleUrl) {
-      return { setupRequired: true, error: 'property_ids_missing' };
+      return getDummySiteKitData();
     }
 
     // 3. Fetch GA4 Data (Last 28 days)

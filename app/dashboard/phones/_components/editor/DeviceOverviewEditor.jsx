@@ -12,6 +12,7 @@ import { Node, mergeAttributes } from '@tiptap/core';
 import { FileText, GripVertical, ArrowUp, ArrowDown, Trash2, BookOpen, Sparkles } from 'lucide-react';
 import EditorMenuBar from '@/app/dashboard/blogs/_components/editor/EditorMenuBar';
 import DeviceOverviewNotebookStudio from './DeviceOverviewNotebookStudio';
+import R2MediaImporterModal from './R2MediaImporterModal';
 
 const VideoNodeView = (props) => {
   const { node, deleteNode, getPos, editor } = props;
@@ -246,6 +247,7 @@ const ExtendedYoutube = Youtube.extend({
 
 export default function DeviceOverviewEditor({ description, deviceName = '', brand = '', onChange }) {
   const [isNotebookOpen, setIsNotebookOpen] = React.useState(false);
+  const [r2ModalState, setR2ModalState] = React.useState({ isOpen: false, folderType: 'gallery' });
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -302,6 +304,32 @@ export default function DeviceOverviewEditor({ description, deviceName = '', bra
     onChange(editor.getHTML());
   };
 
+  const handleOpenR2ImageModal = () => {
+    setR2ModalState({ isOpen: true, folderType: 'gallery' });
+  };
+
+  const handleOpenR2VideoModal = () => {
+    setR2ModalState({ isOpen: true, folderType: 'videos' });
+  };
+
+  const handleR2MediaInserted = (url) => {
+    if (!editor || !url) return;
+    const lower = url.toLowerCase();
+    if (lower.includes('youtube.com') || lower.includes('youtu.be')) {
+      if (editor.commands.setYoutubeVideo) {
+        editor.chain().focus().setYoutubeVideo({ src: url }).run();
+      }
+    } else if (lower.endsWith('.mp4') || lower.endsWith('.webm') || lower.endsWith('.mov') || r2ModalState.folderType === 'videos') {
+      if (editor.commands.setVideo) {
+        editor.chain().focus().setVideo({ src: url }).run();
+      } else {
+        editor.chain().focus().setImage({ src: url }).run();
+      }
+    } else {
+      editor.chain().focus().setImage({ src: url }).run();
+    }
+  };
+
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
       <div className="p-6 border-b border-slate-100 dark:border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -325,7 +353,11 @@ export default function DeviceOverviewEditor({ description, deviceName = '', bra
       </div>
 
       <div className="flex flex-col">
-        <EditorMenuBar editor={editor} />
+        <EditorMenuBar
+          editor={editor}
+          onOpenR2ImageModal={handleOpenR2ImageModal}
+          onOpenR2VideoModal={handleOpenR2VideoModal}
+        />
         <EditorContent editor={editor} />
       </div>
 
@@ -335,6 +367,15 @@ export default function DeviceOverviewEditor({ description, deviceName = '', bra
         deviceName={deviceName}
         brand={brand}
         onApplyContent={handleApplyNotebookContent}
+      />
+
+      <R2MediaImporterModal
+        isOpen={r2ModalState.isOpen}
+        onClose={() => setR2ModalState({ isOpen: false, folderType: 'gallery' })}
+        onMediaUploaded={handleR2MediaInserted}
+        brandName={brand}
+        deviceName={deviceName}
+        defaultFolderType={r2ModalState.folderType}
       />
     </div>
   );
