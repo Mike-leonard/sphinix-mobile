@@ -9,6 +9,12 @@
 
 ## 2. Utility References
 
+### Module: `lib/r2-client.js`
+*   **Purpose:** Initializes AWS SDK S3Client configured for Cloudflare R2 object storage.
+*   **Key Exports:**
+    *   `r2Client`: Initialized `S3Client` pointing to `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`.
+    *   `R2_CONFIG`: Configuration object exposing `bucketName` and `publicDomain`.
+
 ### Module: `lib/affiliate-helpers.js`
 *   **Purpose:** Pure helper module for affiliate country normalization, store link state mutations, and active market counts.
 *   **Key Functions:**
@@ -19,12 +25,13 @@
     *   `countActiveMarkets(affiliates)`: Returns total count of countries with at least 1 configured store link.
 
 ### Module: `lib/utils.js`
-*   **Purpose:** Miscellaneous utility functions (formatting, Tailwind class name concatenation, slug formatting).
+*   **Purpose:** Miscellaneous utility functions (formatting, Tailwind class name concatenation, slug formatting, image extraction).
 *   **Key Functions:**
     *   `cn(...inputs)`: Merges Tailwind/CSS class names cleanly using `clsx` and `tailwind-merge`. Used by UI components like `Skeleton` (`components/ui/skeleton.jsx`).
     *   `generateBlogSlug(title)`: Takes a raw string, splits by special characters, trims, lowercases, and replaces non-alphanumeric characters with hyphens to create URL-safe slugs for dynamic routing. Used when creating blogs or duplicating posts (`duplicateBlog`).
     *   `generateDeviceSlug(title)`: Alias mapped to `generateBlogSlug` to maintain consistency across domain entities. Used by `createDevice` and `duplicateDevice` to set the permanent ID string.
     *   `generateBrandSlug(brand)`: Generates URL-friendly brand slugs for `/phones/[brandSlug]` dynamic routes.
+    *   `getFirstImageUrl(device)`: Intelligently extracts the primary display image from either top-level device `images` or nested `specs.images`, returning a valid string URL or fallback placeholder.
 
 ### Module: `lib/settings-helpers.js`
 *   **Purpose:** Deep merging default settings schemas with database JSON values.
@@ -32,17 +39,25 @@
     *   `deepMergeSettings(target, source)`: Recursively merges target default objects with user override values from PostgreSQL, ensuring missing schema keys are safely populated without crashing the UI.
 
 ### Module: `config/default-settings.js`
-*   **Purpose:** Single source of truth constant for all default application settings (`defaultSettings`), covering SEO, typography, appearance, analytics, advertisements, comments, localization, maintenance, social media, media, security, and AI defaults.
+*   **Purpose:** Single source of truth constant for all default application settings (`defaultSettings`), covering SEO, typography, appearance, analytics, advertisements, comments, localization, maintenance, media, security, and AI defaults.
 
 ### Module: `lib/ai/text-generator.js`
 *   **Purpose:** Multi-provider LLM text generator driver supporting Gemini, OpenAI, Anthropic, OpenRouter, Kilo, and Ollama.
 *   **Key Functions:**
     *   `generateText(prompt, systemInstruction, jsonMode)`: Queries the active AI provider configured in settings or `.env` and returns raw or structured JSON output.
 
+### Module: `lib/ai/device-query-optimizer.js`
+*   **Purpose:** Generates targeted search engine query strings for specific smartphone models and technical specification attributes.
+*   **Key Functions:**
+    *   `buildAttributeSearchQuery(deviceName, brand, groupName, attrName, attrSlug)`: Constructs high-precision search query terms to find exact hardware specifications.
+    *   `cleanAttributeSearchMarkdown(markdown)`: Parses raw scraped web content to isolate specification tables and attribute rows.
+
 ### Module: `lib/ai/jina-scraper.js`
-*   **Purpose:** Integration with Jina Reader API (`https://r.jina.ai/`).
+*   **Purpose:** Integration with Jina Reader & Search API (`https://r.jina.ai/` & `https://s.jina.ai/`).
 *   **Key Functions:**
     *   `fetchPageContentWithJina(url, timeoutMs)`: Scrapes clean Markdown text from web URLs with timeout guards.
+    *   `searchWebWithJina(query, timeoutMs)`: Executes live web search via Jina to retrieve ground-truth specification data.
+    *   `fetchSpecSearchWithJina(deviceName, brand, query)`: Combines query optimization and Jina search for device attributes.
 
 ### Module: `lib/analytics/google-clients.js`
 *   **Purpose:** Authentication and client initialization for Google Analytics 4 Data API (`@google-analytics/data`) and Google Search Console API (`googleapis`).
