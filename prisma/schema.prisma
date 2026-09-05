@@ -48,7 +48,6 @@ model Device {
   deviceBrand DeviceBrand  @relation(fields: [brandName], references: [name], onDelete: Cascade)
   price       String
   rating      Float        @default(0)
-  imageColor  String
   isNew       Boolean      @default(false)
   isTopRated  Boolean      @default(false)
   status      StatusType   @default(DRAFT)

@@ -47,7 +47,7 @@ export default function ComparisonHeader({ compareList, gridColsClass, handleTog
             </Button>
             
             <div className={`relative w-20 h-24 md:w-28 md:h-36 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 mb-4 flex items-center justify-center p-2 overflow-hidden shadow-sm`}>
-              <div className={`absolute w-16 h-16 rounded-full bg-gradient-to-tr ${device.imageColor || 'from-brand-500 to-purple-500'} opacity-20 blur-xl`}></div>
+              <div className="absolute w-16 h-16 rounded-full bg-gradient-to-tr from-brand-500 to-purple-600 opacity-20 blur-xl"></div>
               {firstImage ? (
                 <Image
                   src={firstImage}

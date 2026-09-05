@@ -17,7 +17,7 @@ export default function MainImageView({ device, activeIndex, handlePrevious, han
 
   return (
     <div className="w-full h-96 sm:h-[28rem] rounded-2xl bg-white dark:bg-slate-950 flex flex-col items-center justify-center relative overflow-hidden border-2 border-slate-200 dark:border-slate-700 shadow-sm group">
-      <div className={`absolute w-72 h-72 rounded-full bg-gradient-to-tr ${device.imageColor} opacity-20 blur-3xl transition-transform duration-700 pointer-events-none`}></div>
+      <div className="absolute w-72 h-72 rounded-full bg-gradient-to-tr from-brand-500 to-purple-600 opacity-20 blur-3xl transition-transform duration-700 pointer-events-none"></div>
       
       {/* Device Image or Simulated SVG Container */}
       <div className="relative z-10 w-full h-full flex items-center justify-center p-6">
@@ -30,7 +30,7 @@ export default function MainImageView({ device, activeIndex, handlePrevious, han
         ) : (
           <div className={`w-48 h-[22rem] rounded-[2.5rem] bg-white dark:bg-slate-900 border-[6px] border-slate-300 dark:border-slate-800 shadow-2xl p-2 flex flex-col transition-all duration-500 ${ANGLES[activeIndex]?.scale || ''}`}>
             <div className="w-16 h-2 bg-slate-200 dark:bg-slate-950 rounded-full mx-auto mb-3"></div>
-            <div className={`flex-1 rounded-3xl bg-gradient-to-br ${device.imageColor || 'from-purple-600 to-indigo-600'} p-6 flex flex-col justify-end text-sm font-bold text-white/90`}>
+            <div className="flex-1 rounded-3xl bg-gradient-to-br from-brand-500 to-purple-600 p-6 flex flex-col justify-end text-sm font-bold text-white/90">
               <div>{device.brand}</div>
               <div className="text-xl text-white font-extrabold leading-tight">{ANGLES[activeIndex]?.label}</div>
             </div>

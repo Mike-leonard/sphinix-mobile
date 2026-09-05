@@ -27,7 +27,6 @@ const DEFAULT_DEVICE = {
   name: '',
   brand: '',
   price: '',
-  imageColor: 'from-slate-600 to-zinc-800',
   isNew: true,
   isTopRated: false,
   status: 'draft',

@@ -22,7 +22,7 @@ export default function DeviceListCard({ product, isComparing, onToggleCompare, 
         aria-label={`View details for ${product.brand} ${product.name}`}
         className="w-full sm:w-1/3 min-h-[200px] p-4 sm:p-6 sm:border-r border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/50 flex items-center justify-center relative overflow-hidden group-hover:bg-slate-100 dark:group-hover:bg-slate-900/80 transition-colors block cursor-pointer shrink-0"
       >
-        <div className={`absolute w-32 h-32 rounded-full bg-gradient-to-tr ${product.imageColor || 'from-brand-500 to-purple-500'} opacity-20 blur-2xl group-hover:scale-125 transition-transform duration-500`}></div>
+        <div className="absolute w-32 h-32 rounded-full bg-gradient-to-tr from-brand-500 to-purple-600 opacity-20 blur-2xl group-hover:scale-125 transition-transform duration-500"></div>
         
         {firstImage ? (
           <div className="relative w-full h-44 z-10">
@@ -40,7 +40,7 @@ export default function DeviceListCard({ product, isComparing, onToggleCompare, 
           /* SVG-based SmartPhone illustration fallback */
           <div className="relative w-24 h-40 rounded-2xl bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 shadow-md p-1.5 flex flex-col group-hover:scale-105 transition-transform duration-300">
             <div className="w-8 h-2 bg-slate-50 dark:bg-slate-950 rounded-full mx-auto mb-1 border border-slate-200 dark:border-slate-800"></div>
-            <div className={`flex-1 rounded-xl bg-gradient-to-br ${product.imageColor || 'from-brand-500 to-purple-500'} p-2 flex flex-col justify-end text-[8px] font-bold text-white/80`}>
+            <div className="flex-1 rounded-xl bg-gradient-to-br from-brand-500 to-purple-600 p-2 flex flex-col justify-end text-[8px] font-bold text-white/80">
               <div>{product.brand}</div>
               <div className="text-[10px] text-white truncate font-extrabold leading-tight">{product.name}</div>
             </div>
