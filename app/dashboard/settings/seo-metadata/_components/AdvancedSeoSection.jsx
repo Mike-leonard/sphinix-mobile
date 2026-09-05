@@ -54,11 +54,11 @@ export default function AdvancedSeoSection({ currentData, handleChange }) {
           Custom HTML Meta Tags (Site Verification)
         </label>
         <textarea
-          value={currentData.customMetaTags !== undefined ? currentData.customMetaTags : '<meta name="p:domain_verify" content="e493c18721d10e873f09bb885328fc1e"/>'}
+          value={currentData.customMetaTags || ''}
           onChange={(e) => handleChange('customMetaTags', e.target.value)}
           rows={3}
           className="w-full font-mono text-sm px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all outline-none resize-y"
-          placeholder='<meta name="p:domain_verify" content="e493c18721d10e873f09bb885328fc1e"/>'
+          placeholder='<meta name="google-site-verification" content="..."/>'
         />
         <p className="text-xs text-slate-500 mt-2">
           Add custom HTML meta tags for Pinterest domain verification, Bing Webmaster Tools, Facebook, etc.
