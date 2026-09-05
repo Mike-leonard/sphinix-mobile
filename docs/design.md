@@ -10,6 +10,8 @@
     *   **Background (Dark):** Deep premium navy/black. Base background is `#090d16`, with `slate-900` (#0f172a) and `slate-950` used for layered surfaces and cards.
     *   **Background (Light):** Clean, spacious whites. Base background is `slate-50` (#f8fafc) with pure `white` (#ffffff) used for elevated surfaces.
     *   **Button Text States:** Public action buttons (e.g. "View All Phones" and "Read More Blogs") implement explicit light/dark contrast (`text-slate-900 dark:text-white`) with active hover states returning to brand accents (`hover:text-brand-600 dark:hover:text-brand-400`).
+*   **Unified Neutral Card Backgrounds (Pruned Card Gradients):**
+    *   Previously, devices utilized manual `cardGradient` color selection. This was pruned across the database and frontend in favor of cohesive neutral gradients (`from-slate-100 to-slate-200/50` in light mode, `from-slate-800/80 to-slate-900/80` in dark mode). This ensures hero carousels, comparison drawers, thumbnails, and catalog cards maintain visual consistency and high contrast without color bleeding.
 *   **Typography:**
     *   **Family:** `Plus Jakarta Sans`, falling back to standard sans-serif system fonts.
     *   **Usage:** Features tight tracking (`tracking-tight`) for headings to give a modern tech feel, and wider tracking (`tracking-wider`) for small uppercase eyebrow labels. Global sizes are dynamic and managed via `SettingsContext` and injected CSS variables (`--font-size-h1-default`, etc.).
@@ -37,14 +39,22 @@
 *   **Modals & Dialogs:**
     *   Sliding drawers (Compare Drawer, Mobile Nav) use Shadcn's `<Sheet>`.
     *   **Custom Modals:** Critical administrative actions (e.g., Delete, Trash, Unsaved Changes, Add Retailer) bypass native `window.confirm()` and `window.prompt()` in favor of custom backdrop-blurred dialog modals (`DeleteCategoryModal`, `BlogsConfirmModal`, `LeaveConfirmationModal`, `AddRetailerModal`).
+    *   **Spec Finder Modal (`SpecFinderModal`):** Sleek modal for searching single-attribute values on the web with live Jina scraping and markdown table results.
+    *   **Cross-Validation Auditor Modal (`DeviceSpecValidatorModal`):** Side-by-side comparison table showing current specs vs. web ground truth with discrepancy chips and 1-click update buttons.
+    *   **R2 Media Importer Modal (`R2MediaImporterModal`):** Drag-and-drop cloud file uploader with bucket browsing and automatic angle slotting.
 *   **Cards & Lists:**
     *   `ProductCard` and `BlogCard` are built using Shadcn's `<Card>` and `<CardContent>`.
     *   `StoreInputCard` renders individual store link and price input fields with localized currency symbols and trash icons.
+    *   `DeviceSpecBlock.jsx` displays aligned vertical specification terms (`items-start`), preventing awkward text wrapping on complex spec names.
 *   **Interactive Analytics & Trends Widgets:**
     *   `PublishTrendsChart.jsx` renders dynamic monthly publication bars with an interactive timeframe dropdown (**Last 6 Months**, **Last 12 Months**, **This Year**, **By Year**) and period-over-period percentage badges.
     *   `SiteKitVisitorsChart.jsx` provides interactive sub-navigation tabs (**Channels**, **Locations**, **Devices**) to toggle pie chart distributions dynamically with smooth color transitions and legends.
 
-## 4. User Experience, Table Interactions & Hydration Safeguards
+## 4. User Experience, Actions & Feedback Systems
+*   **Device Editor Action Bar & JSON Portability (`DeviceEditor.jsx`):**
+    *   Features responsive `flex-wrap gap-2.5` action bar containing **Export JSON**, **Import JSON**, **Cross-Validate Specs**, **Preview**, **Save Draft**, and **Publish**.
+    *   Hidden file input triggered via ref allows importing any valid device JSON file with unsaved-change confirmation guard.
+    *   Floating Action Toast notifications appear dynamically on bottom-left for immediate non-blocking user feedback.
 *   **Interactive Status Badge Buttons & Cursor Styling:**
     *   In `/dashboard/blogs` and `/dashboard/phones` tables, status badges (`Published` / `Draft`) act as interactive toggle buttons with hover feedback (`hover:bg-emerald-200`, `hover:bg-amber-200`).
     *   All action buttons (`Edit`, `Publish`, `Draft`, `Duplicate`, `Trash`, `View`, `Restore`, `Delete Permanently`) strictly enforce `cursor-pointer` (and `disabled:cursor-not-allowed` when disabled).
@@ -55,8 +65,5 @@
 *   **Custom 404 & Error Boundaries:**
     *   `app/not-found.js`: Provides a high-contrast 404 page with glowing brand tags, inline search bar, quick action navigation buttons, and popular brand filter pills.
     *   `app/error.js` & `app/dashboard/error.js`: Catch unhandled route errors gracefully, rendering clean recovery cards with **"Try Again"** and **"Go Home"** buttons while keeping the top Navbar and Admin Sidebar intact.
-*   **Micro-animations & Transitions:**
-    *   **Hover states:** Deeply integrated color transitions (`transition-colors duration-300`) ensure hover effects feel fluid rather than jarring.
-    *   **Scaling:** Interactive elements feature a slight zoom on hover (`hover:scale-[1.01]`) and a physical press down effect on click (`active:scale-95`).
-*   **Accessibility & Contrast:**
-    *   Strict Light/Dark parity. Status badges (e.g. Draft, Trash, Published) use distinct color families (Amber, Red, Emerald) with calculated background opacities.
+*   **Cookie Consent Banner (`components/CookieConsent.jsx`):**
+    *   Floating bottom banner offering GDPR-compliant acceptance controls with smooth entrance animations.

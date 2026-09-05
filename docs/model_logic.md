@@ -17,6 +17,7 @@ Database persistence is managed via **Prisma ORM** connecting to a PostgreSQL da
 *   **Description:** Stores global application configuration columns formatted as JSON/JsonB. Uses a **Singleton Pattern** where `id = 1`.
 *   **Fields:**
     *   `id`: Int (Primary Key, Default: `1`)
+    *   `version`: Int (Default: `1`)
     *   `seo`: Json? (Meta titles, meta descriptions, open graph, structured data rules)
     *   `typography`: Json? (Dynamic H1-H3, body paragraph, button font sizes)
     *   `appearance`: Json? (Theme mode, primary brand colors, home/phones/blogs layout limits)
@@ -29,6 +30,9 @@ Database persistence is managed via **Prisma ORM** connecting to a PostgreSQL da
     *   `media`: Json? (Max upload size, image compression, WebP conversion, CDN settings)
     *   `security`: Json? (Rate limit rules, reCAPTCHA keys, login attempt caps)
     *   `ai`: Json? (AI feature toggles, active provider, model name, API key, prompt configuration)
+    *   `recaptcha`: Json? (Turnstile / reCAPTCHA configuration)
+    *   `backups`: Json? (Backup frequency and logs)
+    *   `smtp`: Json? (Email service configuration)
     *   `updatedAt`: DateTime (`@updatedAt`)
 
 ---
@@ -36,7 +40,7 @@ Database persistence is managed via **Prisma ORM** connecting to a PostgreSQL da
 ### Model: `AffiliateCountry` (Table: `AffiliateCountry`)
 *   **Description:** Manages multi-country affiliate target markets, localized currency symbols, default retailer lists, and active status for Geo-IP target routing.
 *   **Fields:**
-    *   `id`: String (Primary Key, `cuid()`)
+    *   `id`: String (Primary Key, `uuid()`)
     *   `name`: String (Country name e.g. `"Italy"`, `"United States"`)
     *   `code`: String (Unique ISO country code e.g. `"IT"`, `"US"`, `"ES"`, `"BD"`)
     *   `flag`: String (Flag emoji e.g. `"🇮🇹"`, `"🇺🇸"`)
@@ -57,56 +61,59 @@ Database persistence is managed via **Prisma ORM** connecting to a PostgreSQL da
     *   `email`: String (Unique)
     *   `password`: String? (Hashed password for local credentials)
     *   `name`: String
-    *   `role`: String (Default: `"User"`, options: `"Admin"`, `"Editor"`, `"User"`)
+    *   `role`: String (Default: `"User"`, options: `"Admin"`, `"Moderator"`, `"ContentWriter"`, `"User"`)
     *   `emailVerified`: Boolean (Default: `false`)
     *   `image`: String?
     *   `createdAt`, `updatedAt`: DateTime
 
 ---
 
-### Model: `Blog` (Table: `Blog`)
+### Model: `Blog` & `BlogCategory` (Tables: `Blog`, `BlogCategory`)
 *   **Description:** Content articles for the tech news and benchmark blog.
-*   **Fields:**
-    *   `id`: String (Primary Key)
+*   **Fields (`Blog`):**
+    *   `id`: Int (Primary Key, `autoincrement()`)
     *   `title`: String
-    *   `slug`: String (Unique)
     *   `excerpt`: String?
-    *   `content`: String (HTML content output from Tiptap editor)
-    *   `category`: String (Default: `"General"`)
-    *   `status`: StatusType Enum (`DRAFT`, `PUBLISHED`, `TRASHED`). Queries normalize UI string `'trash'` to `'TRASHED'`.
     *   `date`: String
     *   `readTime`: String?
-    *   `author`: String?
-    *   `coverImage`: String?
+    *   `author`: String
+    *   `category`: String (Default: `"General"`)
+    *   `categoryId`: Int? (Foreign Key to `BlogCategory`)
+    *   `color`: String?
+    *   `image`: String?
+    *   `content`: String (HTML content output from Tiptap editor)
+    *   `status`: StatusType Enum (`DRAFT`, `PUBLISHED`, `TRASHED`)
     *   `seo`: Json? (`metaTitle`, `metaDescription`, `keywords`)
     *   `createdAt`, `updatedAt`: DateTime
 
 ---
 
 ### Model: `Device` (Table: `Device`)
-*   **Description:** Smartphone catalog database. Primary key `id` string serves as the URL slug (`/phones/[brandSlug]/[deviceSlug]`).
+*   **Description:** Smartphone catalog database. Primary key `id` string serves as the permanent URL slug (`/phones/[brandSlug]/[deviceSlug]`).
 *   **Fields:**
     *   `id`: String (Primary Key / URL Slug). Generated upon creation or duplication, and remains permanent even if the device title is updated later to prevent broken URLs.
     *   `name`: String
-    *   `brand`: String
-    *   `image`: String?
-    *   `price`: String?
-    *   `status`: StatusType Enum (`DRAFT`, `PUBLISHED`, `TRASHED`). Queries normalize UI string `'trash'` to `'TRASHED'`.
-    *   `affiliates`: Json? (Multi-country store link mappings e.g. `{ US: { amazon: { url, price } }, IT: { ... } }`)
-    *   `specs`: Json? (Quick specs, detailed grouped spec attributes, gallery images, and `imageAlts` SEO array)
-    *   `ratings`: Json? (Expert rating breakdown numbers)
-    *   `overview`: String? (HTML overview description)
+    *   `brandName`: String (`@map("brand")`, Foreign Key referencing `DeviceBrand.name`)
+    *   `deviceBrand`: Relation to `DeviceBrand` (onDelete: Cascade)
+    *   `price`: String
+    *   `rating`: Float (Default: `0`)
+    *   `isNew`: Boolean (Default: `false`)
+    *   `isTopRated`: Boolean (Default: `false`)
+    *   `status`: StatusType Enum (`DRAFT`, `PUBLISHED`, `TRASHED`)
+    *   `specs`: Json (Comprehensive structured payload housing quick specs, grouped spec arrays, description overview, expertRatings, gallery images, imageAlts, allowReviews, international affiliates, and SEO metadata).
+    *   *Note on Pruned Fields:* The legacy `imageColor` / `cardGradient` column was pruned from the schema in favor of unified neutral gradients that dynamically adapt to light/dark themes.
     *   `createdAt`, `updatedAt`: DateTime
 
 ---
 
-### Models: `DeviceAttribute`, `DeviceGroup`, `DeviceBrand`, `DeviceFilter`
-*   **Description:** Normalization tables for dynamic mobile spec groups, brand listings, and sidebar filter definitions.
+### Models: `DeviceAttribute`, `DeviceGroup`, `DeviceBrand`, `DeviceFilter`, `RatingBar`
+*   **Description:** Normalization and configuration tables for dynamic mobile spec groups, brand listings, sidebar filters, and rating criteria.
 *   **Key Fields:**
-    *   `DeviceAttribute`: `id`, `name`, `slug`, `group`, `groupId`, `placeholder`, `order`, `terms`.
-    *   `DeviceGroup`: `id`, `name`, `slug`, `order`.
-    *   `DeviceBrand`: `id`, `name`, `slug`, `logo`.
-    *   `DeviceFilter`: `id`, `title`, `attributeSlug`, `options`, `order`.
+    *   `DeviceBrand`: `id` (Int PK), `name` (Unique), `slug`, `devices` (Relation).
+    *   `DeviceGroup`: `id` (Int PK), `name` (Unique), `order`, `attributes` (Relation).
+    *   `DeviceAttribute`: `id` (String PK), `name`, `slug` (Unique), `terms` (String[]), `group`, `groupId` (FK to `DeviceGroup`), `placeholder`, `order`.
+    *   `DeviceFilter`: `id` (String PK), `title`, `attributeSlug`, `options` (String[]), `order`.
+    *   `RatingBar`: `id` (String PK), `name`, `slug` (Unique), `description`, `defaultValue`, `order`.
 
 ---
 

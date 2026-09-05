@@ -108,6 +108,7 @@ This document outlines all components in the project and identifies whether they
 - 🖥️ **TabNavigation.jsx** - Server Component
 
 ## `app/(main)/phones/_components/`
+- 🌐 **DeviceCatalogView.jsx** - Client Component
 - 🖥️ **DeviceGrid.jsx** - Server Component
 - 🖥️ **DeviceListCard.jsx** - Server Component
 - 🌐 **DeviceListCardCompare.jsx** - Client Component
@@ -204,6 +205,10 @@ This document outlines all components in the project and identifies whether they
 - 🌐 **DeviceGalleryInputs.jsx** - Client Component
 - 🌐 **DeviceOverviewEditor.jsx** - Client Component
 - 🌐 **DeviceQuickSpecs.jsx** - Client Component
+- 🌐 **DeviceSpecValidatorModal.jsx** - Client Component
+- 🌐 **DeviceThemeAndBadges.jsx** - Client Component
+- 🌐 **R2MediaImporterModal.jsx** - Client Component
+- 🌐 **SpecFinderModal.jsx** - Client Component
 - 🌐 **StoreInputCard.jsx** - Client Component
 
 ## `app/dashboard/phones/_components/manager/`
@@ -262,6 +267,9 @@ This document outlines all components in the project and identifies whether they
 ## `app/dashboard/settings/`
 - 🌐 **layout.js** - Client Component
 - 🖥️ **page.js** - Server Component
+
+## `app/dashboard/settings/_components/`
+- 🌐 **SettingsNavList.jsx** - Client Component
 
 ## `app/dashboard/settings/advertisements/`
 - 🖥️ **page.js** - Server Component
@@ -376,7 +384,9 @@ This document outlines all components in the project and identifies whether they
 
 ## `components/`
 - 🌐 **AdvancedFilters.jsx** - Client Component
+- 🌐 **AnalyticsWrapper.jsx** - Client Component
 - 🌐 **CompareDrawer.jsx** - Client Component
+- 🌐 **CookieConsent.jsx** - Client Component
 - 🖥️ **DynamicStyles.jsx** - Server Component
 - 🖥️ **Footer.jsx** - Server Component
 - 🌐 **Pagination.jsx** - Client Component

@@ -23,6 +23,13 @@
 
 ---
 
+### Cloudflare R2 Media Management (`actions/media-actions.js`)
+*   `uploadMediaToR2(formData)`: Uploads image file buffer directly to Cloudflare R2 bucket with unique timestamped keys, returns public CDN URL. Protected by `verifySession()`.
+*   `listR2MediaFiles()`: Fetches inventory of images stored in the R2 bucket (`ListObjectsV2Command`) with keys, URLs, and timestamps.
+*   `deleteMediaFromR2(fileKey)`: Removes image asset from the R2 bucket (`DeleteObjectCommand`). Protected by `verifySession()`.
+
+---
+
 ### Settings (`actions/settings.js`)
 *   `getSettings()`: Fetches settings from PostgreSQL with `unstable_cache` tag `['site-settings']` and performs `deepMergeSettings` with `defaultSettings`.
 *   `updateSettings(newSettings)`: Updates `SiteSettings` in PostgreSQL, invalidates cache tag via `revalidateTag('site-settings')`, and revalidates site layouts.
@@ -45,7 +52,12 @@
 Modularized into:
 *   `actions/ai/blog-actions.js`: `generateBlogFromTitle(title)`, `generateBlogFromUrl(url)`.
 *   `actions/ai/seo-actions.js`: `generateSEOFromContent(content, title)`, `generateDeviceSEO(deviceName, brand, description)`.
-*   `actions/ai/device-actions.js`: `generateDeviceData(deviceName, brand)`, `generateDeviceDataFromUrl(url)`, `generateGalleryImageAltsAction(deviceName, brand, images)`. Fetches `DeviceAttribute` spec schema dynamically from PostgreSQL (`getDeviceAttributesQuery()`).
+*   `actions/ai/device-actions.js`: 
+    *   `generateDeviceData(deviceName, brand)`: Generates quickSpecs and detailedSpecs.
+    *   `generateDeviceDataFromUrl(url)`: Scrapes external spec page via Jina and parses specs into form payload.
+    *   `generateGalleryImageAltsAction(deviceName, brand, images)`: Auto-suggests SEO image alt text for gallery images.
+    *   `generateSingleAttributeValue(deviceName, brand, groupName, attrName, attrSlug)`: Live searches web specs via Jina to fill an individual spec attribute without hallucination.
+    *   `validateDeviceSpecsWithWeb(deviceName, brand, specs)`: Cross-validates all device specs against scraped web search ground truth and returns discrepancy matrix.
 
 ---
 
@@ -69,7 +81,7 @@ Modularized into:
 *   `publishedDevices({ limit, offset, query, brand, filters })`: Fetches published smartphone products.
 *   `publishedDevicesCount(...)`: Calculates total matching device count for pagination.
 *   `getDevices(options)`: Admin query action supporting database sorting (`sortField`, `sortOrder`) and filtering.
-*   `createDevice(formData)`: Smartphone creation with `imageAlts` SEO array support.
+*   `createDevice(formData)`: Smartphone creation with `imageAlts` SEO array support and structured `specs` JSON payload.
 *   `updateDevice(id, formData)`: Smartphone update action. The device's primary key `id` (slug) remains permanent to prevent broken links even if the title changes.
 *   `duplicateDevice(id)`: Admin action: creates a duplicate copy of an existing device in `Draft` status titled `"[Original Name] (Copy)"` with a clean unique slug.
 *   `trashDevice(id)`: Soft-deletes a device. Enforces protection error if device status is `published`.
@@ -80,7 +92,8 @@ Modularized into:
 ---
 
 ### Device Attributes, Groups, Brands, Filters (`actions/device-*.js`)
-*   `actions/device-attributes.js`: `getDeviceAttributes()`, `createDeviceAttribute()`, `updateDeviceAttribute()`, `deleteDeviceAttribute()`.
-*   `actions/device-groups.js`: Spec group management.
+*   `actions/device-attributes.js`: `getDeviceAttributes()`, `createDeviceAttribute()`, `updateDeviceAttribute()`, `deleteDeviceAttribute()`, `addAttributeTerm()`, `deleteAttributeTerm()`, `reorderDeviceAttributes()`.
+*   `actions/device-groups.js`: Spec group management and reordering.
 *   `actions/device-brands.js`: Brand listing CRUD operations.
 *   `actions/device-filters.js`: `getDeviceFilters()`, `saveDeviceFilters()`.
+*   `actions/rating-bars.js`: `getRatingBars()`, `createRatingBar()`, `updateRatingBar()`, `deleteRatingBar()`, `reorderRatingBars()`.
