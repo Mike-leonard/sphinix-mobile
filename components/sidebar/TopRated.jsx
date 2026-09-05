@@ -29,7 +29,7 @@ export default async function TopRated({ topRated: propTopRated, limit = 3 }) {
               className="flex gap-4 items-center bg-slate-100/80 dark:bg-slate-950/40 p-2.5 rounded-xl border border-slate-300 dark:border-slate-850/60 hover:border-brand-500/20 cursor-pointer transition-colors"
             >
               <div className="relative w-12 h-14 bg-slate-50 dark:bg-slate-950 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0 p-1">
-                <div className={`absolute w-6 h-6 rounded-full bg-gradient-to-tr ${prod.imageColor || 'from-brand-500 to-purple-500'} opacity-20 blur-lg`}></div>
+                <div className="absolute w-6 h-6 rounded-full bg-gradient-to-tr from-brand-500 to-purple-600 opacity-20 blur-lg"></div>
                 {firstImage ? (
                   <Image
                     src={firstImage}
@@ -41,7 +41,7 @@ export default async function TopRated({ topRated: propTopRated, limit = 3 }) {
                   />
                 ) : (
                   <div className="w-5 h-9 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded flex flex-col justify-end p-0.5">
-                    <div className={`flex-1 rounded bg-gradient-to-br ${prod.imageColor || 'from-brand-500 to-purple-500'}`} />
+                    <div className="flex-1 rounded bg-gradient-to-br from-brand-500 to-purple-600" />
                   </div>
                 )}
               </div>

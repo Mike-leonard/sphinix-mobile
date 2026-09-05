@@ -53,7 +53,7 @@ export default function CompareDrawer() {
                 >
                   <div className="text-center flex flex-col items-center">
                     <div className="relative w-20 h-24 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 mb-2 p-1.5 flex items-center justify-center overflow-hidden shadow-sm">
-                      <div className={`absolute w-12 h-12 rounded-full bg-gradient-to-tr ${item.imageColor || 'from-brand-500 to-purple-500'} opacity-20 blur-lg`}></div>
+                      <div className="absolute w-12 h-12 rounded-full bg-gradient-to-tr from-brand-500 to-purple-600 opacity-20 blur-lg"></div>
                       {firstImage ? (
                         <Image
                           src={firstImage}

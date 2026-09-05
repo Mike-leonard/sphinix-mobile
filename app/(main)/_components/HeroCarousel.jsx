@@ -150,7 +150,7 @@ export default function HeroCarousel({ initialDevices = [] }) {
           subtitle: device.isNew ? 'NEW RELEASE FLAGSHIP' : 'TOP RATED SMARTPHONE',
           title: device.name,
           description: cleanDescription,
-          imageColor: device.imageColor || 'from-purple-600 via-indigo-700 to-pink-700',
+          imageColor: 'from-brand-500 via-indigo-600 to-purple-700',
           imageUrl,
           galleryImages,
           brandSlug,

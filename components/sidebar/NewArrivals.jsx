@@ -32,7 +32,7 @@ export default async function NewArrivals({ newArrivals: propNewArrivals, limit 
               className="group bg-slate-50 dark:bg-slate-950 rounded-xl p-2 border border-slate-300 dark:border-slate-850/60 hover:border-brand-500/30 text-center cursor-pointer transition-colors block"
             >
               <div className="relative h-20 w-full bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center overflow-hidden mb-1.5 p-1">
-                <div className={`absolute w-10 h-10 rounded-full bg-gradient-to-tr ${prod.imageColor || 'from-brand-500 to-purple-500'} opacity-20 blur-xl`}></div>
+                <div className="absolute w-10 h-10 rounded-full bg-gradient-to-tr from-brand-500 to-purple-600 opacity-20 blur-xl"></div>
                 {firstImage ? (
                   <Image
                     src={firstImage}
@@ -44,7 +44,7 @@ export default async function NewArrivals({ newArrivals: propNewArrivals, limit 
                   />
                 ) : (
                   <div className="w-8 h-12 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded flex flex-col justify-end p-0.5">
-                    <div className={`flex-1 rounded bg-gradient-to-br ${prod.imageColor || 'from-brand-500 to-purple-500'}`} />
+                    <div className="flex-1 rounded bg-gradient-to-br from-brand-500 to-purple-600" />
                   </div>
                 )}
               </div>

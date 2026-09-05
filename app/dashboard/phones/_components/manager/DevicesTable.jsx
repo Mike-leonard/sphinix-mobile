@@ -124,7 +124,7 @@ export default function DevicesTable({
                           unoptimized={typeof deviceImage === 'string' && (deviceImage.startsWith('data:') || deviceImage.includes('r2.dev'))}
                         />
                       ) : (
-                        <div className={cn("w-full h-full bg-gradient-to-br flex items-center justify-center", device.imageColor || 'from-slate-600 to-zinc-800')}>
+                        <div className="w-full h-full bg-gradient-to-br from-brand-600 to-purple-800 flex items-center justify-center">
                           <Smartphone className="h-5 w-5 text-white/80" />
                         </div>
                       )}
