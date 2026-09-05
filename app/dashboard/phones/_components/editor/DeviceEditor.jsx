@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState, useRef, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, Save, Loader2, Smartphone, ArrowLeft, Send, Sparkles, Wand2, Eye, ArrowUp, ArrowDown, ShieldCheck } from 'lucide-react';
+import { ChevronLeft, Save, Loader2, Smartphone, ArrowLeft, Send, Sparkles, Wand2, Eye, ArrowUp, ArrowDown, ShieldCheck, Download, Upload } from 'lucide-react';
 import Link from 'next/link';
 import { createDevice, updateDevice } from '@/actions/devices';
 import { generateDeviceData } from '@/actions/ai';
@@ -71,6 +71,165 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
   const [isValidatorOpen, setIsValidatorOpen] = useState(false);
+  const [actionToast, setActionToast] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const showToast = (text, type = 'success') => {
+    setActionToast({ text, type });
+    setTimeout(() => {
+      setActionToast(null);
+    }, 4000);
+  };
+
+  const handleExportJson = () => {
+    try {
+      const deviceSlug = formData.name 
+        ? formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+        : 'device';
+
+      const exportData = {
+        name: formData.name || '',
+        brand: formData.brand || '',
+        price: formData.price || '',
+        isNew: formData.isNew ?? true,
+        isTopRated: formData.isTopRated ?? false,
+        status: formData.status || 'draft',
+        allowReviews: formData.allowReviews ?? true,
+        description: formData.description || '',
+        expertRatings: formData.expertRatings || {},
+        images: Array.isArray(formData.images) ? formData.images : ['', '', '', ''],
+        imageAlts: Array.isArray(formData.imageAlts) ? formData.imageAlts : ['', '', '', ''],
+        affiliates: formData.affiliates || DEFAULT_DEVICE.affiliates,
+        specs: formData.specs || DEFAULT_DEVICE.specs,
+        seo: formData.seo || DEFAULT_DEVICE.seo,
+        _meta: {
+          source: 'sphinix-mobile',
+          exportedAt: new Date().toISOString(),
+          version: '1.0'
+        }
+      };
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const downloadUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = `${deviceSlug}-specs.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(downloadUrl);
+
+      showToast(`Exported "${formData.name || 'Device'}" JSON successfully!`);
+    } catch (err) {
+      console.error('Failed to export device JSON:', err);
+      showToast('Failed to export JSON file.', 'error');
+    }
+  };
+
+  const handleImportJson = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (isDirty) {
+      const confirmed = window.confirm(
+        'Importing a JSON file will overwrite your current unsaved device changes in this editor. Do you want to proceed?'
+      );
+      if (!confirmed) {
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const rawData = JSON.parse(event.target.result);
+        if (!rawData || typeof rawData !== 'object' || Array.isArray(rawData)) {
+          throw new Error('Invalid JSON format: expected a JSON object representing a device.');
+        }
+
+        // Normalize specs: handles Sphinx specs, quickSpecs, and detailedSpecs
+        let mergedSpecs = {
+          ...DEFAULT_DEVICE.specs,
+          ...(formData.specs || {})
+        };
+
+        if (rawData.specs && typeof rawData.specs === 'object' && !Array.isArray(rawData.specs)) {
+          mergedSpecs = {
+            ...mergedSpecs,
+            ...rawData.specs
+          };
+        }
+
+        if (rawData.quickSpecs && typeof rawData.quickSpecs === 'object') {
+          mergedSpecs = {
+            ...mergedSpecs,
+            ...rawData.quickSpecs
+          };
+        }
+
+        if (rawData.detailedSpecs && typeof rawData.detailedSpecs === 'object') {
+          Object.entries(rawData.detailedSpecs).forEach(([group, specsList]) => {
+            mergedSpecs[group] = specsList;
+          });
+        }
+
+        // Clean images & imageAlts to be arrays of at least 4 items
+        const importedImages = Array.isArray(rawData.images) ? [...rawData.images] : (formData.images || ['', '', '', '']);
+        while (importedImages.length < 4) importedImages.push('');
+
+        const importedImageAlts = Array.isArray(rawData.imageAlts) ? [...rawData.imageAlts] : (formData.imageAlts || ['', '', '', '']);
+        while (importedImageAlts.length < 4) importedImageAlts.push('');
+
+        // Normalize affiliates
+        const importedAffiliates = rawData.affiliates && typeof rawData.affiliates === 'object'
+          ? { ...DEFAULT_DEVICE.affiliates, ...(formData.affiliates || {}), ...rawData.affiliates }
+          : (formData.affiliates || DEFAULT_DEVICE.affiliates);
+
+        // Normalize SEO
+        const importedSeo = rawData.seo && typeof rawData.seo === 'object'
+          ? { ...DEFAULT_DEVICE.seo, ...(formData.seo || {}), ...rawData.seo }
+          : (formData.seo || DEFAULT_DEVICE.seo);
+
+        // Normalize expertRatings
+        const importedExpertRatings = rawData.expertRatings && typeof rawData.expertRatings === 'object'
+          ? { ...(formData.expertRatings || {}), ...rawData.expertRatings }
+          : (formData.expertRatings || {});
+
+        setFormData(prev => ({
+          ...prev,
+          name: rawData.name !== undefined ? rawData.name : prev.name,
+          brand: rawData.brand !== undefined ? rawData.brand : prev.brand,
+          price: rawData.price !== undefined ? String(rawData.price) : prev.price,
+          isNew: typeof rawData.isNew === 'boolean' ? rawData.isNew : prev.isNew,
+          isTopRated: typeof rawData.isTopRated === 'boolean' ? rawData.isTopRated : prev.isTopRated,
+          status: rawData.status || prev.status || 'draft',
+          allowReviews: typeof rawData.allowReviews === 'boolean' ? rawData.allowReviews : prev.allowReviews,
+          description: rawData.description !== undefined ? rawData.description : prev.description,
+          images: importedImages,
+          imageAlts: importedImageAlts,
+          affiliates: importedAffiliates,
+          specs: mergedSpecs,
+          seo: importedSeo,
+          expertRatings: importedExpertRatings
+        }));
+
+        showToast(`Successfully imported device "${rawData.name || file.name}"! Review and save when ready.`);
+      } catch (parseError) {
+        console.error('JSON parsing failed:', parseError);
+        showToast(`Failed to import JSON: ${parseError.message || 'Invalid JSON file'}`, 'error');
+      } finally {
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      }
+    };
+
+    reader.onerror = () => {
+      showToast('Error reading the selected file.', 'error');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    reader.readAsText(file);
+  };
 
   // Block tab closing/reloading
   React.useEffect(() => {
@@ -165,7 +324,33 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
           <ArrowLeft className="w-4 h-4" />
           Back to Devices
         </button>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={handleExportJson} 
+            className="gap-2 rounded-xl text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 shadow-sm transition-colors"
+            title="Export full device configuration as a JSON file"
+          >
+            <Download className="w-4 h-4 text-sky-500" /> Export JSON
+          </Button>
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={() => fileInputRef.current?.click()} 
+            className="gap-2 rounded-xl text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 shadow-sm transition-colors"
+            title="Import device data from a JSON file"
+          >
+            <Upload className="w-4 h-4 text-amber-500" /> Import JSON
+          </Button>
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleImportJson} 
+            accept=".json,application/json" 
+            className="hidden" 
+          />
+
           <Button 
             type="button" 
             variant="outline" 
@@ -333,6 +518,17 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
           <ArrowDown className="w-5 h-5" />
         </button>
       </div>
+
+      {/* Floating Action Toast */}
+      {actionToast && (
+        <div className={`fixed bottom-6 left-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-2xl text-sm font-medium transition-all animate-in fade-in slide-in-from-bottom-5 duration-300 border ${
+          actionToast.type === 'error' 
+            ? 'bg-rose-600 text-white border-rose-500 shadow-rose-900/30' 
+            : 'bg-emerald-600 text-white border-emerald-500 shadow-emerald-900/30'
+        }`}>
+          <span>{actionToast.text}</span>
+        </div>
+      )}
     </div>
   );
 }
