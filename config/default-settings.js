@@ -129,19 +129,7 @@ export const defaultSettings = {
     twitter: "",
     instagram: "",
     youtube: "",
-    pinterest: {
-      enabled: false,
-      appId: "1607585",
-      appSecret: "",
-      autoPinPhones: true,
-      autoPinBlogs: true,
-      boardId: "",
-      boardName: "",
-      accessToken: "",
-      refreshToken: "",
-      tokenExpiresAt: null,
-      username: ""
-    }
+    pinterest: ""
   },
   media: {
     maxUploadSizeMB: 5,

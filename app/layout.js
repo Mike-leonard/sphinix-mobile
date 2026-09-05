@@ -39,8 +39,8 @@ export async function generateMetadata() {
     };
   }
 
-  // Support custom HTML meta tags from Dashboard (e.g. Pinterest domain verification, Bing, Facebook)
-  const customMetaString = settings.seo?.advanced?.customMetaTags || '<meta name="p:domain_verify" content="e493c18721d10e873f09bb885328fc1e"/>';
+  // Support custom HTML meta tags from Dashboard (e.g. site verification, Bing, Facebook)
+  const customMetaString = settings.seo?.advanced?.customMetaTags;
   if (customMetaString) {
     const metaRegex = /<meta\s+([^>]+)>/gi;
     let match;

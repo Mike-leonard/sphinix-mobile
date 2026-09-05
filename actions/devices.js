@@ -4,7 +4,6 @@ import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { verifySession } from './auth';
 import { generateDeviceSlug } from '@/lib/utils';
-import { autoPinDeviceToPinterest } from '@/actions/pinterest';
 import {
   getAllDevicesQuery,
   getDeviceByIdQuery,
@@ -292,11 +291,6 @@ export async function createDevice(formData) {
 
     await createDeviceQuery(deviceData);
 
-    // Auto-Pin to Pinterest if published
-    if (deviceData.status === 'published') {
-      autoPinDeviceToPinterest(deviceData).catch(err => console.error('[Pinterest Auto-Pin Error]:', err));
-    }
-
     revalidatePath('/dashboard/phones');
     revalidatePath('/phones');
 
@@ -391,18 +385,6 @@ export async function updateDevice(id, formData) {
     revalidatePath(`/phones/${id}`);
     revalidatePath(`/phones/${targetId}`);
     revalidatePath('/phones');
-
-    // Auto-Pin to Pinterest if status is published
-    const finalStatus = updateData.status !== undefined ? updateData.status : existing.status;
-    if (finalStatus === 'published') {
-      const mergedDevice = {
-        id: targetId,
-        ...existing,
-        ...updateData,
-        specs: updatedSpecs
-      };
-      autoPinDeviceToPinterest(mergedDevice).catch(err => console.error('[Pinterest Auto-Pin Error]:', err));
-    }
 
     return { success: true, message: 'Device updated successfully', newId: targetId };
   } catch (error) {

@@ -207,13 +207,13 @@ export default function HeroCarousel({ initialDevices = [] }) {
     <section 
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      className="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 p-6 sm:p-8 md:p-10 shadow-2xl text-slate-100 group/hero"
+      className="relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 md:p-10 shadow-xl dark:shadow-2xl text-slate-800 dark:text-slate-100 group/hero transition-colors"
     >
       {/* Background Animated Gradient Mesh */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 opacity-90 z-0"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-purple-50/20 to-slate-100/60 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 opacity-90 z-0"></div>
       
       {/* Dynamic Background Glow matching active phone color */}
-      <div className={`absolute top-1/2 right-1/4 -translate-y-1/2 w-80 h-80 sm:w-96 sm:h-96 rounded-full bg-gradient-to-tr ${currentSlide.imageColor} opacity-25 blur-[100px] transition-all duration-1000 pointer-events-none`}></div>
+      <div className={`absolute top-1/2 right-1/4 -translate-y-1/2 w-80 h-80 sm:w-96 sm:h-96 rounded-full bg-gradient-to-tr ${currentSlide.imageColor} opacity-20 dark:opacity-25 blur-[100px] transition-all duration-1000 pointer-events-none`}></div>
 
       <div className="relative z-10 flex flex-col justify-between space-y-6">
 
@@ -225,76 +225,76 @@ export default function HeroCarousel({ initialDevices = [] }) {
             
             {/* Tag Badges */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="px-3 py-1 bg-purple-500/10 border border-purple-500/30 text-purple-300 text-[11px] font-bold uppercase tracking-widest rounded-full flex items-center gap-1.5 shadow-sm">
-                <Sparkles className="w-3 h-3 text-amber-400 animate-pulse" />
+              <span className="px-3 py-1 bg-purple-500/10 border border-purple-500/20 dark:border-purple-500/30 text-purple-700 dark:text-purple-300 text-[11px] font-bold uppercase tracking-widest rounded-full flex items-center gap-1.5 shadow-sm">
+                <Sparkles className="w-3 h-3 text-amber-500 dark:text-amber-400 animate-pulse" />
                 {currentSlide.subtitle}
               </span>
-              <span className="px-2.5 py-1 bg-slate-800/80 border border-slate-700/60 text-slate-300 text-[11px] font-mono font-semibold rounded-full">
+              <span className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 text-[11px] font-mono font-semibold rounded-full">
                 {currentSlide.brand}
               </span>
               {currentSlide.price && (
-                <span className="px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px] font-mono font-bold rounded-full">
+                <span className="px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-[11px] font-mono font-bold rounded-full">
                   {currentSlide.price}
                 </span>
               )}
             </div>
 
             {/* Smartphone Title */}
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight drop-shadow-md">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight drop-shadow-sm dark:drop-shadow-md">
               {currentSlide.title}
             </h1>
 
             {/* Short Description */}
-            <p className="text-slate-300 text-xs sm:text-sm md:text-base leading-relaxed max-w-xl line-clamp-2">
+            <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm md:text-base leading-relaxed max-w-xl line-clamp-2">
               {currentSlide.description}
             </p>
 
             {/* Spec Attributes List (2 Columns for Maximum Readability) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 pb-1">
               
-              <div className="bg-slate-950/70 border border-slate-800/90 p-3 rounded-2xl flex items-center gap-3 shadow-inner">
-                <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center shrink-0">
+              <div className="bg-slate-50/80 dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800/90 p-3 rounded-2xl flex items-center gap-3 shadow-sm dark:shadow-inner transition-colors">
+                <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
                   <Cpu className="w-4 h-4" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Chipset</span>
-                  <span className="text-xs font-bold text-white leading-tight block truncate" title={currentSlide.specs.chipset}>
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Chipset</span>
+                  <span className="text-xs font-bold text-slate-900 dark:text-white leading-tight block truncate" title={currentSlide.specs.chipset}>
                     {currentSlide.specs.chipset}
                   </span>
                 </div>
               </div>
 
-              <div className="bg-slate-950/70 border border-slate-800/90 p-3 rounded-2xl flex items-center gap-3 shadow-inner">
-                <div className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
+              <div className="bg-slate-50/80 dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800/90 p-3 rounded-2xl flex items-center gap-3 shadow-sm dark:shadow-inner transition-colors">
+                <div className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
                   <Smartphone className="w-4 h-4" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Display</span>
-                  <span className="text-xs font-bold text-white leading-tight block truncate" title={currentSlide.specs.display}>
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Display</span>
+                  <span className="text-xs font-bold text-slate-900 dark:text-white leading-tight block truncate" title={currentSlide.specs.display}>
                     {currentSlide.specs.display}
                   </span>
                 </div>
               </div>
 
-              <div className="bg-slate-950/70 border border-slate-800/90 p-3 rounded-2xl flex items-center gap-3 shadow-inner">
-                <div className="w-9 h-9 rounded-xl bg-pink-500/10 border border-pink-500/20 text-pink-400 flex items-center justify-center shrink-0">
+              <div className="bg-slate-50/80 dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800/90 p-3 rounded-2xl flex items-center gap-3 shadow-sm dark:shadow-inner transition-colors">
+                <div className="w-9 h-9 rounded-xl bg-pink-500/10 border border-pink-500/20 text-pink-600 dark:text-pink-400 flex items-center justify-center shrink-0">
                   <Camera className="w-4 h-4" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Camera Setup</span>
-                  <span className="text-xs font-bold text-white leading-tight block truncate" title={currentSlide.specs.camera}>
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Camera Setup</span>
+                  <span className="text-xs font-bold text-slate-900 dark:text-white leading-tight block truncate" title={currentSlide.specs.camera}>
                     {currentSlide.specs.camera}
                   </span>
                 </div>
               </div>
 
-              <div className="bg-slate-950/70 border border-slate-800/90 p-3 rounded-2xl flex items-center gap-3 shadow-inner">
-                <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+              <div className="bg-slate-50/80 dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800/90 p-3 rounded-2xl flex items-center gap-3 shadow-sm dark:shadow-inner transition-colors">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
                   <Zap className="w-4 h-4" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Battery & Charge</span>
-                  <span className="text-xs font-bold text-white leading-tight block truncate" title={currentSlide.specs.battery}>
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Battery & Charge</span>
+                  <span className="text-xs font-bold text-slate-900 dark:text-white leading-tight block truncate" title={currentSlide.specs.battery}>
                     {currentSlide.specs.battery}
                   </span>
                 </div>
@@ -322,11 +322,11 @@ export default function HeroCarousel({ initialDevices = [] }) {
           <div className="lg:col-span-5 flex items-center justify-center relative py-4 lg:py-0">
             
             {/* Styled 3D Phone Chassis */}
-            <div className="relative w-56 sm:w-64 h-[320px] sm:h-[360px] rounded-[36px] bg-slate-950 p-3 border-[5px] border-slate-800 shadow-2xl transition-all duration-500 hover:scale-105 hover:-rotate-1 group/phone cursor-pointer">
+            <div className="relative w-56 sm:w-64 h-[320px] sm:h-[360px] rounded-[36px] bg-slate-900 dark:bg-slate-950 p-3 border-[5px] border-slate-200 dark:border-slate-800 shadow-2xl transition-all duration-500 hover:scale-105 hover:-rotate-1 group/phone cursor-pointer">
               
               {/* Top Notch / Camera Cutout */}
-              <div className="absolute top-2.5 left-1/2 -translate-x-1/2 z-30 w-20 h-4 bg-slate-950 rounded-b-xl border border-slate-800 border-t-0 flex items-center justify-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-slate-900 border border-slate-700"></div>
+              <div className="absolute top-2.5 left-1/2 -translate-x-1/2 z-30 w-20 h-4 bg-slate-900 dark:bg-slate-950 rounded-b-xl border border-slate-200 dark:border-slate-800 border-t-0 flex items-center justify-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-slate-800 dark:bg-slate-900 border border-slate-600 dark:border-slate-700"></div>
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500/40"></div>
               </div>
 
@@ -370,7 +370,7 @@ export default function HeroCarousel({ initialDevices = [] }) {
         </div>
 
         {/* Carousel Bottom Control Bar: Phone Selector Pills & Arrow Buttons */}
-        <div className="pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="pt-4 border-t border-slate-200/80 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4">
           
           {/* Phone Selector Pills */}
           <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-1 sm:pb-0 scrollbar-none">
@@ -384,10 +384,10 @@ export default function HeroCarousel({ initialDevices = [] }) {
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
                     isActive
                       ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30 ring-1 ring-purple-400'
-                      : 'bg-slate-950/60 text-slate-400 hover:text-slate-200 border border-slate-800'
+                      : 'bg-slate-100 hover:bg-slate-200/70 dark:bg-slate-950/60 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-800'
                   }`}
                 >
-                  <Smartphone className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-slate-500'}`} />
+                  <Smartphone className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-slate-400 dark:text-slate-500'}`} />
                   <span>{slide.name}</span>
                 </button>
               );
@@ -400,13 +400,13 @@ export default function HeroCarousel({ initialDevices = [] }) {
               variant="outline"
               size="icon"
               onClick={handlePrevSlide}
-              className="w-9 h-9 rounded-xl bg-slate-950 border-slate-800 hover:bg-slate-800 text-slate-300 hover:text-white cursor-pointer transition-all"
+              className="w-9 h-9 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer transition-all shadow-sm"
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
 
             {/* Animated Progress Bar */}
-            <div className="w-16 h-1.5 bg-slate-800 rounded-full overflow-hidden relative">
+            <div className="w-16 h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden relative">
               <div 
                 className="h-full bg-purple-500 transition-all duration-500 rounded-full"
                 style={{ width: `${((activeSlide + 1) / slides.length) * 100}%` }}
@@ -417,7 +417,7 @@ export default function HeroCarousel({ initialDevices = [] }) {
               variant="outline"
               size="icon"
               onClick={handleNextSlide}
-              className="w-9 h-9 rounded-xl bg-slate-950 border-slate-800 hover:bg-slate-800 text-slate-300 hover:text-white cursor-pointer transition-all"
+              className="w-9 h-9 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer transition-all shadow-sm"
             >
               <ArrowRight className="w-4 h-4" />
             </Button>
