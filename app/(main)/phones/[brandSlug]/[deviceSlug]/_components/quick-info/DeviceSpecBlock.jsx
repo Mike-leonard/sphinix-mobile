@@ -6,8 +6,9 @@ export default function DeviceSpecBlock({ icon: Icon, label, value }) {
       <div className="relative z-10 p-3 flex items-center justify-center w-12 shrink-0 border-r border-slate-200 dark:border-brand-500/20 bg-brand-600 text-white dark:bg-brand-600/20 group-hover:bg-transparent group-hover:text-white dark:group-hover:text-white transition-colors duration-300">
         <Icon className="w-5 h-5" />
       </div>
-      <div className="relative z-10 px-4 py-3 flex-1 text-sm flex items-center group-hover:text-white transition-colors duration-300">
-        <span className="font-bold mr-1">{label}:</span> {value}
+      <div className="relative z-10 px-4 py-2.5 flex-1 text-sm flex items-start gap-2 group-hover:text-white transition-colors duration-300 leading-relaxed">
+        <span className="font-bold shrink-0 text-slate-900 dark:text-white group-hover:text-white">{label}:</span>
+        <span className="flex-1 text-slate-700 dark:text-slate-200 group-hover:text-white">{value}</span>
       </div>
     </div>
   );
