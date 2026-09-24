@@ -11,7 +11,7 @@ import { getSettings } from '@/actions/settings';
 export default async function DevicesPage({ searchParams }) {
   const resolvedSearchParams = await searchParams;
   const page = parseInt(resolvedSearchParams?.page || "1", 10);
-  const selectedBrand = resolvedSearchParams?.brand || "All";
+  const selectedBrand = "All";
   const searchQuery = resolvedSearchParams?.q || "";
 
   // Extract active filter search params (e.g. filter_price, filter_ram, filter_battery)

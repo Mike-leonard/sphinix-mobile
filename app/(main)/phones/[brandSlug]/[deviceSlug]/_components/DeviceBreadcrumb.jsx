@@ -1,14 +1,26 @@
 import React from 'react';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
+import { generateBrandSlug } from '@/lib/utils';
 
 export default function DeviceBreadcrumb({ device }) {
+  const brandName = device.brand || device.brandName || '';
+  const brandSlug = generateBrandSlug(brandName);
+
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white dark:bg-[#1a2035] p-3 rounded-lg border border-slate-200 dark:border-slate-800 mb-6 gap-4 min-h-[64px]">
       <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 flex-wrap">
         <Link href="/" style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="hover:text-brand-500 transition-colors">Home</Link>
         <ChevronRight className="w-3 h-3 flex-shrink-0" />
         <Link href="/phones" style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="hover:text-brand-500 transition-colors">Phones</Link>
+        {brandName && (
+          <>
+            <ChevronRight className="w-3 h-3 flex-shrink-0" />
+            <Link href={`/phones/${brandSlug}`} style={{fontSize: "var(--font-size-link-inline, var(--font-size-link-default))"}} className="hover:text-brand-500 transition-colors">
+              {brandName}
+            </Link>
+          </>
+        )}
         <ChevronRight className="w-3 h-3 flex-shrink-0" />
         <span className="text-slate-900 dark:text-white line-clamp-1 break-all sm:break-normal">{device.name}</span>
       </div>

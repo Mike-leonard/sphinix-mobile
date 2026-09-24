@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { LayoutGrid, List } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { setDeviceViewMode } from '@/actions/devices';
+import { generateBrandSlug } from '@/lib/utils';
 import MobileFiltersSheet from './MobileFiltersSheet';
 
 export default function SortingControl({ 
@@ -17,7 +18,6 @@ export default function SortingControl({
   isPending = false
 }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const [internalViewMode, setInternalViewMode] = useState(initialViewMode);
   const [sortOption, setSortOption] = useState('Date (default)');
@@ -42,14 +42,12 @@ export default function SortingControl({
   };
 
   const handleBrandChange = (newBrand) => {
-    const params = new URLSearchParams(searchParams ? searchParams.toString() : '');
-    if (newBrand && newBrand !== 'All') {
-      params.set('brand', newBrand);
+    if (!newBrand || newBrand === 'All') {
+      router.push('/phones');
     } else {
-      params.delete('brand');
+      const brandSlug = generateBrandSlug(newBrand);
+      router.push(`/phones/${brandSlug}`);
     }
-    params.delete('page');
-    router.push(`?${params.toString()}`);
   };
 
   return (

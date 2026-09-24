@@ -2,10 +2,11 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, usePathname } from 'next/navigation';
 
 export default function Pagination({ currentPage, totalPages }) {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   if (totalPages <= 1) return null;
 
@@ -21,8 +22,9 @@ export default function Pagination({ currentPage, totalPages }) {
     }
 
     const query = params.toString();
+    const basePath = pathname || '/phones';
 
-    return query ? `?${query}` : '/phones';
+    return query ? `${basePath}?${query}` : basePath;
   };
 
   return (

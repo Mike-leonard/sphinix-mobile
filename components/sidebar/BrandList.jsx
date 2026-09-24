@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { getDeviceBrands } from '@/actions/device-brands';
 import { getDeviceBrandCounts } from '@/actions/devices';
+import { generateBrandSlug } from '@/lib/utils';
 
 const DEFAULT_BRANDS = ["All", "Apple", "Samsung", "OnePlus", "Google", "LG", "Nokia", "HTC", "Sony", "Motorola", "Huawei", "Oppo"];
 
@@ -42,8 +43,8 @@ export default async function BrandList({ brands: propBrands = [], selectedBrand
 
       <div className="grid grid-cols-2 gap-2">
         {displayBrands.map(brand => {
-          const isActive = activeBrand === brand.name;
-          const targetUrl = brand.name === 'All' ? '/phones' : `/phones?brand=${encodeURIComponent(brand.name)}`;
+          const isActive = activeBrand.toLowerCase() === brand.name.toLowerCase();
+          const targetUrl = brand.name === 'All' ? '/phones' : `/phones/${generateBrandSlug(brand.name)}`;
           return (
             <Link
               key={brand.name}

@@ -92,7 +92,7 @@ export default function NotFound() {
             {['Apple', 'Samsung', 'Xiaomi', 'OnePlus', 'Google'].map((brand) => (
               <Link
                 key={brand}
-                href={`/phones?brand=${brand}`}
+                href={`/phones/${brand.toLowerCase()}`}
                 className="text-xs px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-medium hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-500/20 dark:hover:text-brand-400 border border-slate-200/60 dark:border-slate-700/60 transition-colors"
               >
                 {brand}
