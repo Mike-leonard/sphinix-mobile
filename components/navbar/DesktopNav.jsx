@@ -13,15 +13,18 @@ export default function DesktopNav({ navLinks }) {
 
   return (
     <nav className="hidden lg:flex items-center gap-8 font-medium text-sm text-slate-600 dark:text-slate-400">
-      {navLinks.map((link) => (
-        <Link
-          key={link.name}
-          href={link.href}
-          className={`transition-colors hover:text-brand-400 text-dynamic-nav ${pathname === link.href ? 'text-slate-900 dark:text-white font-semibold' : ''}`}
-        >
-          {link.name}
-        </Link>
-      ))}
+      {navLinks.map((link) => {
+        const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
+        return (
+          <Link
+            key={link.name}
+            href={link.href}
+            className={`transition-colors hover:text-brand-400 text-dynamic-nav ${isActive ? 'text-slate-900 dark:text-white font-semibold' : ''}`}
+          >
+            {link.name}
+          </Link>
+        );
+      })}
       {/* Compare button with tooltip */}
       <div className="relative group">
         <Button variant="none" size="none" style={{fontSize: "var(--font-size-button-sidebar, var(--font-size-button-default))"}} 

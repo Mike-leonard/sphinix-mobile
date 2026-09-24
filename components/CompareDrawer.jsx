@@ -15,6 +15,7 @@ import { useRouter, usePathname } from 'next/navigation';
 
 import Image from 'next/image';
 import { getDeviceFirstImage, getDeviceImageAlt } from '@/lib/utils';
+import { buildComparisonSlug } from '@/lib/devices/comparison-helpers';
 
 export default function CompareDrawer() {
   const { compareList, isOpen, setIsCompareOpen, handleToggleCompare, clearCompare } = useCompare();
@@ -119,10 +120,10 @@ export default function CompareDrawer() {
             <Button
               onClick={() => {
                 setIsCompareOpen(false);
-                const ids = compareList.map(item => item.id).join(',');
-                router.push(ids ? `/comparisons?ids=${ids}` : "/comparisons");
+                const slug = buildComparisonSlug(compareList.map(item => item.id));
+                router.push(slug ? `/compare/${slug}` : '/compare');
               }}
-              className="flex-1 bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white border-0 text-xs shadow-md shadow-brand-600/20"
+              className="flex-1 bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white border-0 text-xs shadow-md shadow-brand-600/20 cursor-pointer"
             >
               Full Specs
             </Button>
