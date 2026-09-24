@@ -1,4 +1,6 @@
 import prisma from '@/lib/prisma';
+import { normalizeDeviceFilterValues } from '@/lib/devices/normalizeDeviceFilterValues';
+import { buildPublishedDeviceWhere } from '@/lib/devices/buildPublishedDeviceWhere';
 
 /**
  * Formats DB device record, normalizing specs, pricing, and status.
@@ -284,84 +286,7 @@ export async function getPublishedDevicesQuery(
     offset = offsetParam ?? 0;
   }
 
-  const where = { status: 'PUBLISHED' };
-
-  if (brand && brand !== 'All') {
-    where.brandName = {
-      equals: brand,
-      mode: 'insensitive'
-    };
-  }
-
-  if (query) {
-    where.OR = [
-      {
-        name: {
-          contains: query,
-          mode: 'insensitive'
-        }
-      },
-      {
-        brandName: {
-          contains: query,
-          mode: 'insensitive'
-        }
-      }
-    ];
-  }
-
-  // ---------------------------------------------------------
-  // CASE 1: Filters exist
-  // ---------------------------------------------------------
-  // Keep the existing filtering logic for now because the
-  // specification filters are evaluated in JavaScript.
-  // Priority 1 only changes pagination for the normal case.
-  // ---------------------------------------------------------
-
-  if (filters && Object.keys(filters).length > 0) {
-    const rawMatching = await prisma.device.findMany({
-      where,
-      orderBy: [
-        { createdAt: 'asc' },
-        { id: 'asc' }
-      ],
-      include: {
-        deviceBrand: true
-      }
-    });
-
-    const allMatching = rawMatching.map(formatDevice);
-
-    const filtered = allMatching.filter(device => {
-      return Object.entries(filters).every(
-        ([filterId, selectedOptions]) => {
-          if (!selectedOptions || selectedOptions.length === 0) {
-            return true;
-          }
-
-          const val = getDeviceSpecValue(device, filterId);
-
-          if (!val) {
-            return false;
-          }
-
-          return selectedOptions.some(opt =>
-            evaluateFilterOption(val, opt)
-          );
-        }
-      );
-    });
-
-    return filtered.slice(offset, offset + limit);
-  }
-
-  // ---------------------------------------------------------
-  // CASE 2: No specification filters
-  // ---------------------------------------------------------
-  // IMPORTANT:
-  // Pagination is now handled by PostgreSQL through Prisma.
-  // We only fetch the records needed for this page.
-  // ---------------------------------------------------------
+  const where = buildPublishedDeviceWhere({ query, brand, filters });
 
   const devices = await prisma.device.findMany({
     where,
@@ -383,7 +308,7 @@ export async function getPublishedDevicesQuery(
  * -----------------------------------------------------------------------------
  * QUERY: getPublishedDevicesCountQuery
  * -----------------------------------------------------------------------------
- * @description Public query: counts published devices matching search query, brand, and spec filters.
+ * @description Public query: counts published devices matching search query, brand, and spec filters at database level.
  * @table `device`
  * @where Called by: `actions/devices.js` -> `publishedDevicesCount()`
  * @param {string|object} optionsOrQuery - Search query term or options object.
@@ -404,32 +329,7 @@ export async function getPublishedDevicesCountQuery(optionsOrQuery = '', brandPa
     brand = brandParam || 'All';
   }
 
-  const where = { status: 'PUBLISHED' };
-
-  if (brand && brand !== 'All') {
-    where.brandName = { equals: brand, mode: 'insensitive' };
-  }
-
-  if (query) {
-    where.OR = [
-      { name: { contains: query, mode: 'insensitive' } },
-      { brandName: { contains: query, mode: 'insensitive' } }
-    ];
-  }
-
-  if (filters && Object.keys(filters).length > 0) {
-    const rawMatching = await prisma.device.findMany({ where });
-    const allMatching = rawMatching.map(formatDevice);
-    const filtered = allMatching.filter(device => {
-      return Object.entries(filters).every(([filterId, selectedOptions]) => {
-        if (!selectedOptions || selectedOptions.length === 0) return true;
-        const val = getDeviceSpecValue(device, filterId);
-        if (!val) return false;
-        return selectedOptions.some(opt => evaluateFilterOption(val, opt));
-      });
-    });
-    return filtered.length;
-  }
+  const where = buildPublishedDeviceWhere({ query, brand, filters });
 
   return await prisma.device.count({ where });
 }
@@ -517,6 +417,10 @@ export async function createDeviceQuery(data) {
     payload.brandName = payload.brand;
     delete payload.brand;
   }
+  if (payload.specs) {
+    const normalized = normalizeDeviceFilterValues(payload.specs);
+    Object.assign(payload, normalized);
+  }
   const created = await prisma.device.create({ data: payload });
   return formatDevice(created);
 }
@@ -541,6 +445,10 @@ export async function updateDeviceQuery(id, data) {
   if (payload.brand && !payload.brandName) {
     payload.brandName = payload.brand;
     delete payload.brand;
+  }
+  if (payload.specs) {
+    const normalized = normalizeDeviceFilterValues(payload.specs);
+    Object.assign(payload, normalized);
   }
   const updated = await prisma.device.update({
     where: { id },
