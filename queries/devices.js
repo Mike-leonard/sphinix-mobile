@@ -259,7 +259,12 @@ function evaluateFilterOption(specVal, optStr) {
  * @param {number} offsetParam - Pagination offset.
  * @returns {Promise<Array>} Array of published devices.
  */
-export async function getPublishedDevicesQuery(optionsOrLimit = 10, queryParam = '', brandParam = 'All', offsetParam = 0) {
+export async function getPublishedDevicesQuery(
+  optionsOrLimit = 10,
+  queryParam = '',
+  brandParam = 'All',
+  offsetParam = 0
+) {
   let limit = 10;
   let query = '';
   let brand = 'All';
@@ -282,38 +287,96 @@ export async function getPublishedDevicesQuery(optionsOrLimit = 10, queryParam =
   const where = { status: 'PUBLISHED' };
 
   if (brand && brand !== 'All') {
-    where.brandName = { equals: brand, mode: 'insensitive' };
+    where.brandName = {
+      equals: brand,
+      mode: 'insensitive'
+    };
   }
 
   if (query) {
     where.OR = [
-      { name: { contains: query, mode: 'insensitive' } },
-      { brandName: { contains: query, mode: 'insensitive' } }
+      {
+        name: {
+          contains: query,
+          mode: 'insensitive'
+        }
+      },
+      {
+        brandName: {
+          contains: query,
+          mode: 'insensitive'
+        }
+      }
     ];
   }
 
-  const rawMatching = await prisma.device.findMany({
-    where,
-    orderBy: { createdAt: 'asc' },
-    include: { deviceBrand: true }
-  });
-
-  const allMatching = rawMatching.map(formatDevice);
+  // ---------------------------------------------------------
+  // CASE 1: Filters exist
+  // ---------------------------------------------------------
+  // Keep the existing filtering logic for now because the
+  // specification filters are evaluated in JavaScript.
+  // Priority 1 only changes pagination for the normal case.
+  // ---------------------------------------------------------
 
   if (filters && Object.keys(filters).length > 0) {
+    const rawMatching = await prisma.device.findMany({
+      where,
+      orderBy: [
+        { createdAt: 'asc' },
+        { id: 'asc' }
+      ],
+      include: {
+        deviceBrand: true
+      }
+    });
+
+    const allMatching = rawMatching.map(formatDevice);
+
     const filtered = allMatching.filter(device => {
-      return Object.entries(filters).every(([filterId, selectedOptions]) => {
-        if (!selectedOptions || selectedOptions.length === 0) return true;
-        const val = getDeviceSpecValue(device, filterId);
-        if (!val) return false;
-        return selectedOptions.some(opt => evaluateFilterOption(val, opt));
-      });
+      return Object.entries(filters).every(
+        ([filterId, selectedOptions]) => {
+          if (!selectedOptions || selectedOptions.length === 0) {
+            return true;
+          }
+
+          const val = getDeviceSpecValue(device, filterId);
+
+          if (!val) {
+            return false;
+          }
+
+          return selectedOptions.some(opt =>
+            evaluateFilterOption(val, opt)
+          );
+        }
+      );
     });
 
     return filtered.slice(offset, offset + limit);
   }
 
-  return allMatching.slice(offset, offset + limit);
+  // ---------------------------------------------------------
+  // CASE 2: No specification filters
+  // ---------------------------------------------------------
+  // IMPORTANT:
+  // Pagination is now handled by PostgreSQL through Prisma.
+  // We only fetch the records needed for this page.
+  // ---------------------------------------------------------
+
+  const devices = await prisma.device.findMany({
+    where,
+    orderBy: [
+      { createdAt: 'asc' },
+      { id: 'asc' }
+    ],
+    skip: offset,
+    take: limit,
+    include: {
+      deviceBrand: true
+    }
+  });
+
+  return devices.map(formatDevice);
 }
 
 /**
