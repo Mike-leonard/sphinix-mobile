@@ -42,22 +42,22 @@ model DeviceBrand {
 }
 
 model Device {
-  id          String       @id
+  id          String      @id
   name        String
-  brandName   String       @map("brand")
-  deviceBrand DeviceBrand  @relation(fields: [brandName], references: [name], onDelete: Cascade)
+  brandName   String      @map("brand")
+  deviceBrand DeviceBrand @relation(fields: [brandName], references: [name], onDelete: Cascade)
   price       String
-  rating      Float        @default(0)
-  isNew       Boolean      @default(false)
-  isTopRated  Boolean      @default(false)
-  status      StatusType   @default(DRAFT)
+  rating      Float       @default(0)
+  isNew       Boolean     @default(false)
+  isTopRated  Boolean     @default(false)
+  status      StatusType  @default(DRAFT)
   specs       Json
 
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@index([brandName])
-  @@index([status])
+  @@index([status, createdAt])
+  @@index([status, brandName, createdAt])
 }
 
 model DeviceFilter {
@@ -67,8 +67,8 @@ model DeviceFilter {
   options       String[]
   order         Int      @default(0)
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model DeviceGroup {
@@ -77,8 +77,8 @@ model DeviceGroup {
   order      Int               @default(0)
   attributes DeviceAttribute[]
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model DeviceAttribute {
@@ -92,20 +92,20 @@ model DeviceAttribute {
   placeholder String?
   order       Int          @default(0)
 
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model RatingBar {
-  id           String   @id @default(uuid())
+  id           String  @id @default(uuid())
   name         String
-  slug         String   @unique
-  description  String?  @default("")
-  defaultValue Int      @default(3)
-  order        Int      @default(0)
+  slug         String  @unique
+  description  String? @default("")
+  defaultValue Int     @default(3)
+  order        Int     @default(0)
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model BlogCategory {
@@ -133,15 +133,15 @@ model Blog {
   status       StatusType    @default(DRAFT)
   seo          Json?
 
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([status])
 }
 
 model SiteSettings {
-  id             Int      @id @default(1)
-  version        Int      @default(1)
+  id             Int   @id @default(1)
+  version        Int   @default(1)
   seo            Json?
   typography     Json?
   appearance     Json?
@@ -158,22 +158,21 @@ model SiteSettings {
   backups        Json?
   smtp           Json?
 
-  updatedAt      DateTime @updatedAt
+  updatedAt DateTime @updatedAt
 }
 
 model AffiliateCountry {
-  id             String   @id @default(uuid())
+  id             String  @id @default(uuid())
   name           String
-  code           String   @unique
+  code           String  @unique
   flag           String
-  currencySymbol String   @default("$")
-  currencyCode   String   @default("USD")
-  isDefault      Boolean  @default(false)
-  enabled        Boolean  @default(true)
-  order          Int      @default(0)
+  currencySymbol String  @default("$")
+  currencyCode   String  @default("USD")
+  isDefault      Boolean @default(false)
+  enabled        Boolean @default(true)
+  order          Int     @default(0)
   stores         Json?
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
-
