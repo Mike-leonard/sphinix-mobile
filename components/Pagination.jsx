@@ -1,66 +1,85 @@
 'use client';
-import React from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Button } from "@/components/ui/button";
 
-export default function Pagination({ currentPage, totalPages, onPageChange }) {
-  const router = useRouter();
+import React from 'react';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+
+export default function Pagination({ currentPage, totalPages }) {
   const searchParams = useSearchParams();
 
   if (totalPages <= 1) return null;
 
-  const handlePageChange = (newPage) => {
-    if (typeof onPageChange === 'function') {
-      onPageChange(newPage);
+  const createPageUrl = (page) => {
+    const params = new URLSearchParams(
+      searchParams ? searchParams.toString() : ''
+    );
+
+    if (page <= 1) {
+      params.delete('page');
     } else {
-      const params = new URLSearchParams(searchParams ? searchParams.toString() : '');
-      params.set('page', newPage.toString());
-      router.push(`?${params.toString()}`);
+      params.set('page', page.toString());
     }
+
+    const query = params.toString();
+
+    return query ? `?${query}` : '/phones';
   };
 
   return (
     <div className="flex items-center justify-center space-x-2 mt-8">
-      <Button 
-        variant="none" 
-        size="none" 
-        style={{ fontSize: "var(--font-size-button-default, var(--font-size-button-default))" }} 
-        onClick={() => handlePageChange(currentPage - 1)}
-        disabled={currentPage <= 1}
-        className="cursor-pointer px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-      >
-        Previous
-      </Button>
-      
+
+      {/* Previous */}
+      {currentPage > 1 ? (
+        <Link
+          href={createPageUrl(currentPage - 1)}
+          className="px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+        >
+          Previous
+        </Link>
+      ) : (
+        <span
+          className="px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 opacity-50 cursor-not-allowed"
+        >
+          Previous
+        </span>
+      )}
+
+      {/* Pages */}
       <div className="flex items-center space-x-1">
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-          <Button 
-            variant="none" 
-            size="none" 
-            style={{ fontSize: "var(--font-size-button-default, var(--font-size-button-default))" }} 
-            key={page}
-            onClick={() => handlePageChange(page)}
-            className={`cursor-pointer w-10 h-10 rounded-md font-medium transition-colors ${
-              currentPage === page
-                ? 'bg-brand-600 text-white border border-brand-600'
-                : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'
-            }`}
-          >
-            {page}
-          </Button>
-        ))}
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+          (page) => (
+            <Link
+              key={page}
+              href={createPageUrl(page)}
+              aria-current={currentPage === page ? 'page' : undefined}
+              className={`w-10 h-10 flex items-center justify-center rounded-md font-medium transition-colors ${
+                currentPage === page
+                  ? 'bg-brand-600 text-white border border-brand-600'
+                  : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'
+              }`}
+            >
+              {page}
+            </Link>
+          )
+        )}
       </div>
 
-      <Button 
-        variant="none" 
-        size="none" 
-        style={{ fontSize: "var(--font-size-button-default, var(--font-size-button-default))" }} 
-        onClick={() => handlePageChange(currentPage + 1)}
-        disabled={currentPage >= totalPages}
-        className="cursor-pointer px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-      >
-        Next
-      </Button>
+      {/* Next */}
+      {currentPage < totalPages ? (
+        <Link
+          href={createPageUrl(currentPage + 1)}
+          className="px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+        >
+          Next
+        </Link>
+      ) : (
+        <span
+          className="px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 opacity-50 cursor-not-allowed"
+        >
+          Next
+        </span>
+      )}
+
     </div>
   );
 }
