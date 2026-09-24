@@ -53,11 +53,31 @@ model Device {
   status      StatusType  @default(DRAFT)
   specs       Json
 
+  batteryMah        Int?
+  cameraMainMp      Int?
+  displaySize       Float?
+
+  ramMinGb          Int?
+  ramMaxGb          Int?
+
+  storageOptionsGb  Int[]
+
+  chipset           String?
+  os                String?
+
+  bluetoothVersion  String?
+  wifiVersion       String?
+  hasNfc            Boolean?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([status, createdAt])
   @@index([status, brandName, createdAt])
+  @@index([status, batteryMah])
+  @@index([status, displaySize])
+  @@index([status, cameraMainMp])
+  @@index([status, ramMinGb, ramMaxGb])
 }
 
 model DeviceFilter {
