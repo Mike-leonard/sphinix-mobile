@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename);
 const nextConfig = {
   output: 'standalone',
   outputFileTracingRoot: path.resolve(__dirname),
+  agentRules: false,
   images: {
     remotePatterns: [
       {

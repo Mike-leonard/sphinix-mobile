@@ -8,9 +8,11 @@ import DeviceBreadcrumb from './_components/DeviceBreadcrumb';
 import DeviceGallery from './_components/DeviceGallery';
 import DeviceQuickInfo from './_components/DeviceQuickInfo';
 import DeviceTabs from './_components/DeviceTabs';
+import DeviceComparisonsSection from './_components/DeviceComparisonsSection';
 import RelatedDevices from './_components/RelatedDevices';
 import AdBanner from '@/components/ads/AdBanner';
 import DevicePageSidebar from './_components/DevicePageSidebar';
+import { getSuggestedComparisonsForDevice } from '@/lib/devices/comparison-helpers';
 
 /**
  * Generates dynamic SEO metadata (Title, Description, OpenGraph, Twitter, Keywords) per phone route.
@@ -62,10 +64,11 @@ export default async function DeviceDetailsPage({ params }) {
   const resolvedParams = await params;
   const { deviceSlug } = resolvedParams;
 
-  const [device, ratingBars, attrs] = await Promise.all([
+  const [device, ratingBars, attrs, candidatesList] = await Promise.all([
     getPublishedDeviceById(deviceSlug),
     getRatingBars(),
-    getDeviceAttributes()
+    getDeviceAttributes(),
+    publishedDevices({ limit: 12 })
   ]);
 
   if (!device || device.status !== 'published') {
@@ -74,9 +77,13 @@ export default async function DeviceDetailsPage({ params }) {
 
   const quickSpecs = attrs.filter(a => a.groupIds?.includes('Quick Specifications') || a.groupId === 'Quick Specifications');
 
-  // Fetch related devices from database
-  const relatedList = await publishedDevices({ limit: 4, brand: device.brand });
-  const relatedDevices = (relatedList || []).filter(p => p.id !== device.id).slice(0, 3);
+  // Fetch related devices from database (same brand)
+  const relatedDevices = (candidatesList || [])
+    .filter(p => p.brand === device.brand && p.id !== device.id)
+    .slice(0, 3);
+
+  // Generate suggested head-to-head comparisons
+  const comparisons = getSuggestedComparisonsForDevice(device, candidatesList, 3);
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -129,6 +136,9 @@ export default async function DeviceDetailsPage({ params }) {
 
             {/* Tabbed Content: Specs, Overview, Reviews */}
             <DeviceTabs device={device} ratingBars={ratingBars} />
+
+            {/* Popular Head-to-Head Comparisons */}
+            <DeviceComparisonsSection currentDevice={device} comparisons={comparisons} />
 
             <AdBanner placement="deviceDetailsBanner" className='mt-10'/>
 

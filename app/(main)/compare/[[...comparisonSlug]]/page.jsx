@@ -1,9 +1,9 @@
 import React from 'react';
 import { redirect, permanentRedirect } from 'next/navigation';
 import { getSettings } from '@/actions/settings';
-import { getPublishedDevicesByIds } from '@/actions/devices';
+import { getPublishedDevicesByIds, publishedDevices } from '@/actions/devices';
 import { rawOrigin } from '@/lib/utils';
-import { buildComparisonSlug, parseComparisonSlug } from '@/lib/devices/comparison-helpers';
+import { buildComparisonSlug, parseComparisonSlug, generateComparisonPairs } from '@/lib/devices/comparison-helpers';
 import EmptyState from '../_components/EmptyState';
 import ComparisonHeader from '../_components/ComparisonHeader';
 import ComparisonBody from '../_components/ComparisonBody';
@@ -127,7 +127,9 @@ export default async function ComparePage({ params, searchParams }) {
   }
 
   if (!compareList || compareList.length === 0) {
-    return <EmptyState />;
+    const popularCandidates = await publishedDevices({ limit: 12 });
+    const popularComparisons = generateComparisonPairs(popularCandidates || [], 6);
+    return <EmptyState popularComparisons={popularComparisons} />;
   }
 
   // Dynamic grid column class based on number of devices

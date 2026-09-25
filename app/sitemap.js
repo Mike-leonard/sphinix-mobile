@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import { getSettings } from '@/actions/settings';
 import { generateBrandSlug, generateDeviceSlug } from '@/lib/utils';
+import { generateComparisonPairs } from '@/lib/devices/comparison-helpers';
 
 export default async function sitemap() {
   const settings = await getSettings();
@@ -41,8 +42,9 @@ export default async function sitemap() {
 
   // Dynamic published smartphone detail pages
   let phoneRoutes = [];
+  let publishedDevices = [];
   try {
-    const publishedDevices = await prisma.device.findMany({
+    publishedDevices = await prisma.device.findMany({
       where: { status: 'PUBLISHED' },
       select: { id: true, name: true, brandName: true, updatedAt: true }
     });
@@ -59,6 +61,20 @@ export default async function sitemap() {
     });
   } catch (e) {
     console.error('Error generating phone sitemap routes:', e);
+  }
+
+  // Dynamic published smartphone comparison pages
+  let comparisonRoutes = [];
+  try {
+    const comparisonPairs = generateComparisonPairs(publishedDevices || []);
+    comparisonRoutes = comparisonPairs.map((pair) => ({
+      url: `${baseUrl}/compare/${pair.slug}`,
+      lastModified: pair.updatedAt,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    }));
+  } catch (e) {
+    console.error('Error generating comparison sitemap routes:', e);
   }
 
   // Dynamic published blog articles
@@ -81,5 +97,6 @@ export default async function sitemap() {
     console.error('Error generating blog sitemap routes:', e);
   }
 
-  return [...staticRoutes, ...phoneRoutes, ...blogRoutes];
+  return [...staticRoutes, ...phoneRoutes, ...comparisonRoutes, ...blogRoutes];
 }
+
