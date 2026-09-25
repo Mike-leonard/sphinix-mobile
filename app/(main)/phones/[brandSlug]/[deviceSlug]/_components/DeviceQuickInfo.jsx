@@ -6,6 +6,7 @@ import { useCompare } from '@/context/CompareContext';
 import DeviceQuickInfoHeader from './quick-info/DeviceQuickInfoHeader';
 import AffiliateLinks from './quick-info/AffiliateLinks';
 import DeviceSpecBlock from './quick-info/DeviceSpecBlock';
+import { getDeviceQuickSpecs } from '@/lib/devices/spec-normalizer';
 
 const DEFAULT_QUICK_SPECS = [
   { slug: 'camera', name: 'Camera' },
@@ -65,19 +66,27 @@ export default function DeviceQuickInfo({ device, quickSpecs, allAttributes = []
 
       {/* Specs Stacked Blocks */}
       <div className="space-y-2 flex-1">
-        {specsToRender.map((spec) => {
-          const iconName = ICON_MAP[spec.slug] || 'Zap';
-          const IconComponent = Icons[iconName] || Icons.Zap;
-          const val = device?.specs?.[spec.slug] || 'Not specified';
-          return (
-            <DeviceSpecBlock
-              key={spec.slug}
-              icon={IconComponent}
-              label={spec.name}
-              value={val}
-            />
-          );
-        })}
+        {(() => {
+          const quick = getDeviceQuickSpecs(device?.specs);
+          return specsToRender.map((spec) => {
+            const iconName = ICON_MAP[spec.slug] || 'Zap';
+            const IconComponent = Icons[iconName] || Icons.Zap;
+            const rawVal = device?.specs?.[spec.slug];
+            const val = (typeof rawVal === 'string' && rawVal)
+              || quick[spec.slug]
+              || (typeof rawVal === 'number' ? String(rawVal) : null)
+              || 'Not specified';
+
+            return (
+              <DeviceSpecBlock
+                key={spec.slug}
+                icon={IconComponent}
+                label={spec.name}
+                value={val}
+              />
+            );
+          });
+        })()}
       </div>
     </div>
   );

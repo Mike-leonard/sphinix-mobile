@@ -5,7 +5,7 @@ import SpecsTab from './tabs/SpecsTab';
 import ReviewsTab from './tabs/ReviewsTab';
 import DeviceDescription from './tabs/DeviceDescription';
 
-export default function DeviceTabs({ device, ratingBars = [], hideAds = false }) {
+export default function DeviceTabs({ device, ratingBars = [], hideAds = false, attributes = [] }) {
   const [activeTab, setActiveTab] = useState('Specs');
 
   const tabs = ['Specs', 'Overview', 'Reviews'];
@@ -16,7 +16,7 @@ export default function DeviceTabs({ device, ratingBars = [], hideAds = false })
 
       {/* Tab Content */}
       <div className="min-h-[400px]">
-        {activeTab === 'Specs' && <SpecsTab device={device} hideAds={hideAds} />}
+        {activeTab === 'Specs' && <SpecsTab device={device} hideAds={hideAds} attributes={attributes} />}
 
         {activeTab === 'Overview' && (
           <div className="animate-in fade-in duration-300">

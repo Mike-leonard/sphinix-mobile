@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { MoreHorizontal, Edit, Trash2, Eye, ArrowUpDown, Smartphone, Copy } from 'lucide-react';
 import { cn, generateBrandSlug, getDeviceFirstImage } from '@/lib/utils';
+import { getDeviceQuickSpecs } from '@/lib/devices/spec-normalizer';
 
 const SortIcon = ({ field, sortField }) => (
   <ArrowUpDown
@@ -141,9 +142,14 @@ export default function DevicesTable({
                       >
                         {device.name}
                       </Link>
-                      <span className="text-xs text-slate-500 truncate max-w-xs" title={device.specs?.chipset}>
-                        {device.specs?.chipset || 'No chipset info'}
-                      </span>
+                      {(() => {
+                        const chipset = getDeviceQuickSpecs(device.specs).chipset;
+                        return (
+                          <span className="text-xs text-slate-500 truncate max-w-xs" title={chipset}>
+                            {chipset || 'No chipset info'}
+                          </span>
+                        );
+                      })()}
                     </div>
                   </td>
                   <td className="px-6 py-4">

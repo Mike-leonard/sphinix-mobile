@@ -6,6 +6,7 @@ import { ChevronLeft, Save, Loader2, Smartphone, ArrowLeft, Send, Sparkles, Wand
 import Link from 'next/link';
 import { createDevice, updateDevice } from '@/actions/devices';
 import { generateDeviceData } from '@/actions/ai';
+import { prepareDeviceSpecsForSave } from '@/lib/devices/spec-normalizer';
 
 import { Button } from '@/components/ui/button';
 import LeaveConfirmationModal from '@/app/dashboard/blogs/_components/editor/LeaveConfirmationModal';
@@ -148,7 +149,7 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
           throw new Error('Invalid JSON format: expected a JSON object representing a device.');
         }
 
-        // Normalize specs: handles Sphinx specs, quickSpecs, and detailedSpecs
+        // Normalize specs: handles Sphinx specs, quickSpecs, detailedSpecs, and raw specs dumps
         let mergedSpecs = {
           ...DEFAULT_DEVICE.specs,
           ...(formData.specs || {})
@@ -173,6 +174,24 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
             mergedSpecs[group] = specsList;
           });
         }
+
+        // Handle raw root-level specs JSON (e.g. data/exx.json with Audio, Camera, Battery at root)
+        const knownNonSpecRootKeys = new Set([
+          'name', 'brand', 'price', 'isNew', 'isTopRated', 'status',
+          'allowReviews', 'description', 'expertRatings', 'images', 'imageAlts',
+          'affiliates', 'seo', '_meta', 'rating', 'id'
+        ]);
+
+        for (const [key, val] of Object.entries(rawData)) {
+          if (!knownNonSpecRootKeys.has(key) && val !== undefined && val !== null) {
+            if (typeof val === 'object' || typeof val === 'string') {
+              mergedSpecs[key] = val;
+            }
+          }
+        }
+
+        // Canonicalize and auto-derive quick specs
+        mergedSpecs = prepareDeviceSpecsForSave(mergedSpecs);
 
         // Clean images & imageAlts to be arrays of at least 4 items
         const importedImages = Array.isArray(rawData.images) ? [...rawData.images] : (formData.images || ['', '', '', '']);
@@ -252,6 +271,7 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
     startTransition(async () => {
       const dataToSave = {
         ...formData,
+        specs: prepareDeviceSpecsForSave(formData.specs),
         status: status || formData.status
       };
 
@@ -283,7 +303,7 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
     setIsGenerating(false);
     
     if (res.success && res.data) {
-      const mergedSpecs = {
+      let mergedSpecs = {
         ...formData.specs,
         ...res.data.quickSpecs
       };
@@ -293,6 +313,8 @@ export default function DeviceEditor({ initialDevice = null, brands = [], allAtt
           mergedSpecs[groupName] = specsList;
         });
       }
+
+      mergedSpecs = prepareDeviceSpecsForSave(mergedSpecs);
 
       setFormData(prev => ({
         ...prev,

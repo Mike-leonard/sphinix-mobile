@@ -88,16 +88,26 @@ export default function DeviceSpecValidatorModal({
 
   const handleUpdateSingleField = (groupName, slug, attrName, newValue) => {
     const updatedSpecs = { ...localSpecs };
-    const groupList = [...(updatedSpecs[groupName] || [])];
-    const existingIdx = groupList.findIndex(s => s.slug === slug || s.label === attrName);
+    const currentGroup = updatedSpecs[groupName];
 
-    if (existingIdx >= 0) {
-      groupList[existingIdx] = { ...groupList[existingIdx], value: newValue };
+    if (currentGroup && typeof currentGroup === 'object' && !Array.isArray(currentGroup)) {
+      updatedSpecs[groupName] = {
+        ...currentGroup,
+        [slug || attrName]: newValue
+      };
     } else {
-      groupList.push({ label: attrName, slug, value: newValue });
+      const groupList = Array.isArray(currentGroup) ? [...currentGroup] : [];
+      const existingIdx = groupList.findIndex(s => s.slug === slug || s.label === attrName);
+
+      if (existingIdx >= 0) {
+        groupList[existingIdx] = { ...groupList[existingIdx], value: newValue };
+      } else {
+        groupList.push({ label: attrName, slug, value: newValue });
+      }
+
+      updatedSpecs[groupName] = groupList;
     }
 
-    updatedSpecs[groupName] = groupList;
     setLocalSpecs(updatedSpecs);
 
     // Update item status in audit report

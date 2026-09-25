@@ -21,20 +21,25 @@ export default function DeviceQuickSpecs({ specs, onChange, allAttributes = [] }
             No attributes assigned to the "Quick Specifications" group yet. Go to Attributes Manager to assign some.
           </div>
         ) : (
-          quickSpecs.map((attr) => (
-            <div key={attr.id}>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-2">
-                {attr.name}
-              </label>
-              <input
-                type="text"
-                value={specs?.[attr.slug] || ''}
-                onChange={(e) => onChange(attr.slug, e.target.value)}
-                placeholder={`e.g. ${attr.name} specs`}
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
-              />
-            </div>
-          ))
+          quickSpecs.map((attr) => {
+            const rawVal = specs?.[attr.slug];
+            const displayVal = typeof rawVal === 'string' ? rawVal : (typeof specs?.quickSpecs?.[attr.slug] === 'string' ? specs.quickSpecs[attr.slug] : '');
+
+            return (
+              <div key={attr.id}>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-2">
+                  {attr.name}
+                </label>
+                <input
+                  type="text"
+                  value={displayVal}
+                  onChange={(e) => onChange(attr.slug, e.target.value)}
+                  placeholder={`e.g. ${attr.name} specs`}
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+                />
+              </div>
+            );
+          })
         )}
       </div>
     </div>

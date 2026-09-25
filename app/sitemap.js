@@ -3,6 +3,8 @@ import { getSettings } from '@/actions/settings';
 import { generateBrandSlug, generateDeviceSlug } from '@/lib/utils';
 import { generateComparisonPairs } from '@/lib/devices/comparison-helpers';
 
+export const revalidate = 86400; // Cache sitemap for 24 hours
+
 export default async function sitemap() {
   const settings = await getSettings();
   
@@ -10,7 +12,11 @@ export default async function sitemap() {
     return [];
   }
 
-  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://sphinix.xyz').replace(/\/$/, '');
+  // Determine production base URL, ensuring no accidental localhost in production environments
+  let baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || process.env.BASE_URL || 'https://sphinix.xyz').replace(/\/$/, '');
+  if (process.env.NODE_ENV === 'production' && (baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1'))) {
+    baseUrl = 'https://sphinix.xyz';
+  }
 
   // Static site routes
   const staticRoutes = [
@@ -46,12 +52,26 @@ export default async function sitemap() {
   try {
     publishedDevices = await prisma.device.findMany({
       where: { status: 'PUBLISHED' },
-      select: { id: true, name: true, brandName: true, updatedAt: true }
+      select: {
+        id: true,
+        name: true,
+        brandName: true,
+        updatedAt: true,
+        isTopRated: true,
+        isNew: true,
+        rating: true
+      },
+      orderBy: [
+        { isTopRated: 'desc' },
+        { isNew: 'desc' },
+        { rating: 'desc' },
+        { updatedAt: 'desc' }
+      ]
     });
 
     phoneRoutes = publishedDevices.map((device) => {
       const brandSlug = generateBrandSlug(device.brandName || 'general');
-      const deviceSlug = generateDeviceSlug(device.name || device.id);
+      const deviceSlug = device.id; // Direct canonical ID ensures zero 404s
       return {
         url: `${baseUrl}/phones/${brandSlug}/${deviceSlug}`,
         lastModified: device.updatedAt ? new Date(device.updatedAt) : new Date(),
@@ -66,12 +86,12 @@ export default async function sitemap() {
   // Dynamic published smartphone comparison pages
   let comparisonRoutes = [];
   try {
-    const comparisonPairs = generateComparisonPairs(publishedDevices || []);
+    const comparisonPairs = generateComparisonPairs(publishedDevices || [], 60);
     comparisonRoutes = comparisonPairs.map((pair) => ({
       url: `${baseUrl}/compare/${pair.slug}`,
       lastModified: pair.updatedAt,
       changeFrequency: 'weekly',
-      priority: 0.8,
+      priority: 0.85,
     }));
   } catch (e) {
     console.error('Error generating comparison sitemap routes:', e);

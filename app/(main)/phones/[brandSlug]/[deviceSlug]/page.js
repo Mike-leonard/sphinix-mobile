@@ -135,7 +135,7 @@ export default async function DeviceDetailsPage({ params }) {
             </div>
 
             {/* Tabbed Content: Specs, Overview, Reviews */}
-            <DeviceTabs device={device} ratingBars={ratingBars} />
+            <DeviceTabs device={device} ratingBars={ratingBars} attributes={attrs} />
 
             {/* Popular Head-to-Head Comparisons */}
             <DeviceComparisonsSection currentDevice={device} comparisons={comparisons} />

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { List, ChevronDown, Loader2, Wand2, Search } from 'lucide-react';
 import { generateSingleAttributeValue } from '@/actions/ai';
 import SpecFinderModal from './SpecFinderModal';
+import { getGroupAttributeValue } from '@/lib/devices/spec-normalizer';
 
 export default function DeviceDetailedSpecs({ 
   specs, 
@@ -26,27 +27,43 @@ export default function DeviceDetailedSpecs({
     attr.groupIds?.includes(activeCategory) || attr.groupId === activeCategory
   );
 
-  const activeSpecsList = specs?.[activeCategory] || [];
-
   const handleUpdateSpec = (attrSlug, attrName, newValue) => {
-    const currentList = [...(specs?.[activeCategory] || [])];
-    const existingIndex = currentList.findIndex(s => s.label === attrName || s.slug === attrSlug);
-    
-    if (existingIndex >= 0) {
-      currentList[existingIndex] = { ...currentList[existingIndex], value: newValue };
-    } else {
-      currentList.push({ label: attrName, slug: attrSlug, value: newValue });
-    }
+    const targetKey = Object.keys(specs || {}).find(
+      k => k.toLowerCase() === activeCategory.toLowerCase()
+    ) || activeCategory.toLowerCase().trim().replace(/[\s_]+/g, '-');
+    const slugKey = attrSlug || (attrName ? attrName.toLowerCase().trim().replace(/[\s_]+/g, '-') : '');
 
-    onChange({
-      ...specs,
-      [activeCategory]: currentList
-    });
+    const groupVal = specs?.[targetKey];
+    if (groupVal && typeof groupVal === 'object' && !Array.isArray(groupVal)) {
+      // Modern Object format
+      onChange({
+        ...specs,
+        [targetKey]: {
+          ...groupVal,
+          [slugKey]: newValue
+        }
+      });
+    } else {
+      // Convert legacy array or create modern object
+      const currentMap = {};
+      if (Array.isArray(groupVal)) {
+        groupVal.forEach(item => {
+          if (item && item.slug) currentMap[item.slug] = item.value;
+        });
+      }
+      currentMap[slugKey] = newValue;
+
+      onChange({
+        ...specs,
+        [targetKey]: currentMap
+      });
+    }
   };
 
   const getSpecValue = (attrSlug, attrName) => {
-    const spec = activeSpecsList.find(s => s.slug === attrSlug || s.label === attrName);
-    return spec ? spec.value : '';
+    const val = getGroupAttributeValue(specs, activeCategory, attrSlug) 
+      ?? getGroupAttributeValue(specs, activeCategory, attrName);
+    return val !== null && val !== undefined ? String(val) : '';
   };
 
   const handleOpenSpecFinder = (attr) => {

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Star, StarHalf, Battery, Phone, Camera, Wifi, PenTool, MonitorSmartphone, Sparkles, Music, Zap, Smile } from 'lucide-react';
+import { getDeviceQuickSpecs } from '@/lib/devices/spec-normalizer';
 
 const iconMap = {
   'battery': Battery,
@@ -59,24 +60,29 @@ export default function DeviceDescription({ device, ratingBars = [] }) {
           dangerouslySetInnerHTML={{ __html: formattedDescription }}
         />
       ) : (
-        <>
-          <p>
-            The <strong>{device.name}</strong> represents the pinnacle of modern mobile engineering by <strong>{device.brand}</strong>. 
-            Designed for users who demand uncompromised performance and elegant aesthetics, this device pushes the boundaries of what a smartphone can achieve.
-          </p>
-          <p>
-            Powered by the cutting-edge <em>{device.specs?.chipset}</em> processor and paired with {device.specs?.ram}, it delivers buttery-smooth multitasking and gaming experiences. 
-            The stunning {device.specs?.screen} display ensures every photo, video, and interface element is remarkably crisp, vibrant, and incredibly fluid.
-          </p>
-          <div className="bg-brand-50 dark:bg-brand-500/10 border-l-4 border-brand-500 p-6 rounded-r-xl my-8 text-base">
-            <p style={{fontSize: "var(--font-size-p-default, var(--font-size-p-default))"}} className="italic text-brand-800 dark:text-brand-200 font-medium">
-              "With its {device.specs?.camera} camera system and robust {device.specs?.battery} battery, the {device.name} ensures you capture every moment without ever worrying about running out of power."
-            </p>
-          </div>
-          <p>
-            Whether you are a power user, a photography enthusiast, or someone who simply appreciates premium craftsmanship, the {device.name} offers a comprehensive package that is hard to beat at {device.price}.
-          </p>
-        </>
+        (() => {
+          const quick = getDeviceQuickSpecs(device.specs);
+          return (
+            <>
+              <p>
+                The <strong>{device.name}</strong> represents the pinnacle of modern mobile engineering by <strong>{device.brand}</strong>. 
+                Designed for users who demand uncompromised performance and elegant aesthetics, this device pushes the boundaries of what a smartphone can achieve.
+              </p>
+              <p>
+                Powered by the cutting-edge <em>{quick.chipset || 'advanced'}</em> processor and paired with {quick.ram || 'ample RAM'}, it delivers buttery-smooth multitasking and gaming experiences. 
+                The stunning {quick.screen || 'high-resolution'} display ensures every photo, video, and interface element is remarkably crisp, vibrant, and incredibly fluid.
+              </p>
+              <div className="bg-brand-50 dark:bg-brand-500/10 border-l-4 border-brand-500 p-6 rounded-r-xl my-8 text-base">
+                <p style={{fontSize: "var(--font-size-p-default, var(--font-size-p-default))"}} className="italic text-brand-800 dark:text-brand-200 font-medium">
+                  "With its {quick.camera || 'versatile'} camera system and robust {quick.battery || 'long-lasting'} battery, the {device.name} ensures you capture every moment without ever worrying about running out of power."
+                </p>
+              </div>
+              <p>
+                Whether you are a power user, a photography enthusiast, or someone who simply appreciates premium craftsmanship, the {device.name} offers a comprehensive package that is hard to beat at {device.price}.
+              </p>
+            </>
+          );
+        })()
       )}
 
       {ratedBars.length > 0 && (

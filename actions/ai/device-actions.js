@@ -5,6 +5,7 @@ import { fetchPageContentWithJina, searchWebWithJina } from '@/lib/ai/jina-scrap
 import { buildOptimizedSearchQuery } from '@/lib/ai/device-query-optimizer';
 import { verifySession } from '@/actions/auth';
 import { getDeviceAttributes } from '@/actions/device-attributes';
+import { cleanSpecValue } from '@/lib/devices/spec-normalizer';
 
 /**
  * Helper to build dynamic schema map from device attributes stored in PostgreSQL
@@ -90,7 +91,8 @@ export async function generateDeviceData(deviceName, brand) {
     if (aiData.detailedSpecs) {
       for (const [slug, value] of Object.entries(aiData.detailedSpecs)) {
         const attr = detailedAttributes.find(a => a.slug === slug);
-        if (attr && value && typeof value === 'string') {
+        const cleanedVal = cleanSpecValue(value);
+        if (attr && cleanedVal && typeof cleanedVal === 'string') {
           const groupList = attr.groupIds || [];
           const group = attr.group || groupList.find(g => g !== 'Quick Specifications') || 'General';
           if (!formattedDetailedSpecs[group]) {
@@ -99,7 +101,7 @@ export async function generateDeviceData(deviceName, brand) {
           formattedDetailedSpecs[group].push({
             label: attr.name,
             slug: attr.slug,
-            value: value.trim()
+            value: cleanedVal
           });
         }
       }
@@ -185,7 +187,8 @@ export async function generateDeviceDataFromUrl(url) {
     if (aiData.detailedSpecs) {
       for (const [slug, value] of Object.entries(aiData.detailedSpecs)) {
         const attr = detailedAttributes.find(a => a.slug === slug);
-        if (attr && value && typeof value === 'string') {
+        const cleanedVal = cleanSpecValue(value);
+        if (attr && cleanedVal && typeof cleanedVal === 'string') {
           const groupList = attr.groupIds || [];
           const group = attr.group || groupList.find(g => g !== 'Quick Specifications') || 'General';
           if (!formattedDetailedSpecs[group]) {
@@ -194,7 +197,7 @@ export async function generateDeviceDataFromUrl(url) {
           formattedDetailedSpecs[group].push({
             label: attr.name,
             slug: attr.slug,
-            value: value.trim()
+            value: cleanedVal
           });
         }
       }

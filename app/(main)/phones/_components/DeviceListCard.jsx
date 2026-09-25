@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Card } from '@/components/ui/card';
 import { generateBrandSlug, getDeviceFirstImage, getDeviceImageAlt } from '@/lib/utils';
+import { getDeviceQuickSpecs } from '@/lib/devices/spec-normalizer';
 import DeviceListCardCompare from './DeviceListCardCompare';
 
 export default function DeviceListCard({ product, isComparing, onToggleCompare, priority = false }) {
@@ -67,14 +68,19 @@ export default function DeviceListCard({ product, isComparing, onToggleCompare, 
             </span>
           </div>
 
-          <div className="space-y-1 text-sm text-slate-600 dark:text-slate-400 mt-4">
-            <p><strong className="text-slate-700 dark:text-slate-300">CPU:</strong> {product.specs?.chipset}</p>
-            <p><strong className="text-slate-700 dark:text-slate-300">RAM:</strong> {product.specs?.ram}</p>
-            <p><strong className="text-slate-700 dark:text-slate-300">Storage:</strong> {product.specs?.storage}</p>
-            <p><strong className="text-slate-700 dark:text-slate-300">Display:</strong> {product.specs?.screen}</p>
-            <p><strong className="text-slate-700 dark:text-slate-300">Camera:</strong> {product.specs?.camera}</p>
-            <p><strong className="text-slate-700 dark:text-slate-300">OS:</strong> {product.specs?.os || 'Android'}</p>
-          </div>
+          {(() => {
+            const quick = getDeviceQuickSpecs(product.specs);
+            return (
+              <div className="space-y-1 text-sm text-slate-600 dark:text-slate-400 mt-4">
+                <p><strong className="text-slate-700 dark:text-slate-300">CPU:</strong> {quick.chipset || 'N/A'}</p>
+                <p><strong className="text-slate-700 dark:text-slate-300">RAM:</strong> {quick.ram || 'N/A'}</p>
+                <p><strong className="text-slate-700 dark:text-slate-300">Storage:</strong> {quick.storage || 'N/A'}</p>
+                <p><strong className="text-slate-700 dark:text-slate-300">Display:</strong> {quick.screen || 'N/A'}</p>
+                <p><strong className="text-slate-700 dark:text-slate-300">Camera:</strong> {quick.camera || 'N/A'}</p>
+                <p><strong className="text-slate-700 dark:text-slate-300">OS:</strong> {quick.os || (typeof product.specs?.os === 'string' ? product.specs.os : 'Android')}</p>
+              </div>
+            );
+          })()}
         </div>
 
         <div className="mt-6 flex items-center justify-between">

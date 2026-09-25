@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import SpecCard from './SpecCard';
 import {
@@ -6,6 +8,7 @@ import {
   List, Wifi, ScanFace, Headphones, Package, Sparkles
 } from 'lucide-react';
 import InFeedAd from '@/components/ads/InFeedAd';
+import { normalizeDeviceSpecsForDisplay } from '@/lib/devices/spec-normalizer';
 
 const DEFAULT_DEVICE_GROUPS = [
   "General",
@@ -23,7 +26,29 @@ const DEFAULT_DEVICE_GROUPS = [
   "In The Box"
 ];
 
-export default function SpecsTab({ device, hideAds = false, deviceGroups: propDeviceGroups }) {
+// Map known groups to icons, with a fallback
+const getIconForGroup = (groupName) => {
+  const nameLower = (groupName || '').toLowerCase();
+  if (nameLower.includes('general')) return Smartphone;
+  if (nameLower.includes('design')) return Palette;
+  if (nameLower.includes('network')) return Antenna;
+  if (nameLower.includes('data')) return Globe;
+  if (nameLower.includes('messag')) return Mail;
+  if (nameLower.includes('battery')) return Battery;
+  if (nameLower.includes('software')) return LayoutTemplate;
+  if (nameLower.includes('hardware')) return Cpu;
+  if (nameLower.includes('display')) return Monitor;
+  if (nameLower.includes('media')) return Film;
+  if (nameLower.includes('camera')) return Camera;
+  if (nameLower.includes('connect')) return Wifi;
+  if (nameLower.includes('sensor')) return ScanFace;
+  if (nameLower.includes('audio')) return Headphones;
+  if (nameLower.includes('box')) return Package;
+  if (nameLower.includes('ai')) return Sparkles;
+  return List;
+};
+
+export default function SpecsTab({ device, hideAds = false, deviceGroups: propDeviceGroups, attributes = [] }) {
   const [deviceGroups, setDeviceGroups] = React.useState(propDeviceGroups || DEFAULT_DEVICE_GROUPS);
 
   React.useEffect(() => {
@@ -42,62 +67,31 @@ export default function SpecsTab({ device, hideAds = false, deviceGroups: propDe
 
   const specs = device?.specs || {};
 
-  const NON_SPEC_KEYS = ['images', 'imageAlts', 'affiliates', 'expertRatings', 'seo', 'quickSpecs'];
+  const normalizedGroups = React.useMemo(() => {
+    const rawGroups = normalizeDeviceSpecsForDisplay(specs, attributes);
 
-  // Find all keys that have arrays of spec items ({ label, value })
-  const specGroups = Object.entries(specs)
-    .filter(([key, value]) => {
-      if (NON_SPEC_KEYS.includes(key)) return false;
-      if (!Array.isArray(value) || value.length === 0) return false;
-      // Ensure the array contains specification objects (with label or value properties), not image URLs
-      return value.some(item => item && typeof item === 'object' && ('label' in item || 'value' in item));
-    })
-    .sort((a, b) => {
+    return rawGroups.sort((a, b) => {
       if (deviceGroups && deviceGroups.length > 0) {
-        const indexA = deviceGroups.indexOf(a[0]);
-        const indexB = deviceGroups.indexOf(b[0]);
+        const indexA = deviceGroups.findIndex(g => 
+          g.toLowerCase() === a.groupKey.toLowerCase() || 
+          g.toLowerCase() === a.title.toLowerCase()
+        );
+        const indexB = deviceGroups.findIndex(g => 
+          g.toLowerCase() === b.groupKey.toLowerCase() || 
+          g.toLowerCase() === b.title.toLowerCase()
+        );
         const valA = indexA === -1 ? 999 : indexA;
         const valB = indexB === -1 ? 999 : indexB;
         if (valA !== valB) return valA - valB;
       }
       
-      const isABox = a[0].toLowerCase().includes('box');
-      const isBBox = b[0].toLowerCase().includes('box');
+      const isABox = a.groupKey.toLowerCase().includes('box');
+      const isBBox = b.groupKey.toLowerCase().includes('box');
       if (isABox && !isBBox) return 1;
       if (!isABox && isBBox) return -1;
       return 0;
     });
-
-  // Map known groups to icons, with a fallback
-  const getIconForGroup = (groupName) => {
-    const nameLower = groupName.toLowerCase();
-    if (nameLower.includes('general')) return Smartphone;
-    if (nameLower.includes('design')) return Palette;
-    if (nameLower.includes('network')) return Antenna;
-    if (nameLower.includes('data')) return Globe;
-    if (nameLower.includes('messag')) return Mail;
-    if (nameLower.includes('battery')) return Battery;
-    if (nameLower.includes('software')) return LayoutTemplate;
-    if (nameLower.includes('hardware')) return Cpu;
-    if (nameLower.includes('display')) return Monitor;
-    if (nameLower.includes('media')) return Film;
-    if (nameLower.includes('camera')) return Camera;
-    if (nameLower.includes('connect')) return Wifi;
-    if (nameLower.includes('sensor')) return ScanFace;
-    if (nameLower.includes('audio')) return Headphones;
-    if (nameLower.includes('box')) return Package;
-    if (nameLower.includes('ai')) return Sparkles;
-    return List;
-  };
-
-  // Format the title if it's an old camelCase key (e.g., generalSpecs -> General)
-  const formatTitle = (key) => {
-    if (key.endsWith('Specs')) {
-      const base = key.replace('Specs', '');
-      return base.charAt(0).toUpperCase() + base.slice(1);
-    }
-    return key;
-  };
+  }, [specs, attributes, deviceGroups]);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
@@ -105,13 +99,12 @@ export default function SpecsTab({ device, hideAds = false, deviceGroups: propDe
         {device.name} - Specs
       </h2>
 
-      {specGroups.map(([key, specArray], index) => {
-        const title = formatTitle(key);
-        const Icon = getIconForGroup(title);
+      {normalizedGroups.map((group, index) => {
+        const Icon = getIconForGroup(group.title);
 
         return (
-          <React.Fragment key={key}>
-            <SpecCard title={title} icon={Icon} specs={specArray} />
+          <React.Fragment key={group.groupKey}>
+            <SpecCard title={group.title} icon={Icon} specs={group.specs} />
             {/* Insert ads periodically, similar to old layout */}
             {!hideAds && (index === 2 || index === 7) && <InFeedAd />}
           </React.Fragment>

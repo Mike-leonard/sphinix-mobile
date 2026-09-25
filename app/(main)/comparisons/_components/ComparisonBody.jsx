@@ -9,13 +9,14 @@ import {
 } from 'lucide-react';
 import AdBanner from '@/components/ads/AdBanner';
 import { useSettings } from '@/context/SettingsContext';
+import { getGroupAttributeValue, slugToLabel, cleanSpecValue } from '@/lib/devices/spec-normalizer';
 
 const BoolIcon = ({ value }) => value
   ? <CheckCircle2 className="w-5 h-5 fill-green-500 text-white border-none mx-auto" />
   : <XCircle className="w-5 h-5 fill-red-500 text-white border-none mx-auto" />;
 
 const getIconForGroup = (groupName) => {
-  const nameLower = groupName.toLowerCase();
+  const nameLower = (groupName || '').toLowerCase();
   if (nameLower.includes('general')) return Smartphone;
   if (nameLower.includes('design')) return Palette;
   if (nameLower.includes('network')) return Antenna;
@@ -40,7 +41,7 @@ const formatTitle = (key) => {
     const base = key.replace('Specs', '');
     return base.charAt(0).toUpperCase() + base.slice(1);
   }
-  return key;
+  return slugToLabel(key);
 };
 
 const DEFAULT_DEVICE_GROUPS = [
@@ -59,6 +60,11 @@ const DEFAULT_DEVICE_GROUPS = [
   "In The Box"
 ];
 
+const NON_SPEC_KEYS = new Set([
+  'images', 'imageAlts', 'affiliates', 'expertRatings',
+  'seo', 'quickSpecs', 'description', 'gallery', 'deviceGallery'
+]);
+
 export default function ComparisonBody({ compareList, gridColsClass }) {
   const settings = useSettings();
   const freq = settings?.advertisements?.injectionFrequency?.comparisons || 3;
@@ -74,26 +80,30 @@ export default function ComparisonBody({ compareList, gridColsClass }) {
     return () => { isCancelled = true; };
   }, []);
 
-  const NON_SPEC_KEYS = ['images', 'imageAlts', 'affiliates', 'expertRatings', 'seo', 'quickSpecs'];
-
-  // Get unique dynamic spec groups from all devices
-  const specGroupsSet = new Set();
+  // Get unique dynamic spec groups from all devices (supporting both arrays and key-value objects)
+  const specGroupsMap = new Map(); // groupKeyLower -> original groupKey
   compareList.forEach(device => {
     Object.entries(device.specs || {}).forEach(([key, value]) => {
-      if (
-        !NON_SPEC_KEYS.includes(key) &&
-        Array.isArray(value) &&
-        value.length > 0 &&
-        value.some(item => item && typeof item === 'object' && ('label' in item || 'value' in item))
-      ) {
-        specGroupsSet.add(key);
+      if (NON_SPEC_KEYS.has(key) || !value) return;
+
+      const isArrayWithSpecs = Array.isArray(value) && value.length > 0 &&
+        value.some(item => item && typeof item === 'object' && ('label' in item || 'value' in item || 'slug' in item));
+
+      const isObjectWithSpecs = !Array.isArray(value) && typeof value === 'object' && Object.keys(value).length > 0;
+
+      if (isArrayWithSpecs || isObjectWithSpecs) {
+        const lower = key.toLowerCase();
+        if (!specGroupsMap.has(lower)) {
+          specGroupsMap.set(lower, key);
+        }
       }
     });
   });
-  const specGroups = Array.from(specGroupsSet).sort((a, b) => {
+
+  const specGroups = Array.from(specGroupsMap.values()).sort((a, b) => {
     if (deviceGroups && deviceGroups.length > 0) {
-      const indexA = deviceGroups.indexOf(a);
-      const indexB = deviceGroups.indexOf(b);
+      const indexA = deviceGroups.findIndex(g => g.toLowerCase() === a.toLowerCase());
+      const indexB = deviceGroups.findIndex(g => g.toLowerCase() === b.toLowerCase());
       const valA = indexA === -1 ? 999 : indexA;
       const valB = indexB === -1 ? 999 : indexB;
       if (valA !== valB) return valA - valB;
@@ -112,17 +122,52 @@ export default function ComparisonBody({ compareList, gridColsClass }) {
         const title = formatTitle(groupKey);
         const Icon = getIconForGroup(title);
 
-        // Get all unique labels for this category across all devices in compareList
-        const labelsMap = new Map();
-        compareList.forEach(device => {
-          const specArray = device.specs?.[groupKey] || [];
-          specArray.forEach(s => {
-            labelsMap.set(s.label, true);
-          });
-        });
-        const labels = Array.from(labelsMap.keys());
+        // Collect all unique attribute rows (canonical slug + label) for this group across all devices
+        const attrRowsMap = new Map(); // canonicalSlug -> { slug, label }
 
-        if (labels.length === 0) return null;
+        compareList.forEach(device => {
+          const specs = device.specs || {};
+          // Find matching group data (case-insensitive)
+          let groupData = specs[groupKey];
+          if (!groupData) {
+            const targetLower = groupKey.toLowerCase();
+            for (const [k, v] of Object.entries(specs)) {
+              if (k.toLowerCase() === targetLower) {
+                groupData = v;
+                break;
+              }
+            }
+          }
+
+          if (Array.isArray(groupData)) {
+            // Legacy Array format
+            groupData.forEach(item => {
+              if (!item || typeof item !== 'object') return;
+              const val = cleanSpecValue(item.value);
+              if (val === null) return;
+
+              const slug = item.slug ? String(item.slug).trim() : (item.label ? item.label.toLowerCase().replace(/\s+/g, '-') : '');
+              const label = item.label || slugToLabel(slug);
+              if (slug && !attrRowsMap.has(slug)) {
+                attrRowsMap.set(slug, { slug, label });
+              }
+            });
+          } else if (groupData && typeof groupData === 'object') {
+            // Modern Object format: { "main-lens": "200 MP..." }
+            Object.entries(groupData).forEach(([slug, rawVal]) => {
+              const val = cleanSpecValue(rawVal);
+              if (val === null) return;
+
+              const cleanSlug = String(slug).trim();
+              if (cleanSlug && !attrRowsMap.has(cleanSlug)) {
+                attrRowsMap.set(cleanSlug, { slug: cleanSlug, label: slugToLabel(cleanSlug) });
+              }
+            });
+          }
+        });
+
+        const rows = Array.from(attrRowsMap.values());
+        if (rows.length === 0) return null;
 
         return (
           <React.Fragment key={groupKey}>
@@ -133,10 +178,10 @@ export default function ComparisonBody({ compareList, gridColsClass }) {
                 <h4 className="font-bold text-slate-900 dark:text-white uppercase tracking-wider text-sm">{title}</h4>
               </div>
 
-              {/* Rows for each label */}
+              {/* Rows for each attribute */}
               <div className="flex flex-col divide-y divide-slate-100 dark:divide-slate-800/50">
-                {labels.map((label) => (
-                  <div key={label} className={`grid ${gridColsClass} divide-x divide-slate-100 dark:divide-slate-800/50 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors`}>
+                {rows.map(({ slug, label }) => (
+                  <div key={slug} className={`grid ${gridColsClass} divide-x divide-slate-100 dark:divide-slate-800/50 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors`}>
                     {/* Label Column */}
                     <div className="p-4 flex items-center text-sm font-semibold text-slate-600 dark:text-slate-400">
                       {label}
@@ -144,9 +189,8 @@ export default function ComparisonBody({ compareList, gridColsClass }) {
 
                     {/* Values Columns */}
                     {compareList.map((device) => {
-                      const specArray = device.specs?.[groupKey] || [];
-                      const specItem = specArray.find(s => s.label === label);
-                      const val = specItem?.value;
+                      const val = getGroupAttributeValue(device.specs, groupKey, slug) 
+                        ?? getGroupAttributeValue(device.specs, groupKey, label);
 
                       let displayVal = val;
                       if (val === undefined || val === null || val === '') {
@@ -173,10 +217,10 @@ export default function ComparisonBody({ compareList, gridColsClass }) {
               </div>
             </div>
 
-            {/* Inject Ads after the frequency threshold */}
-            {index > 0 && index % freq === 0 && (
-              <div className="w-full">
-                <AdBanner type="horizontal" placement="comparisonsBanner" />
+            {/* In-feed Ad Banner */}
+            {index % freq === 0 && (
+              <div className="my-2">
+                <AdBanner placement="comparisonInFeedBanner" />
               </div>
             )}
           </React.Fragment>

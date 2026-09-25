@@ -1,6 +1,8 @@
 import prisma from '@/lib/prisma';
 import { normalizeDeviceFilterValues } from '@/lib/devices/normalizeDeviceFilterValues';
 import { buildPublishedDeviceWhere } from '@/lib/devices/buildPublishedDeviceWhere';
+import { prepareDeviceSpecsForSave } from '@/lib/devices/spec-normalizer';
+import { generateDeviceSlug } from '@/lib/utils';
 
 /**
  * Formats DB device record, normalizing specs, pricing, and status.
@@ -122,13 +124,42 @@ export async function getDeviceByIdQuery(id) {
  * @returns {Promise<object|null>}
  */
 export async function getPublishedDeviceByIdQuery(id) {
-  const device = await prisma.device.findFirst({
+  if (!id) return null;
+  const cleanId = String(id).toLowerCase().trim();
+
+  let device = await prisma.device.findFirst({
     where: {
-      id,
+      id: cleanId,
       status: 'PUBLISHED'
     },
     include: { deviceBrand: true }
   });
+
+  // Resilient fallback: match by slugified name or id suffix if exact id is not found
+  if (!device) {
+    const allPublished = await prisma.device.findMany({
+      where: { status: 'PUBLISHED' },
+      include: { deviceBrand: true }
+    });
+
+    device = allPublished.find(d => {
+      const nameSlug = generateDeviceSlug(d.name);
+      const dId = d.id.toLowerCase();
+      const cleanDId = dId.replace(/-\d+$/, '');
+      const cleanIdNoSuffix = cleanId.replace(/-\d+$/, '');
+      return nameSlug === cleanId ||
+             nameSlug === cleanIdNoSuffix ||
+             dId === cleanId ||
+             cleanDId === cleanIdNoSuffix ||
+             (cleanIdNoSuffix.length > 4 && (
+               cleanDId.endsWith(cleanIdNoSuffix) ||
+               nameSlug.endsWith(cleanIdNoSuffix) ||
+               cleanIdNoSuffix.endsWith(cleanDId) ||
+               (cleanIdNoSuffix.length > 5 && (cleanDId.startsWith(cleanIdNoSuffix) || nameSlug.startsWith(cleanIdNoSuffix)))
+             ));
+    }) || null;
+  }
+
   return formatDevice(device);
 }
 
@@ -165,13 +196,54 @@ export async function getDevicesByIdsQuery(ids) {
  */
 export async function getPublishedDevicesByIdsQuery(ids) {
   if (!Array.isArray(ids) || ids.length === 0) return [];
+  const cleanIds = ids.map(id => String(id).toLowerCase().trim()).filter(Boolean);
+
   const devices = await prisma.device.findMany({
     where: {
-      id: { in: ids },
+      id: { in: cleanIds },
       status: 'PUBLISHED'
     },
     include: { deviceBrand: true }
   });
+
+  // If some IDs were not matched directly by exact id, attempt fuzzy/slug matching
+  if (devices.length < cleanIds.length) {
+    const matchedIds = new Set(devices.map(d => d.id.toLowerCase()));
+    const missingIds = cleanIds.filter(id => !matchedIds.has(id));
+
+    if (missingIds.length > 0) {
+      const allPublished = await prisma.device.findMany({
+        where: { status: 'PUBLISHED' },
+        include: { deviceBrand: true }
+      });
+
+      for (const missingId of missingIds) {
+        const found = allPublished.find(d => {
+          if (matchedIds.has(d.id.toLowerCase())) return false;
+          const nameSlug = generateDeviceSlug(d.name);
+          const dId = d.id.toLowerCase();
+          const cleanDId = dId.replace(/-\d+$/, '');
+          const cleanMissing = missingId.replace(/-\d+$/, '');
+          return nameSlug === missingId ||
+                 nameSlug === cleanMissing ||
+                 dId === missingId ||
+                 cleanDId === cleanMissing ||
+                 (cleanMissing.length > 4 && (
+                   cleanDId.endsWith(cleanMissing) ||
+                   nameSlug.endsWith(cleanMissing) ||
+                   cleanMissing.endsWith(cleanDId) ||
+                   (cleanMissing.length > 5 && (cleanDId.startsWith(cleanMissing) || nameSlug.startsWith(cleanMissing)))
+                 ));
+        });
+
+        if (found) {
+          devices.push(found);
+          matchedIds.add(found.id.toLowerCase());
+        }
+      }
+    }
+  }
+
   return devices.map(formatDevice);
 }
 
@@ -345,6 +417,7 @@ export async function createDeviceQuery(data) {
     delete payload.brand;
   }
   if (payload.specs) {
+    payload.specs = prepareDeviceSpecsForSave(payload.specs);
     const normalized = normalizeDeviceFilterValues(payload.specs);
     Object.assign(payload, normalized);
   }
@@ -374,6 +447,7 @@ export async function updateDeviceQuery(id, data) {
     delete payload.brand;
   }
   if (payload.specs) {
+    payload.specs = prepareDeviceSpecsForSave(payload.specs);
     const normalized = normalizeDeviceFilterValues(payload.specs);
     Object.assign(payload, normalized);
   }

@@ -142,23 +142,49 @@ export default async function ComparePage({ params, searchParams }) {
   const comparisonTitle = compareList.map(d => d.name).join(' vs ');
   const canonicalSlug = buildComparisonSlug(compareList.map(d => d.id));
 
-  // Structured JSON-LD schema for Google Rich Results
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    name: `${comparisonTitle} Comparison`,
-    description: `Side-by-side comparison of ${comparisonTitle} specifications and features.`,
-    url: `${rawOrigin}/compare/${encodeURIComponent(canonicalSlug)}`,
-    mainEntity: {
-      '@type': 'ItemList',
-      itemListElement: compareList.map((device, idx) => ({
-        '@type': 'ListItem',
-        position: idx + 1,
-        name: device.name,
-        url: `${rawOrigin}/phones/${encodeURIComponent(device.brand?.toLowerCase() || 'phone')}/${device.id}`
-      }))
+  // Structured JSON-LD schema for Google Rich Results (WebPage ItemList + BreadcrumbList)
+  const jsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: `${comparisonTitle} Comparison`,
+      description: `Side-by-side comparison of ${comparisonTitle} specifications and features.`,
+      url: `${rawOrigin}/compare/${encodeURIComponent(canonicalSlug)}`,
+      mainEntity: {
+        '@type': 'ItemList',
+        itemListElement: compareList.map((device, idx) => ({
+          '@type': 'ListItem',
+          position: idx + 1,
+          name: device.name,
+          url: `${rawOrigin}/phones/${encodeURIComponent(device.brand?.toLowerCase() || 'phone')}/${device.id}`
+        }))
+      }
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: rawOrigin
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Compare',
+          item: `${rawOrigin}/compare`
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: comparisonTitle,
+          item: `${rawOrigin}/compare/${encodeURIComponent(canonicalSlug)}`
+        }
+      ]
     }
-  };
+  ];
 
   return (
     <>

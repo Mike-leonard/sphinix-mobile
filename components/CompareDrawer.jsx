@@ -16,6 +16,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { getDeviceFirstImage, getDeviceImageAlt } from '@/lib/utils';
 import { buildComparisonSlug } from '@/lib/devices/comparison-helpers';
+import { getDeviceQuickSpecs } from '@/lib/devices/spec-normalizer';
 
 export default function CompareDrawer() {
   const { compareList, isOpen, setIsCompareOpen, handleToggleCompare, clearCompare } = useCompare();
@@ -73,28 +74,33 @@ export default function CompareDrawer() {
                     <span className="text-sm font-black text-brand-600 dark:text-brand-500 mt-1 block">{item.price}</span>
                   </div>
 
-                <div className="space-y-4 border-t border-slate-200 dark:border-slate-800 pt-4">
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-slate-500 dark:text-slate-400 font-bold block uppercase text-[10px] tracking-wider">Display</span>
-                    <span className="block w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-md font-bold text-xs border border-slate-200 dark:border-slate-700/50 shadow-sm leading-snug">{item.specs.screen}</span>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-slate-500 dark:text-slate-400 font-bold block uppercase text-[10px] tracking-wider">Chipset</span>
-                    <span className="block w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-md font-bold text-xs border border-slate-200 dark:border-slate-700/50 shadow-sm leading-snug">{item.specs.chipset}</span>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-slate-500 dark:text-slate-400 font-bold block uppercase text-[10px] tracking-wider">Camera</span>
-                    <span className="block w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-md font-bold text-xs border border-slate-200 dark:border-slate-700/50 shadow-sm leading-snug">{item.specs.camera}</span>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-slate-500 dark:text-slate-400 font-bold block uppercase text-[10px] tracking-wider">Battery</span>
-                    <span className="block w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-md font-bold text-xs border border-slate-200 dark:border-slate-700/50 shadow-sm leading-snug">{item.specs.battery}</span>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-slate-500 dark:text-slate-400 font-bold block uppercase text-[10px] tracking-wider">RAM / ROM</span>
-                    <span className="block w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-md font-bold text-xs border border-slate-200 dark:border-slate-700/50 shadow-sm leading-snug">{item.specs.ram} / {item.specs.storage}</span>
-                  </div>
-                </div>
+                {(() => {
+                  const quick = getDeviceQuickSpecs(item.specs);
+                  return (
+                    <div className="space-y-4 border-t border-slate-200 dark:border-slate-800 pt-4">
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-slate-500 dark:text-slate-400 font-bold block uppercase text-[10px] tracking-wider">Display</span>
+                        <span className="block w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-md font-bold text-xs border border-slate-200 dark:border-slate-700/50 shadow-sm leading-snug">{quick.screen || '—'}</span>
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-slate-500 dark:text-slate-400 font-bold block uppercase text-[10px] tracking-wider">Chipset</span>
+                        <span className="block w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-md font-bold text-xs border border-slate-200 dark:border-slate-700/50 shadow-sm leading-snug">{quick.chipset || '—'}</span>
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-slate-500 dark:text-slate-400 font-bold block uppercase text-[10px] tracking-wider">Camera</span>
+                        <span className="block w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-md font-bold text-xs border border-slate-200 dark:border-slate-700/50 shadow-sm leading-snug">{quick.camera || '—'}</span>
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-slate-500 dark:text-slate-400 font-bold block uppercase text-[10px] tracking-wider">Battery</span>
+                        <span className="block w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-md font-bold text-xs border border-slate-200 dark:border-slate-700/50 shadow-sm leading-snug">{quick.battery || '—'}</span>
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-slate-500 dark:text-slate-400 font-bold block uppercase text-[10px] tracking-wider">RAM / ROM</span>
+                        <span className="block w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-md font-bold text-xs border border-slate-200 dark:border-slate-700/50 shadow-sm leading-snug">{(quick.ram || quick.storage) ? `${quick.ram || '—'} / ${quick.storage || '—'}` : '—'}</span>
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 <Button
                   variant="destructive"

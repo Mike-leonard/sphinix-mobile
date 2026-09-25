@@ -7,6 +7,7 @@ const BoolIcon = ({ value }) => value
 
 export function SpecRow({ label, value }) {
   if (value === undefined || value === null) return null;
+  if (typeof value === 'string' && (value.trim() === '?' || value.trim() === '')) return null;
   
   let displayValue = value;
   if (typeof value === 'boolean') {

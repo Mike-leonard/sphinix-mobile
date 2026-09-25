@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Cpu, Smartphone, Zap, Camera, Sparkles, ChevronRight } from 'lucide-react';
 import { getDeviceFirstImage, generateBrandSlug, generateDeviceSlug } from '@/lib/utils';
+import { getDeviceQuickSpecs } from '@/lib/devices/spec-normalizer';
 
 // Fallback slides if database has zero published items
 const FALLBACK_SLIDES = [
@@ -203,6 +204,8 @@ export default function HeroCarousel({ initialDevices = [] }) {
     return () => clearInterval(timer);
   }, [isPaused, slides.length]);
 
+  const currentQuick = getDeviceQuickSpecs(currentSlide.specs);
+
   return (
     <section 
       onMouseEnter={() => setIsPaused(true)}
@@ -258,8 +261,8 @@ export default function HeroCarousel({ initialDevices = [] }) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Chipset</span>
-                  <span className="text-xs font-bold text-slate-900 dark:text-white leading-tight block truncate" title={currentSlide.specs.chipset}>
-                    {currentSlide.specs.chipset}
+                  <span className="text-xs font-bold text-slate-900 dark:text-white leading-tight block truncate" title={currentQuick.chipset}>
+                    {currentQuick.chipset || 'N/A'}
                   </span>
                 </div>
               </div>
@@ -270,8 +273,8 @@ export default function HeroCarousel({ initialDevices = [] }) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Display</span>
-                  <span className="text-xs font-bold text-slate-900 dark:text-white leading-tight block truncate" title={currentSlide.specs.display}>
-                    {currentSlide.specs.display}
+                  <span className="text-xs font-bold text-slate-900 dark:text-white leading-tight block truncate" title={currentQuick.display}>
+                    {currentQuick.display || 'N/A'}
                   </span>
                 </div>
               </div>
@@ -282,8 +285,8 @@ export default function HeroCarousel({ initialDevices = [] }) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Camera Setup</span>
-                  <span className="text-xs font-bold text-slate-900 dark:text-white leading-tight block truncate" title={currentSlide.specs.camera}>
-                    {currentSlide.specs.camera}
+                  <span className="text-xs font-bold text-slate-900 dark:text-white leading-tight block truncate" title={currentQuick.camera}>
+                    {currentQuick.camera || 'N/A'}
                   </span>
                 </div>
               </div>
@@ -294,8 +297,8 @@ export default function HeroCarousel({ initialDevices = [] }) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Battery & Charge</span>
-                  <span className="text-xs font-bold text-slate-900 dark:text-white leading-tight block truncate" title={currentSlide.specs.battery}>
-                    {currentSlide.specs.battery}
+                  <span className="text-xs font-bold text-slate-900 dark:text-white leading-tight block truncate" title={currentQuick.battery}>
+                    {currentQuick.battery || 'N/A'}
                   </span>
                 </div>
               </div>
