@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useCompare } from '@/context/CompareContext';
 import { useRouter } from 'next/navigation';
-import CompareLoading from '../loading';
+import CompareLoading from '@/components/skeletons/CompareLoading';
 import { buildComparisonSlug } from '@/lib/devices/comparison-helpers';
 import { getDeviceFirstImage, getDeviceImageAlt } from '@/lib/utils';
 

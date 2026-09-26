@@ -20,7 +20,7 @@ pg_*
 # production
 /build
 /nextjs-file-labels
-
+/scripts
 # misc
 .DS_Store
 *.pem

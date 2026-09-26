@@ -5,7 +5,7 @@ import { Smartphone } from 'lucide-react';
 import Link from 'next/link';
 import { useCompare } from '@/context/CompareContext';
 import { useRouter } from 'next/navigation';
-import ComparisonsLoading from '../loading';
+import ComparisonsLoading from '@/components/skeletons/ComparisonsLoading';
 
 export default function EmptyState() {
   const { compareList } = useCompare();

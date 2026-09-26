@@ -6,6 +6,7 @@ import AnalyticsWrapper from "@/components/AnalyticsWrapper";
 import CookieConsent from "@/components/CookieConsent";
 import { DynamicStyles } from "@/components/DynamicStyles";
 import { StructuredData } from "@/components/StructuredData";
+import NextTopLoader from "nextjs-toploader";
 
 export async function generateMetadata() {
   const settings = await getSettings();
@@ -71,6 +72,19 @@ export default async function RootLayout({ children, modal }) {
         className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 antialiased selection:bg-brand-500/30 selection:text-brand-900 dark:selection:text-brand-100 flex flex-col"
         suppressHydrationWarning
       >
+        <NextTopLoader
+          color="#8b5cf6"
+          initialPosition={0.08}
+          crawlSpeed={200}
+          height={3}
+          crawl={true}
+          showSpinner={false}
+          easing="ease"
+          speed={200}
+          shadow="0 0 12px #8b5cf6,0 0 5px #7c3aed"
+          zIndex={999999}
+          showAtBottom={false}
+        />
         <AnalyticsWrapper gaId={settings.analytics?.googleAnalyticsId} />
         <ThemeProvider
           attribute="class"
